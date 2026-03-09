@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import Footer from '../components/Footer.astro';
 
 interface Props {
   title: string;
@@ -57,5 +58,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
   <body class="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)]">
     <slot name="navbar" />
     <slot />
+    <Footer />
   </body>
 </html>
