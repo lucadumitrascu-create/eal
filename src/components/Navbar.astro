@@ -1,0 +1,171 @@
+---
+const navLinks = [
+  { label: 'Servicii', href: '#servicii' },
+  { label: 'Proiecte', href: '/projects' },
+  { label: 'Despre', href: '#despre' },
+  { label: 'Contact', href: '#contact' },
+];
+---
+
+<header
+  id="navbar"
+  class="fixed top-0 left-0 w-full z-50 transition-all duration-300"
+>
+  <nav class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+    <!-- Logo -->
+    <a href="/" class="flex items-baseline gap-0.5 text-xl no-underline hover:no-underline">
+      <span class="font-bold text-[var(--color-text)]">EAL</span>
+      <span class="font-normal text-[var(--color-text-muted)]">Enterprises</span>
+    </a>
+
+    <!-- Desktop links -->
+    <ul class="hidden md:flex items-center gap-8 list-none m-0 p-0">
+      {navLinks.map(({ label, href }) => (
+        <li>
+          <a
+            href={href}
+            class:list={[
+              'nav-link text-sm font-medium no-underline hover:no-underline transition-colors duration-200',
+              'text-[var(--color-text-muted)] hover:text-[var(--color-text)]',
+            ]}
+          >
+            {label}
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <!-- CTA button desktop -->
+    <a
+      href="#contact"
+      class="hidden md:inline-flex items-center px-5 py-2 rounded-lg text-sm font-medium text-white bg-[var(--color-accent)] hover:bg-blue-700 no-underline hover:no-underline transition-colors duration-200"
+    >
+      Contactează-ne
+    </a>
+
+    <!-- Hamburger button mobile -->
+    <button
+      id="menu-toggle"
+      type="button"
+      aria-label="Deschide meniul"
+      aria-expanded="false"
+      class="md:hidden relative z-50 flex flex-col justify-center items-center w-10 h-10 gap-1.5 bg-transparent border-none cursor-pointer"
+    >
+      <span class="hamburger-line block w-6 h-0.5 bg-[var(--color-text)] rounded transition-all duration-300 origin-center"></span>
+      <span class="hamburger-line block w-6 h-0.5 bg-[var(--color-text)] rounded transition-all duration-300 origin-center"></span>
+      <span class="hamburger-line block w-6 h-0.5 bg-[var(--color-text)] rounded transition-all duration-300 origin-center"></span>
+    </button>
+  </nav>
+
+  <!-- Mobile menu -->
+  <div
+    id="mobile-menu"
+    class="fixed inset-0 bg-white z-40 flex flex-col items-center justify-center gap-8 translate-x-full transition-transform duration-300 ease-in-out md:hidden"
+  >
+    {navLinks.map(({ label, href }) => (
+      <a
+        href={href}
+        class="mobile-link text-2xl font-medium text-[var(--color-text)] no-underline hover:no-underline hover:text-[var(--color-accent)] transition-colors duration-200"
+      >
+        {label}
+      </a>
+    ))}
+    <a
+      href="#contact"
+      class="mobile-link mt-4 px-8 py-3 rounded-lg text-lg font-medium text-white bg-[var(--color-accent)] hover:bg-blue-700 no-underline hover:no-underline transition-colors duration-200"
+    >
+      Contactează-ne
+    </a>
+  </div>
+</header>
+
+<!-- Spacer so content doesn't hide behind fixed navbar -->
+<div class="h-16"></div>
+
+<script>
+  function initNavbar() {
+    const navbar = document.getElementById('navbar');
+    const toggle = document.getElementById('menu-toggle');
+    const menu = document.getElementById('mobile-menu');
+    if (!navbar || !toggle || !menu) return;
+
+    let scrolled = false;
+    let menuOpen = false;
+
+    // Scroll detection
+    function onScroll() {
+      const isScrolled = window.scrollY > 10;
+      if (isScrolled === scrolled) return;
+      scrolled = isScrolled;
+
+      if (scrolled) {
+        navbar.classList.add('bg-white/80', 'backdrop-blur-md', 'shadow-sm');
+      } else {
+        navbar.classList.remove('bg-white/80', 'backdrop-blur-md', 'shadow-sm');
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    // Mobile menu toggle
+    const lines = toggle.querySelectorAll('.hamburger-line');
+
+    function setMenu(open: boolean) {
+      menuOpen = open;
+      toggle.setAttribute('aria-expanded', String(open));
+
+      if (open) {
+        menu.classList.remove('translate-x-full');
+        menu.classList.add('translate-x-0');
+        document.body.style.overflow = 'hidden';
+        // Animate to X
+        (lines[0] as HTMLElement).style.transform = 'translateY(4px) rotate(45deg)';
+        (lines[1] as HTMLElement).style.opacity = '0';
+        (lines[2] as HTMLElement).style.transform = 'translateY(-4px) rotate(-45deg)';
+      } else {
+        menu.classList.remove('translate-x-0');
+        menu.classList.add('translate-x-full');
+        document.body.style.overflow = '';
+        (lines[0] as HTMLElement).style.transform = '';
+        (lines[1] as HTMLElement).style.opacity = '1';
+        (lines[2] as HTMLElement).style.transform = '';
+      }
+    }
+
+    toggle.addEventListener('click', () => setMenu(!menuOpen));
+
+    // Close on mobile link click
+    menu.querySelectorAll('.mobile-link').forEach((link) => {
+      link.addEventListener('click', () => setMenu(false));
+    });
+
+    // Close on escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menuOpen) setMenu(false);
+    });
+  }
+
+  // Smooth scroll for anchor links
+  function initSmoothScroll() {
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+      anchor.addEventListener('click', (e) => {
+        const href = (anchor as HTMLAnchorElement).getAttribute('href');
+        if (!href || href === '#') return;
+        const target = document.querySelector(href);
+        if (!target) return;
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    initNavbar();
+    initSmoothScroll();
+  });
+
+  // Also run on initial load (non-ViewTransitions)
+  initNavbar();
+  initSmoothScroll();
+</script>

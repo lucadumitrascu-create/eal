@@ -1,8 +1,10 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
 ---
 
 <BaseLayout title="EAL Enterprises — Acasă">
+  <Navbar slot="navbar" />
   <main class="flex items-center justify-center min-h-screen">
     <h1 class="text-4xl font-bold text-[var(--color-accent)]">
       EAL Enterprises
