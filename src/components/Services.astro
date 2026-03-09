@@ -1,0 +1,67 @@
+---
+const services = [
+  {
+    title: 'Web Development',
+    description: 'Site-uri și aplicații web rapide, scalabile și optimizate pentru performanță. Cod curat, tehnologii moderne.',
+    icon: 'code',
+  },
+  {
+    title: 'UI/UX Design',
+    description: 'Interfețe intuitive, centrate pe utilizator. Design curat care transformă vizitatorii în clienți.',
+    icon: 'palette',
+  },
+  {
+    title: 'E-commerce & Platforme',
+    description: 'Soluții complete pentru business online — de la magazine digitale la platforme custom cu plăți integrate.',
+    icon: 'store',
+  },
+  {
+    title: 'Mentenanță & Support',
+    description: 'Actualizări regulate, monitorizare, optimizare de performanță și suport tehnic continuu.',
+    icon: 'shield',
+  },
+];
+---
+
+<section id="servicii" class="py-24 sm:py-32">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div class="text-center max-w-2xl mx-auto mb-16">
+      <p class="text-sm font-semibold uppercase tracking-widest text-[var(--color-accent)]">Servicii</p>
+      <h2 class="mt-3 text-3xl sm:text-4xl font-bold text-[var(--color-text)]">Ce facem</h2>
+      <p class="mt-4 text-lg text-[var(--color-text-muted)] leading-relaxed">
+        Oferim soluții digitale end-to-end, de la concept la lansare și mai departe.
+      </p>
+    </div>
+
+    <div class="grid sm:grid-cols-2 gap-6 lg:gap-8">
+      {services.map(({ title, description, icon }) => (
+        <div class="group rounded-xl border border-[var(--color-border)] p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-[var(--color-accent)]/20">
+          <div class="mb-5 inline-flex items-center justify-center w-12 h-12 rounded-lg bg-[var(--color-accent-light)] text-[var(--color-accent)] transition-colors duration-300 group-hover:bg-[var(--color-accent)] group-hover:text-white">
+            {icon === 'code' && (
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+              </svg>
+            )}
+            {icon === 'palette' && (
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" />
+              </svg>
+            )}
+            {icon === 'store' && (
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016A3.001 3.001 0 0021 9.349m-18 0a2.999 2.999 0 00.97-1.599L5.49 3h13.02l1.52 4.75A3 3 0 0121 9.349" />
+              </svg>
+            )}
+            {icon === 'shield' && (
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+              </svg>
+            )}
+          </div>
+          <h3 class="text-xl font-semibold text-[var(--color-text)]">{title}</h3>
+          <p class="mt-3 text-[var(--color-text-muted)] leading-relaxed">{description}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
