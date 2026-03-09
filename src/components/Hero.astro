@@ -44,21 +44,31 @@
         </div>
       </div>
 
-      <!-- Visual element -->
+      <!-- 3D Logo -->
       <div class="hero-fade-in-delay-1 hidden lg:flex items-center justify-center" aria-hidden="true">
-        <div class="relative w-80 h-80">
-          <!-- Geometric shapes -->
-          <div class="absolute inset-0 rounded-3xl border border-[var(--color-border)] rotate-6 hero-float"></div>
-          <div class="absolute inset-4 rounded-3xl bg-[var(--color-accent-light)] -rotate-3 hero-float-delayed"></div>
-          <div class="absolute inset-8 rounded-3xl bg-[var(--color-bg-elevated)] border border-[var(--color-border)] shadow-2xl shadow-blue-500/5 flex items-center justify-center">
-            <div class="text-center">
-              <div class="flex items-baseline justify-center gap-1">
-                <span class="text-5xl font-bold bg-gradient-to-r from-blue-400 to-violet-400 bg-clip-text text-transparent">EAL</span>
-              </div>
-              <div class="mt-2 w-12 h-0.5 bg-gradient-to-r from-blue-400 to-violet-400 mx-auto rounded-full"></div>
-              <p class="mt-3 text-sm text-[var(--color-text-muted)] font-medium tracking-wide uppercase">Software</p>
+        <div class="logo-scene">
+          <div class="logo-cube">
+            <div class="logo-face logo-front">
+              <span class="logo-letter">E</span>
             </div>
+            <div class="logo-face logo-back">
+              <span class="logo-letter-small">EAL</span>
+            </div>
+            <div class="logo-face logo-right">
+              <span class="logo-letter">A</span>
+            </div>
+            <div class="logo-face logo-left">
+              <span class="logo-letter">L</span>
+            </div>
+            <div class="logo-face logo-top"></div>
+            <div class="logo-face logo-bottom"></div>
           </div>
+          <!-- Glow ring -->
+          <div class="logo-ring"></div>
+          <!-- Floating particles -->
+          <div class="logo-particle logo-particle-1"></div>
+          <div class="logo-particle logo-particle-2"></div>
+          <div class="logo-particle logo-particle-3"></div>
         </div>
       </div>
     </div>
@@ -90,31 +100,176 @@
     animation: heroFadeIn 0.8s ease-out 0.4s both;
   }
 
-  /* Floating animation for geometric shapes */
-  @keyframes heroFloat {
+  /* 3D Logo Scene */
+  .logo-scene {
+    width: 280px;
+    height: 280px;
+    perspective: 800px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-cube {
+    width: 160px;
+    height: 160px;
+    position: relative;
+    transform-style: preserve-3d;
+    animation: logoCubeRotate 12s ease-in-out infinite;
+  }
+
+  @keyframes logoCubeRotate {
     0%, 100% {
-      transform: rotate(6deg) translateY(0);
+      transform: rotateX(-15deg) rotateY(0deg);
+    }
+    25% {
+      transform: rotateX(-10deg) rotateY(90deg);
     }
     50% {
-      transform: rotate(6deg) translateY(-10px);
+      transform: rotateX(-15deg) rotateY(180deg);
+    }
+    75% {
+      transform: rotateX(-10deg) rotateY(270deg);
     }
   }
 
-  @keyframes heroFloatDelayed {
+  .logo-face {
+    position: absolute;
+    width: 160px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(59, 130, 246, 0.25);
+    border-radius: 16px;
+    backface-visibility: visible;
+  }
+
+  .logo-front {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(139, 92, 246, 0.08));
+    transform: translateZ(80px);
+    box-shadow: 0 0 40px rgba(59, 130, 246, 0.1), inset 0 0 40px rgba(59, 130, 246, 0.05);
+  }
+
+  .logo-back {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(59, 130, 246, 0.08));
+    transform: rotateY(180deg) translateZ(80px);
+    box-shadow: 0 0 40px rgba(139, 92, 246, 0.1);
+  }
+
+  .logo-right {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.06));
+    transform: rotateY(90deg) translateZ(80px);
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.08);
+  }
+
+  .logo-left {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.06));
+    transform: rotateY(-90deg) translateZ(80px);
+    box-shadow: 0 0 30px rgba(139, 92, 246, 0.08);
+  }
+
+  .logo-top {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.1));
+    transform: rotateX(90deg) translateZ(80px);
+    border-color: rgba(59, 130, 246, 0.3);
+  }
+
+  .logo-bottom {
+    background: linear-gradient(135deg, rgba(10, 10, 10, 0.8), rgba(10, 10, 10, 0.6));
+    transform: rotateX(-90deg) translateZ(80px);
+    border-color: rgba(59, 130, 246, 0.1);
+  }
+
+  .logo-letter {
+    font-family: 'Outfit', sans-serif;
+    font-size: 64px;
+    font-weight: 700;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.3));
+  }
+
+  .logo-letter-small {
+    font-family: 'Outfit', sans-serif;
+    font-size: 40px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, #a78bfa, #60a5fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.3));
+  }
+
+  /* Glow ring */
+  .logo-ring {
+    position: absolute;
+    width: 240px;
+    height: 240px;
+    border-radius: 50%;
+    border: 1px solid rgba(59, 130, 246, 0.1);
+    animation: logoRingPulse 4s ease-in-out infinite;
+  }
+
+  @keyframes logoRingPulse {
     0%, 100% {
-      transform: rotate(-3deg) translateY(0);
+      transform: scale(1);
+      opacity: 0.3;
     }
     50% {
-      transform: rotate(-3deg) translateY(-8px);
+      transform: scale(1.08);
+      opacity: 0.6;
     }
   }
 
-  .hero-float {
-    animation: heroFloat 6s ease-in-out infinite;
+  /* Floating particles */
+  .logo-particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #3b82f6;
   }
 
-  .hero-float-delayed {
-    animation: heroFloatDelayed 6s ease-in-out 1s infinite;
+  .logo-particle-1 {
+    top: 15%;
+    right: 10%;
+    animation: logoParticle 5s ease-in-out infinite;
+    opacity: 0.6;
+  }
+
+  .logo-particle-2 {
+    bottom: 20%;
+    left: 8%;
+    width: 3px;
+    height: 3px;
+    background: #a78bfa;
+    animation: logoParticle 5s ease-in-out 1.5s infinite;
+    opacity: 0.5;
+  }
+
+  .logo-particle-3 {
+    top: 60%;
+    right: 5%;
+    width: 2px;
+    height: 2px;
+    animation: logoParticle 5s ease-in-out 3s infinite;
+    opacity: 0.4;
+  }
+
+  @keyframes logoParticle {
+    0%, 100% {
+      transform: translateY(0) scale(1);
+      opacity: 0.4;
+    }
+    50% {
+      transform: translateY(-12px) scale(1.5);
+      opacity: 0.8;
+    }
   }
 
   /* Dot pattern */
