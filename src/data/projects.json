@@ -1,5 +1,14 @@
 [
   {
+    "id": "solbotpro",
+    "title": "SOLbot Pro",
+    "description": "Toolkit de trading pentru blockchain-ul Solana.",
+    "tech": ["React", "Web3", "Solana"],
+    "url": "https://solbotpro.com",
+    "image": "/projects/solbotpro.webp",
+    "featured": true
+  },
+  {
     "id": "georgio-portfolio",
     "title": "Georgio Portfolio",
     "description": "Portofoliu personal cu design modern și animații fluide.",
@@ -15,15 +24,6 @@
     "tech": ["Astro", "Tailwind CSS"],
     "url": "https://transportservices.at/",
     "image": "/projects/transport-services.webp",
-    "featured": true
-  },
-  {
-    "id": "solbotpro",
-    "title": "SOLbot Pro",
-    "description": "Toolkit de trading pentru blockchain-ul Solana.",
-    "tech": ["React", "Web3", "Solana"],
-    "url": "https://solbotpro.com",
-    "image": "/projects/solbotpro.webp",
     "featured": true
   },
   {
