@@ -44,32 +44,9 @@
         </div>
       </div>
 
-      <!-- 3D Logo -->
+      <!-- 3D Glass Logo -->
       <div class="hero-fade-in-delay-1 hidden lg:flex items-center justify-center" aria-hidden="true">
-        <div class="logo-scene">
-          <div class="logo-cube">
-            <div class="logo-face logo-front">
-              <span class="logo-letter">E</span>
-            </div>
-            <div class="logo-face logo-back">
-              <span class="logo-letter-small">EAL</span>
-            </div>
-            <div class="logo-face logo-right">
-              <span class="logo-letter">A</span>
-            </div>
-            <div class="logo-face logo-left">
-              <span class="logo-letter">L</span>
-            </div>
-            <div class="logo-face logo-top"></div>
-            <div class="logo-face logo-bottom"></div>
-          </div>
-          <!-- Glow ring -->
-          <div class="logo-ring"></div>
-          <!-- Floating particles -->
-          <div class="logo-particle logo-particle-1"></div>
-          <div class="logo-particle logo-particle-2"></div>
-          <div class="logo-particle logo-particle-3"></div>
-        </div>
+        <canvas id="logo3d" width="560" height="560" style="width:560px;height:560px;"></canvas>
       </div>
     </div>
   </div>
@@ -100,181 +77,182 @@
     animation: heroFadeIn 0.8s ease-out 0.4s both;
   }
 
-  /* 3D Logo Scene */
-  .logo-scene {
-    width: 280px;
-    height: 280px;
-    perspective: 800px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .logo-cube {
-    width: 160px;
-    height: 160px;
-    position: relative;
-    transform-style: preserve-3d;
-    animation: logoCubeRotate 12s ease-in-out infinite;
-  }
-
-  @keyframes logoCubeRotate {
-    0%, 100% {
-      transform: rotateX(-15deg) rotateY(0deg);
-    }
-    25% {
-      transform: rotateX(-10deg) rotateY(90deg);
-    }
-    50% {
-      transform: rotateX(-15deg) rotateY(180deg);
-    }
-    75% {
-      transform: rotateX(-10deg) rotateY(270deg);
-    }
-  }
-
-  .logo-face {
-    position: absolute;
-    width: 160px;
-    height: 160px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid rgba(59, 130, 246, 0.25);
-    border-radius: 16px;
-    backface-visibility: visible;
-  }
-
-  .logo-front {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(139, 92, 246, 0.08));
-    transform: translateZ(80px);
-    box-shadow: 0 0 40px rgba(59, 130, 246, 0.1), inset 0 0 40px rgba(59, 130, 246, 0.05);
-  }
-
-  .logo-back {
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(59, 130, 246, 0.08));
-    transform: rotateY(180deg) translateZ(80px);
-    box-shadow: 0 0 40px rgba(139, 92, 246, 0.1);
-  }
-
-  .logo-right {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.06));
-    transform: rotateY(90deg) translateZ(80px);
-    box-shadow: 0 0 30px rgba(59, 130, 246, 0.08);
-  }
-
-  .logo-left {
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.06));
-    transform: rotateY(-90deg) translateZ(80px);
-    box-shadow: 0 0 30px rgba(139, 92, 246, 0.08);
-  }
-
-  .logo-top {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.1));
-    transform: rotateX(90deg) translateZ(80px);
-    border-color: rgba(59, 130, 246, 0.3);
-  }
-
-  .logo-bottom {
-    background: linear-gradient(135deg, rgba(10, 10, 10, 0.8), rgba(10, 10, 10, 0.6));
-    transform: rotateX(-90deg) translateZ(80px);
-    border-color: rgba(59, 130, 246, 0.1);
-  }
-
-  .logo-letter {
-    font-family: 'Outfit', sans-serif;
-    font-size: 64px;
-    font-weight: 700;
-    background: linear-gradient(135deg, #60a5fa, #a78bfa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    filter: drop-shadow(0 0 20px rgba(59, 130, 246, 0.3));
-  }
-
-  .logo-letter-small {
-    font-family: 'Outfit', sans-serif;
-    font-size: 40px;
-    font-weight: 700;
-    letter-spacing: 4px;
-    background: linear-gradient(135deg, #a78bfa, #60a5fa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.3));
-  }
-
-  /* Glow ring */
-  .logo-ring {
-    position: absolute;
-    width: 240px;
-    height: 240px;
-    border-radius: 50%;
-    border: 1px solid rgba(59, 130, 246, 0.1);
-    animation: logoRingPulse 4s ease-in-out infinite;
-  }
-
-  @keyframes logoRingPulse {
-    0%, 100% {
-      transform: scale(1);
-      opacity: 0.3;
-    }
-    50% {
-      transform: scale(1.08);
-      opacity: 0.6;
-    }
-  }
-
-  /* Floating particles */
-  .logo-particle {
-    position: absolute;
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: #3b82f6;
-  }
-
-  .logo-particle-1 {
-    top: 15%;
-    right: 10%;
-    animation: logoParticle 5s ease-in-out infinite;
-    opacity: 0.6;
-  }
-
-  .logo-particle-2 {
-    bottom: 20%;
-    left: 8%;
-    width: 3px;
-    height: 3px;
-    background: #a78bfa;
-    animation: logoParticle 5s ease-in-out 1.5s infinite;
-    opacity: 0.5;
-  }
-
-  .logo-particle-3 {
-    top: 60%;
-    right: 5%;
-    width: 2px;
-    height: 2px;
-    animation: logoParticle 5s ease-in-out 3s infinite;
-    opacity: 0.4;
-  }
-
-  @keyframes logoParticle {
-    0%, 100% {
-      transform: translateY(0) scale(1);
-      opacity: 0.4;
-    }
-    50% {
-      transform: translateY(-12px) scale(1.5);
-      opacity: 0.8;
-    }
-  }
-
   /* Dot pattern */
   .hero-dots {
     background-image: radial-gradient(circle, var(--color-text) 1px, transparent 1px);
     background-size: 24px 24px;
   }
+
+  #logo3d {
+    border-radius: 16px;
+  }
 </style>
+
+<script>
+  import * as THREE from 'three';
+  import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+  const canvas = document.getElementById('logo3d') as HTMLCanvasElement;
+  if (canvas) {
+    const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(560, 560);
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
+
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+    camera.position.set(0, 0.5, 8);
+    camera.lookAt(0, 0, 0);
+
+    // Lighting
+    const ambientLight = new THREE.AmbientLight(0x4466aa, 0.6);
+    scene.add(ambientLight);
+
+    const keyLight = new THREE.DirectionalLight(0xccddff, 3);
+    keyLight.position.set(3, 4, 5);
+    scene.add(keyLight);
+
+    const fillLight = new THREE.DirectionalLight(0x6688ff, 1.5);
+    fillLight.position.set(-4, 2, 3);
+    scene.add(fillLight);
+
+    const rimLight = new THREE.DirectionalLight(0x3366ff, 2);
+    rimLight.position.set(0, -1, -4);
+    scene.add(rimLight);
+
+    // Environment map for glass reflections
+    const pmremGenerator = new THREE.PMREMGenerator(renderer);
+    const envScene = new THREE.Scene();
+    envScene.background = new THREE.Color(0x0a0a1a);
+
+    // Add some colored lights to env for interesting reflections
+    const envLight1 = new THREE.PointLight(0x3b82f6, 50, 20);
+    envLight1.position.set(5, 5, 5);
+    envScene.add(envLight1);
+    const envLight2 = new THREE.PointLight(0x8b5cf6, 50, 20);
+    envLight2.position.set(-5, 3, -3);
+    envScene.add(envLight2);
+    const envLight3 = new THREE.PointLight(0xffffff, 30, 20);
+    envLight3.position.set(0, -5, 5);
+    envScene.add(envLight3);
+
+    const envMap = pmremGenerator.fromScene(envScene).texture;
+
+    // Glass material for EAL (clear glass with blue tint)
+    const glassMaterialEAL = new THREE.MeshPhysicalMaterial({
+      color: 0xddeeff,
+      metalness: 0.0,
+      roughness: 0.05,
+      transmission: 0.92,
+      thickness: 1.5,
+      ior: 1.5,
+      envMap: envMap,
+      envMapIntensity: 1.5,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.05,
+      transparent: true,
+      opacity: 0.95,
+    });
+
+    // Glass material for ENTERPRISES (blue glass)
+    const glassMaterialENT = new THREE.MeshPhysicalMaterial({
+      color: 0x2563eb,
+      metalness: 0.0,
+      roughness: 0.05,
+      transmission: 0.85,
+      thickness: 2.0,
+      ior: 1.5,
+      envMap: envMap,
+      envMapIntensity: 2.0,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.05,
+      transparent: true,
+      opacity: 0.95,
+    });
+
+    let logoGroup: THREE.Group | null = null;
+    let mixer: THREE.AnimationMixer | null = null;
+    const clock = new THREE.Clock();
+
+    // Load the GLB model
+    const loader = new GLTFLoader();
+    loader.load('/models/eal-logo.glb', (gltf) => {
+      logoGroup = gltf.scene;
+
+      // Apply glass materials
+      logoGroup.traverse((child) => {
+        if (child instanceof THREE.Mesh) {
+          // Check which text object this is by name or position
+          const name = child.name.toLowerCase();
+          if (name.includes('001') || child.position.z < 0) {
+            child.material = glassMaterialENT;
+          } else {
+            child.material = glassMaterialEAL;
+          }
+        }
+      });
+
+      // Center and scale the logo
+      const box = new THREE.Box3().setFromObject(logoGroup);
+      const center = box.getCenter(new THREE.Vector3());
+      logoGroup.position.sub(center);
+
+      const size = box.getSize(new THREE.Vector3());
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const scale = 4 / maxDim;
+      logoGroup.scale.setScalar(scale);
+
+      // Rotate to face camera
+      logoGroup.rotation.x = Math.PI / 2;
+
+      scene.add(logoGroup);
+
+      // Setup animation mixer
+      if (gltf.animations.length > 0) {
+        mixer = new THREE.AnimationMixer(logoGroup);
+        gltf.animations.forEach((clip) => {
+          const action = mixer!.clipAction(clip);
+          action.play();
+        });
+      }
+    });
+
+    // Mouse interaction - subtle follow
+    let mouseX = 0;
+    let mouseY = 0;
+    document.addEventListener('mousemove', (e) => {
+      mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+      mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+    });
+
+    // Animation loop
+    function animate() {
+      requestAnimationFrame(animate);
+
+      const delta = clock.getDelta();
+      const elapsed = clock.getElapsedTime();
+
+      if (mixer) {
+        mixer.update(delta);
+      }
+
+      if (logoGroup) {
+        // Gentle continuous rotation
+        logoGroup.rotation.z = elapsed * 0.3;
+
+        // Float effect
+        logoGroup.position.y = Math.sin(elapsed * 0.8) * 0.15;
+
+        // Mouse follow
+        logoGroup.rotation.x = Math.PI / 2 + mouseY * 0.1;
+        logoGroup.rotation.y = mouseX * 0.15;
+      }
+
+      renderer.render(scene, camera);
+    }
+
+    animate();
+  }
+</script>
