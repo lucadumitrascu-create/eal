@@ -10,11 +10,30 @@ interface Props {
 
 const {
   title,
-  description = 'EAL Enterprises — Soluții profesionale pentru afacerea ta.',
+  description = 'EAL Enterprises — Web development & software custom pentru startup-uri și business-uri. Execuție rapidă, cod curat, rezultate concrete.',
   ogImage = '/og-image.png',
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'EAL Enterprises',
+  url: Astro.site?.toString() || 'https://eal-enterprises.ro',
+  logo: new URL('/favicon.svg', Astro.site).toString(),
+  description: 'Web development & software custom pentru startup-uri și business-uri.',
+  contactPoint: {
+    '@type': 'ContactPoint',
+    email: 'contact@eal-enterprises.com',
+    contactType: 'customer service',
+    availableLanguage: ['Romanian', 'English'],
+  },
+  sameAs: [
+    'https://github.com/lucadumitrascu-create',
+    'https://linkedin.com',
+  ],
+};
 ---
 
 <!doctype html>
@@ -28,6 +47,8 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#2563EB" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
@@ -36,6 +57,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:description" content={description} />
     <meta property="og:image" content={new URL(ogImage, Astro.site)} />
     <meta property="og:locale" content="ro_RO" />
+    <meta property="og:site_name" content="EAL Enterprises" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
@@ -54,10 +76,18 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
       href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Outfit:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </head>
   <body class="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)]">
+    <!-- Skip to content -->
+    <a href="#main-content" class="skip-link">Salt la conținut</a>
+
     <slot name="navbar" />
-    <slot />
+    <div id="main-content">
+      <slot />
+    </div>
     <Footer />
   </body>
 </html>

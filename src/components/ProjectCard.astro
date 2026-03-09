@@ -14,8 +14,11 @@ const { title, description, tech, url, image } = Astro.props;
   <div class="aspect-video overflow-hidden bg-[var(--color-accent-light)]">
     <img
       src={image}
-      alt={title}
+      alt={`Screenshot proiect ${title}`}
       loading="lazy"
+      decoding="async"
+      width="640"
+      height="360"
       class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
     />
   </div>
