@@ -10,7 +10,7 @@ interface Props {
 
 const {
   title,
-  description = 'EAL Enterprises — Web development & software custom pentru startup-uri și business-uri. Execuție rapidă, cod curat, rezultate concrete.',
+  description = 'EAL ENTERPRISES — Web development & software custom pentru startup-uri și business-uri. Execuție rapidă, cod curat, rezultate concrete.',
   ogImage = '/og-image.png',
 } = Astro.props;
 
@@ -19,7 +19,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'EAL Enterprises',
+  name: 'EAL ENTERPRISES',
   url: Astro.site?.toString() || 'https://eal-enterprises.ro',
   logo: new URL('/favicon.svg', Astro.site).toString(),
   description: 'Web development & software custom pentru startup-uri și business-uri.',
@@ -57,7 +57,7 @@ const jsonLd = {
     <meta property="og:description" content={description} />
     <meta property="og:image" content={new URL(ogImage, Astro.site)} />
     <meta property="og:locale" content="ro_RO" />
-    <meta property="og:site_name" content="EAL Enterprises" />
+    <meta property="og:site_name" content="EAL ENTERPRISES" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
