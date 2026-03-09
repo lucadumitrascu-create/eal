@@ -5,7 +5,7 @@
     "description": "Toolkit de trading pentru blockchain-ul Solana.",
     "tech": ["React", "Web3", "Solana"],
     "url": "https://solbotpro.com",
-    "image": "/projects/solbotpro.webp",
+    "image": "/images/projects/solbotpro.webp",
     "featured": true
   },
   {
@@ -14,7 +14,7 @@
     "description": "Portofoliu personal cu design modern și animații fluide.",
     "tech": ["HTML", "CSS", "JavaScript"],
     "url": "https://lucadumitrascu-create.github.io/Georgio-Portofoglio/",
-    "image": "/projects/georgio-portfolio.webp",
+    "image": "/images/projects/georgio-portfolio.webp",
     "featured": true
   },
   {
@@ -23,7 +23,7 @@
     "description": "Site de prezentare pentru firmă de transport din Austria.",
     "tech": ["Astro", "Tailwind CSS"],
     "url": "https://transportservices.at/",
-    "image": "/projects/transport-services.webp",
+    "image": "/images/projects/transport-services.webp",
     "featured": true
   },
   {
@@ -32,7 +32,7 @@
     "description": "Platformă online pentru sesiuni de tutoring și management elevi.",
     "tech": ["Next.js", "Vercel"],
     "url": "https://tutoring-platform-hu95.vercel.app",
-    "image": "/projects/tutoring-platform.webp",
+    "image": "/images/projects/tutoring-platform.webp",
     "featured": false
   }
 ]
