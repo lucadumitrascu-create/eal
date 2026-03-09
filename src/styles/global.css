@@ -43,14 +43,8 @@ body::before {
   background-size: 256px 256px;
 }
 
-a {
-  color: var(--color-accent);
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
+/* Link defaults are handled via Tailwind classes on each element.
+   No global a {} rule — it would override utility classes like text-white. */
 
 /* Skip to content link */
 .skip-link {
