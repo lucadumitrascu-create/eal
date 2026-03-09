@@ -5,7 +5,7 @@ import projects from '../data/projects.json';
 const featured = projects.filter((p) => p.featured);
 ---
 
-<section id="proiecte" class="py-24 sm:py-32 bg-gray-50/50">
+<section id="proiecte" class="py-24 sm:py-32 border-t border-b border-[var(--color-border)] bg-[var(--color-bg-elevated)]/50">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="text-center max-w-2xl mx-auto mb-16">
       <p class="text-sm font-semibold uppercase tracking-widest text-[var(--color-accent)]">Portofoliu</p>
@@ -30,7 +30,7 @@ const featured = projects.filter((p) => p.featured);
     <div class="mt-14 text-center">
       <a
         href="/projects"
-        class="inline-flex items-center px-7 py-3.5 rounded-lg text-base font-medium text-[var(--color-accent)] border-2 border-[var(--color-accent)] hover:bg-[var(--color-accent-light)] no-underline hover:no-underline transition-colors duration-200"
+        class="inline-flex items-center px-7 py-3.5 rounded-lg text-base font-medium text-[var(--color-text-muted)] border border-[var(--color-border)] hover:border-[var(--color-text-muted)] hover:text-[var(--color-text)] bg-transparent no-underline hover:no-underline transition-all duration-200"
       >
         Vezi toate proiectele
         <svg class="ml-2 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">

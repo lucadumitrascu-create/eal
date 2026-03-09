@@ -1,10 +1,14 @@
 ---
+const isHome = Astro.url.pathname === '/' || Astro.url.pathname === '';
+
 const navLinks = [
-  { label: 'Servicii', href: '#servicii' },
+  { label: 'Servicii', href: isHome ? '#servicii' : '/#servicii' },
   { label: 'Proiecte', href: '/projects' },
-  { label: 'Despre', href: '#despre' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Despre', href: isHome ? '#despre' : '/#despre' },
+  { label: 'Contact', href: isHome ? '#contact' : '/#contact' },
 ];
+
+const ctaHref = isHome ? '#contact' : '/#contact';
 ---
 
 <header
@@ -37,8 +41,8 @@ const navLinks = [
 
     <!-- CTA button desktop -->
     <a
-      href="#contact"
-      class="hidden md:inline-flex items-center px-5 py-2 rounded-lg text-sm font-medium text-white bg-[var(--color-accent)] hover:bg-blue-700 no-underline hover:no-underline transition-colors duration-200"
+      href={ctaHref}
+      class="hidden md:inline-flex items-center px-5 py-2 rounded-lg text-sm font-medium text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] no-underline hover:no-underline transition-all duration-200 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
     >
       Contactează-ne
     </a>
@@ -60,7 +64,7 @@ const navLinks = [
   <!-- Mobile menu -->
   <div
     id="mobile-menu"
-    class="fixed inset-0 bg-white z-40 flex flex-col items-center justify-center gap-8 translate-x-full transition-transform duration-300 ease-in-out md:hidden"
+    class="fixed inset-0 bg-[var(--color-bg)] z-40 flex flex-col items-center justify-center gap-8 translate-x-full transition-transform duration-300 ease-in-out md:hidden"
   >
     {navLinks.map(({ label, href }) => (
       <a
@@ -71,8 +75,8 @@ const navLinks = [
       </a>
     ))}
     <a
-      href="#contact"
-      class="mobile-link mt-4 px-8 py-3 rounded-lg text-lg font-medium text-white bg-[var(--color-accent)] hover:bg-blue-700 no-underline hover:no-underline transition-colors duration-200"
+      href={ctaHref}
+      class="mobile-link mt-4 px-8 py-3 rounded-lg text-lg font-medium text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] no-underline hover:no-underline transition-colors duration-200"
     >
       Contactează-ne
     </a>
@@ -99,9 +103,9 @@ const navLinks = [
       scrolled = isScrolled;
 
       if (scrolled) {
-        navbar.classList.add('bg-white/80', 'backdrop-blur-md', 'shadow-sm');
+        navbar.classList.add('bg-[rgba(10,10,10,0.8)]', 'backdrop-blur-md', 'border-b', 'border-[rgba(255,255,255,0.06)]');
       } else {
-        navbar.classList.remove('bg-white/80', 'backdrop-blur-md', 'shadow-sm');
+        navbar.classList.remove('bg-[rgba(10,10,10,0.8)]', 'backdrop-blur-md', 'border-b', 'border-[rgba(255,255,255,0.06)]');
       }
     }
 
@@ -119,7 +123,6 @@ const navLinks = [
         menu.classList.remove('translate-x-full');
         menu.classList.add('translate-x-0');
         document.body.style.overflow = 'hidden';
-        // Animate to X
         (lines[0] as HTMLElement).style.transform = 'translateY(4px) rotate(45deg)';
         (lines[1] as HTMLElement).style.opacity = '0';
         (lines[2] as HTMLElement).style.transform = 'translateY(-4px) rotate(-45deg)';

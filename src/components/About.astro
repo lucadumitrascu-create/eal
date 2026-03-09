@@ -12,7 +12,7 @@ const principles = [
 ];
 ---
 
-<section id="about" class="py-24 sm:py-32">
+<section id="despre" class="py-24 sm:py-32">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
 
@@ -21,7 +21,7 @@ const principles = [
         <p class="text-sm font-semibold uppercase tracking-widest text-[var(--color-accent)]">Despre noi</p>
         <h2 class="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-[var(--color-text)]">
           Nu suntem o agenție.<br />
-          <span class="text-[var(--color-accent)]">Suntem echipa ta de tech.</span>
+          <span class="bg-gradient-to-r from-blue-400 to-violet-400 bg-clip-text text-transparent">Suntem echipa ta de tech.</span>
         </h2>
 
         <p class="mt-6 text-lg text-[var(--color-text-muted)] leading-relaxed max-w-xl">
@@ -46,10 +46,9 @@ const principles = [
       <!-- Stats -->
       <div class="about-reveal about-reveal-delay grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-6">
         {stats.map((stat) => (
-          <div class="relative rounded-xl border border-[var(--color-border)] p-8 text-center lg:text-left transition-all duration-300 hover:border-[var(--color-accent)]/30 hover:shadow-md group overflow-hidden">
-            <div class="absolute inset-0 bg-[var(--color-accent)] opacity-0 group-hover:opacity-[0.03] transition-opacity duration-300"></div>
+          <div class="relative rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-8 text-center lg:text-left transition-all duration-300 hover:border-[var(--color-border-hover)] hover:shadow-lg hover:shadow-blue-500/5 group overflow-hidden">
             <div class="relative">
-              <span class="text-5xl sm:text-4xl lg:text-6xl font-extrabold text-[var(--color-accent)]">{stat.value}</span>
+              <span class="text-5xl sm:text-4xl lg:text-6xl font-extrabold bg-gradient-to-r from-blue-400 to-violet-400 bg-clip-text text-transparent">{stat.value}</span>
               <p class="mt-2 text-sm font-medium uppercase tracking-wider text-[var(--color-text-muted)]">{stat.label}</p>
             </div>
           </div>
