@@ -140,36 +140,22 @@
 
     const envMap = pmremGenerator.fromScene(envScene).texture;
 
-    // Glass material for EAL (clear glass with blue tint)
-    const glassMaterialEAL = new THREE.MeshPhysicalMaterial({
-      color: 0xddeeff,
+    // Dispersed Glass material (matching BlenderKit "Dispersed Glass")
+    // IOR 1.45, high transmission, slight dispersion effect
+    const dispersedGlass = new THREE.MeshPhysicalMaterial({
+      color: 0xffffff,
       metalness: 0.0,
-      roughness: 0.05,
-      transmission: 0.92,
+      roughness: 0.0,
+      transmission: 1.0,
       thickness: 1.5,
-      ior: 1.5,
-      envMap: envMap,
-      envMapIntensity: 1.5,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.05,
-      transparent: true,
-      opacity: 0.95,
-    });
-
-    // Glass material for ENTERPRISES (blue glass)
-    const glassMaterialENT = new THREE.MeshPhysicalMaterial({
-      color: 0x2563eb,
-      metalness: 0.0,
-      roughness: 0.05,
-      transmission: 0.85,
-      thickness: 2.0,
-      ior: 1.5,
+      ior: 1.45,
+      dispersion: 0.3,
       envMap: envMap,
       envMapIntensity: 2.0,
-      clearcoat: 1.0,
-      clearcoatRoughness: 0.05,
+      clearcoat: 0.0,
       transparent: true,
-      opacity: 0.95,
+      opacity: 1.0,
+      side: THREE.DoubleSide,
     });
 
     let logoGroup: THREE.Group | null = null;
@@ -189,20 +175,10 @@
         }
       });
 
-      // Sort meshes by world Y position - higher Y = EAL (top), lower Y = ENTERPRISES (bottom)
-      // In glTF (Y-up): Blender Y maps to glTF Y, so EAL (Y~0) is above ENTERPRISES (Y~-1.8)
-      if (meshes.length === 2) {
-        const worldPos0 = new THREE.Vector3();
-        const worldPos1 = new THREE.Vector3();
-        meshes[0].getWorldPosition(worldPos0);
-        meshes[1].getWorldPosition(worldPos1);
-
-        const ealMesh = worldPos0.y > worldPos1.y ? meshes[0] : meshes[1];
-        const entMesh = worldPos0.y > worldPos1.y ? meshes[1] : meshes[0];
-        ealMesh.material = glassMaterialEAL;
-        entMesh.material = glassMaterialENT;
-        console.log(`EAL: ${ealMesh.name}, ENT: ${entMesh.name}`);
-      }
+      // Apply Dispersed Glass material to all meshes
+      meshes.forEach((mesh) => {
+        mesh.material = dispersedGlass;
+      });
 
       // Center and scale
       const box = new THREE.Box3().setFromObject(logoGroup);
