@@ -10,7 +10,7 @@ interface Props {
 const { title, description, tech, url, image } = Astro.props;
 ---
 
-<a href={url} target="_blank" rel="noopener noreferrer" class="group block rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] overflow-hidden no-underline hover:no-underline transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/5 hover:border-[var(--color-border-hover)]">
+<a href={url} target="_blank" rel="noopener noreferrer" class="group block rounded-xl border border-[var(--color-border)] bg-[rgba(17,17,19,0.6)] backdrop-blur-sm overflow-hidden no-underline hover:no-underline transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_24px_rgba(59,130,246,0.06)] hover:border-[rgba(59,130,246,0.15)]">
   <div class="aspect-video overflow-hidden bg-[var(--color-bg-card)]">
     <img
       src={image}

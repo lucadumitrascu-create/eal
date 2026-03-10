@@ -1,12 +1,14 @@
 ---
 const links = [
-  { label: 'Servicii', href: '/#servicii' },
-  { label: 'Proiecte', href: '/projects' },
+  { label: 'Services', href: '/#servicii' },
+  { label: 'Projects', href: '/projects' },
   { label: 'Contact', href: '/#contact' },
 ];
 ---
 
-<footer class="border-t border-[var(--color-border)] bg-[#09090B]">
+<footer class="relative border-t border-transparent bg-[#09090B]">
+  <!-- Gradient top border -->
+  <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(59,130,246,0.25)] to-transparent"></div>
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8">
 
@@ -15,7 +17,7 @@ const links = [
         <a href="/" class="text-xl font-bold tracking-wider uppercase text-[var(--color-text)] no-underline hover:no-underline">
           EAL <span class="text-[var(--color-accent)]">ENTERPRISES</span>
         </a>
-        <p class="mt-2 text-sm text-[var(--color-text-muted)]">Software care funcționează.</p>
+        <p class="mt-2 text-sm text-[var(--color-text-muted)]">Software that works.</p>
       </div>
 
       <!-- Quick links -->
@@ -46,7 +48,7 @@ const links = [
     <!-- Copyright -->
     <div class="mt-10 pt-8 border-t border-[var(--color-border)]">
       <p class="text-sm text-[var(--color-text-muted)] text-center">
-        &copy; 2026 EAL ENTERPRISES. Toate drepturile rezervate.
+        &copy; 2026 EAL ENTERPRISES. <span data-i18n="footer.rights">All rights reserved.</span>
       </p>
     </div>
   </div>

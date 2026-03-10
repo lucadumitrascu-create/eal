@@ -37,7 +37,7 @@ const jsonLd = {
 ---
 
 <!doctype html>
-<html lang="ro">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -82,12 +82,16 @@ const jsonLd = {
   </head>
   <body class="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)]">
     <!-- Skip to content -->
-    <a href="#main-content" class="skip-link">Salt la conținut</a>
+    <a href="#main-content" class="skip-link">Skip to content</a>
 
     <slot name="navbar" />
     <div id="main-content">
       <slot />
     </div>
     <Footer />
+    <script>
+      import { initI18n } from '../scripts/i18n';
+      initI18n();
+    </script>
   </body>
 </html>

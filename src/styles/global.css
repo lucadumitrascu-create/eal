@@ -16,7 +16,9 @@
 html {
   font-family: 'DM Sans', sans-serif;
   color: var(--color-text);
-  background-color: var(--color-bg);
+  background: linear-gradient(168deg, #0A0A0A 0%, #0B0D14 40%, #0A0C12 70%, #0A0A0A 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -75,4 +77,21 @@ body::before {
 /* Remove default outline for mouse users */
 :focus:not(:focus-visible) {
   outline: none;
+}
+
+/* Glassmorphism utility */
+.glass-card {
+  background: rgba(17, 17, 19, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.glass-card-hover {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.glass-card-hover:hover {
+  border-color: rgba(59, 130, 246, 0.15);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.04);
 }

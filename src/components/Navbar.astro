@@ -2,10 +2,10 @@
 const isHome = Astro.url.pathname === '/' || Astro.url.pathname === '';
 
 const navLinks = [
-  { label: 'Servicii', href: isHome ? '#servicii' : '/#servicii' },
-  { label: 'Proiecte', href: '/projects' },
-  { label: 'Despre', href: isHome ? '#despre' : '/#despre' },
-  { label: 'Contact', href: isHome ? '#contact' : '/#contact' },
+  { label: 'Services', href: isHome ? '#servicii' : '/#servicii', i18nKey: 'nav.services' },
+  { label: 'Projects', href: '/projects', i18nKey: 'nav.projects' },
+  { label: 'About', href: isHome ? '#despre' : '/#despre', i18nKey: 'nav.about' },
+  { label: 'Contact', href: isHome ? '#contact' : '/#contact', i18nKey: 'nav.contact' },
 ];
 
 const ctaHref = isHome ? '#contact' : '/#contact';
@@ -16,16 +16,16 @@ const ctaHref = isHome ? '#contact' : '/#contact';
   class="fixed top-0 left-0 w-full z-50 backdrop-blur-md border-b"
   style="background:transparent;border-color:transparent;transition:background 0.3s ease,border-color 0.3s ease;"
 >
-  <nav aria-label="Navigare principală" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+  <nav aria-label="Main navigation" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
     <!-- Logo -->
-    <a href="/" aria-label="EAL ENTERPRISES — Acasă" class="flex items-baseline gap-1 text-xl uppercase tracking-wider no-underline hover:no-underline">
+    <a href="/" aria-label="EAL ENTERPRISES — Home" class="flex items-baseline gap-1 text-xl uppercase tracking-wider no-underline hover:no-underline">
       <span class="font-bold text-[var(--color-text)]">EAL</span>
       <span class="font-normal text-[var(--color-text-muted)]">ENTERPRISES</span>
     </a>
 
     <!-- Desktop links -->
     <ul class="hidden md:flex items-center gap-8 list-none m-0 p-0">
-      {navLinks.map(({ label, href }) => (
+      {navLinks.map(({ label, href, i18nKey }) => (
         <li>
           <a
             href={href}
@@ -33,6 +33,7 @@ const ctaHref = isHome ? '#contact' : '/#contact';
               'nav-link text-sm font-medium no-underline hover:no-underline transition-colors duration-200',
               'text-[var(--color-text-muted)] hover:text-[var(--color-text)]',
             ]}
+            data-i18n={i18nKey}
           >
             {label}
           </a>
@@ -44,15 +45,16 @@ const ctaHref = isHome ? '#contact' : '/#contact';
     <a
       href={ctaHref}
       class="hidden md:inline-flex items-center px-5 py-2 rounded-lg text-sm font-medium text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] no-underline hover:no-underline transition-all duration-200 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+      data-i18n="nav.contactBtn"
     >
-      Contactează-ne
+      Contact us
     </a>
 
     <!-- Hamburger button mobile -->
     <button
       id="menu-toggle"
       type="button"
-      aria-label="Deschide meniul"
+      aria-label="Open menu"
       aria-expanded="false"
       class="md:hidden relative z-50 flex flex-col justify-center items-center w-10 h-10 gap-1.5 bg-transparent border-none cursor-pointer"
     >
@@ -67,10 +69,11 @@ const ctaHref = isHome ? '#contact' : '/#contact';
     id="mobile-menu"
     class="fixed inset-0 bg-[var(--color-bg)] z-40 flex flex-col items-center justify-center gap-8 translate-x-full transition-transform duration-300 ease-in-out md:hidden"
   >
-    {navLinks.map(({ label, href }) => (
+    {navLinks.map(({ label, href, i18nKey }) => (
       <a
         href={href}
         class="mobile-link text-2xl font-medium text-[var(--color-text)] no-underline hover:no-underline hover:text-[var(--color-accent)] transition-colors duration-200"
+        data-i18n={i18nKey}
       >
         {label}
       </a>
@@ -78,8 +81,9 @@ const ctaHref = isHome ? '#contact' : '/#contact';
     <a
       href={ctaHref}
       class="mobile-link mt-4 px-8 py-3 rounded-lg text-lg font-medium text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] no-underline hover:no-underline transition-colors duration-200"
+      data-i18n="nav.contactBtn"
     >
-      Contactează-ne
+      Contact us
     </a>
   </div>
 </header>
@@ -104,7 +108,7 @@ const ctaHref = isHome ? '#contact' : '/#contact';
       scrolled = isScrolled;
 
       if (scrolled) {
-        navbar.style.background = 'rgba(10,10,10,0.8)';
+        navbar.style.background = 'rgba(10,10,10,0.7)';
         navbar.style.borderColor = 'rgba(255,255,255,0.06)';
       } else {
         navbar.style.background = 'transparent';
