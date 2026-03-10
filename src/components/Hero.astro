@@ -190,8 +190,8 @@
       inner.add(logoGroup);
       logoGroup.position.sub(center);
       // glTF text is on XZ plane facing +Y, rotate to XY plane facing camera
-      inner.rotation.x = -Math.PI / 2;
-      inner.rotation.z = Math.PI; // flip so text reads correctly
+      inner.rotation.x = Math.PI / 2;
+      inner.rotation.y = Math.PI;
 
       // Outer group: for turntable rotation + float animation
       const outer = new THREE.Group();
