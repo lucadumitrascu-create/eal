@@ -173,7 +173,6 @@
     });
 
     let logoGroup: THREE.Group | null = null;
-    let mixer: THREE.AnimationMixer | null = null;
     const clock = new THREE.Clock();
 
     // Load the GLB model
@@ -201,22 +200,10 @@
 
       const size = box.getSize(new THREE.Vector3());
       const maxDim = Math.max(size.x, size.y, size.z);
-      const scale = 4 / maxDim;
+      const scale = 4.5 / maxDim;
       logoGroup.scale.setScalar(scale);
 
-      // Rotate to face camera (Blender Z-up → Three.js Y-up)
-      logoGroup.rotation.x = -Math.PI / 2;
-
       scene.add(logoGroup);
-
-      // Setup animation mixer
-      if (gltf.animations.length > 0) {
-        mixer = new THREE.AnimationMixer(logoGroup);
-        gltf.animations.forEach((clip) => {
-          const action = mixer!.clipAction(clip);
-          action.play();
-        });
-      }
     });
 
     // Mouse interaction - subtle follow
@@ -234,18 +221,13 @@
       const delta = clock.getDelta();
       const elapsed = clock.getElapsedTime();
 
-      if (mixer) {
-        mixer.update(delta);
-      }
-
       if (logoGroup) {
         // Float effect
-        logoGroup.position.y = Math.sin(elapsed * 0.8) * 0.15;
+        logoGroup.position.y = Math.sin(elapsed * 0.8) * 0.12;
 
-        // Base rotation (Blender Z-up → Three.js Y-up) + gentle Y turntable + mouse follow
-        logoGroup.rotation.x = -Math.PI / 2 + mouseY * 0.1;
-        logoGroup.rotation.y = elapsed * 0.3 + mouseX * 0.15;
-        logoGroup.rotation.z = 0;
+        // Gentle Y-axis turntable + mouse follow
+        logoGroup.rotation.x = mouseY * 0.1;
+        logoGroup.rotation.y = elapsed * 0.25 + mouseX * 0.15;
       }
 
       renderer.render(scene, camera);
