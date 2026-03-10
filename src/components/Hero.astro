@@ -103,8 +103,8 @@
     const scene = new THREE.Scene();
 
     const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
-    camera.position.set(0, 0.5, 8);
-    camera.lookAt(0, 0, 0);
+    camera.position.set(0, -0.3, 8);
+    camera.lookAt(0, -0.3, 0);
 
     // Lighting
     const ambientLight = new THREE.AmbientLight(0x4466aa, 0.6);
@@ -209,17 +209,22 @@
       const center = box.getCenter(new THREE.Vector3());
       const size = box.getSize(new THREE.Vector3());
 
-      // Create a pivot so we rotate around center
-      const pivot = new THREE.Group();
-      scene.add(pivot);
-      pivot.add(logoGroup);
+      // Inner group: holds the model centered + rotated to face camera
+      const inner = new THREE.Group();
+      inner.add(logoGroup);
       logoGroup.position.sub(center);
+      // glTF text is on XZ plane facing +Y, rotate to XY plane facing -Z (camera)
+      inner.rotation.x = -Math.PI / 2;
 
+      // Outer group: for turntable rotation + float animation
+      const outer = new THREE.Group();
       const maxDim = Math.max(size.x, size.y, size.z);
       const scale = 4.5 / maxDim;
-      pivot.scale.setScalar(scale);
+      outer.scale.setScalar(scale);
+      outer.add(inner);
+      scene.add(outer);
 
-      logoGroup = pivot;
+      logoGroup = outer;
     });
 
     // Mouse interaction - subtle follow
@@ -241,12 +246,9 @@
         // Float effect
         logoGroup.position.y = Math.sin(elapsed * 0.8) * 0.12;
 
-        // Text is on XZ plane in glTF, rotate to stand upright (XY) facing camera
-        // Then add gentle Y turntable + mouse tilt
-        logoGroup.rotation.set(0, 0, 0); // reset
-        logoGroup.rotateX(-Math.PI / 2); // stand upright
-        logoGroup.rotateY(elapsed * 0.25 + mouseX * 0.15); // turntable
-        logoGroup.rotateX(mouseY * 0.08); // mouse tilt
+        // Turntable on Y + subtle mouse tilt
+        logoGroup.rotation.x = mouseY * 0.08;
+        logoGroup.rotation.y = elapsed * 0.25 + mouseX * 0.15;
       }
 
       renderer.render(scene, camera);
