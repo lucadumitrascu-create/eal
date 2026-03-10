@@ -122,40 +122,63 @@
     rimLight.position.set(0, -1, -4);
     scene.add(rimLight);
 
-    // Environment map for glass reflections
-    const pmremGenerator = new THREE.PMREMGenerator(renderer);
-    const envScene = new THREE.Scene();
-    envScene.background = new THREE.Color(0x0a0a1a);
+    // Animated Blue Hologram material (custom shader)
+    const hologramMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uColor: { value: new THREE.Color(0x0037ff) },
+        uFresnelPower: { value: 1.5 },
+        uScanlineScale: { value: 150.0 },
+        uAlpha: { value: 0.85 },
+      },
+      vertexShader: `
+        varying vec3 vPosition;
+        varying vec3 vNormal;
+        varying vec3 vViewDir;
+        void main() {
+          vPosition = position;
+          vNormal = normalize(normalMatrix * normal);
+          vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+          vViewDir = normalize(-mvPos.xyz);
+          gl_Position = projectionMatrix * mvPos;
+        }
+      `,
+      fragmentShader: `
+        uniform float uTime;
+        uniform vec3 uColor;
+        uniform float uFresnelPower;
+        uniform float uScanlineScale;
+        uniform float uAlpha;
+        varying vec3 vPosition;
+        varying vec3 vNormal;
+        varying vec3 vViewDir;
+        void main() {
+          // Fresnel effect (brighter at edges)
+          float fresnel = pow(1.0 - dot(vNormal, vViewDir), uFresnelPower);
+          fresnel = clamp(fresnel, 0.0, 1.0);
 
-    // Add some colored lights to env for interesting reflections
-    const envLight1 = new THREE.PointLight(0x3b82f6, 50, 20);
-    envLight1.position.set(5, 5, 5);
-    envScene.add(envLight1);
-    const envLight2 = new THREE.PointLight(0x8b5cf6, 50, 20);
-    envLight2.position.set(-5, 3, -3);
-    envScene.add(envLight2);
-    const envLight3 = new THREE.PointLight(0xffffff, 30, 20);
-    envLight3.position.set(0, -5, 5);
-    envScene.add(envLight3);
+          // Scanlines (horizontal lines scrolling up)
+          float scanline = sin((vPosition.y + uTime * 0.5) * uScanlineScale) * 0.5 + 0.5;
+          scanline = smoothstep(0.3, 0.7, scanline);
 
-    const envMap = pmremGenerator.fromScene(envScene).texture;
+          // Flicker
+          float flicker = sin(uTime * 3.0) * 0.03 + 0.97;
 
-    // Dispersed Glass material (matching BlenderKit "Dispersed Glass")
-    // IOR 1.45, high transmission, slight dispersion effect
-    const dispersedGlass = new THREE.MeshPhysicalMaterial({
-      color: 0xffffff,
-      metalness: 0.0,
-      roughness: 0.0,
-      transmission: 1.0,
-      thickness: 1.5,
-      ior: 1.45,
-      dispersion: 0.3,
-      envMap: envMap,
-      envMapIntensity: 2.0,
-      clearcoat: 0.0,
+          // Combine: base glow + fresnel edge + scanlines
+          float intensity = (0.4 + fresnel * 0.8 + scanline * 0.3) * flicker;
+          vec3 color = uColor * intensity;
+
+          // Bright edges
+          color += vec3(0.3, 0.6, 1.0) * fresnel * 0.5;
+
+          float alpha = (0.3 + fresnel * 0.5 + scanline * 0.2) * uAlpha;
+          gl_FragColor = vec4(color, alpha);
+        }
+      `,
       transparent: true,
-      opacity: 1.0,
       side: THREE.DoubleSide,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
     });
 
     let logoGroup: THREE.Group | null = null;
@@ -175,9 +198,9 @@
         }
       });
 
-      // Apply Dispersed Glass material to all meshes
+      // Apply hologram material to all meshes
       meshes.forEach((mesh) => {
-        mesh.material = dispersedGlass;
+        mesh.material = hologramMaterial;
       });
 
       // Center and scale
@@ -216,6 +239,9 @@
 
       const delta = clock.getDelta();
       const elapsed = clock.getElapsedTime();
+
+      // Update hologram time uniform
+      hologramMaterial.uniforms.uTime.value = elapsed;
 
       if (logoGroup) {
         // Float effect
