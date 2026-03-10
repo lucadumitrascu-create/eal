@@ -189,9 +189,7 @@
       const inner = new THREE.Group();
       inner.add(logoGroup);
       logoGroup.position.sub(center);
-      // Stand text upright and face camera
-      inner.rotation.x = -Math.PI / 2;
-      inner.scale.x = -1;
+      // Model is pre-rotated in Blender, no rotation needed
 
       // Outer group: for turntable rotation + float animation
       const outer = new THREE.Group();
