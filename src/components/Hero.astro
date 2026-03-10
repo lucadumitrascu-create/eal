@@ -180,30 +180,46 @@
     loader.load('/models/eal-logo.glb', (gltf) => {
       logoGroup = gltf.scene;
 
-      // Apply glass materials
+      // Debug: log all children positions and names
+      const meshes: THREE.Mesh[] = [];
       logoGroup.traverse((child) => {
         if (child instanceof THREE.Mesh) {
-          // Check which text object this is by name or position
-          const name = child.name.toLowerCase();
-          if (name.includes('001') || child.position.z < 0) {
-            child.material = glassMaterialENT;
-          } else {
-            child.material = glassMaterialEAL;
-          }
+          meshes.push(child);
+          console.log(`Mesh: ${child.name}, pos: ${child.position.toArray()}, parent pos: ${child.parent?.position.toArray()}`);
         }
       });
 
-      // Center and scale the logo
+      // Sort meshes by world Y position - higher Y = EAL (top), lower Y = ENTERPRISES (bottom)
+      // In glTF (Y-up): Blender Y maps to glTF Y, so EAL (Y~0) is above ENTERPRISES (Y~-1.8)
+      if (meshes.length === 2) {
+        const worldPos0 = new THREE.Vector3();
+        const worldPos1 = new THREE.Vector3();
+        meshes[0].getWorldPosition(worldPos0);
+        meshes[1].getWorldPosition(worldPos1);
+
+        const ealMesh = worldPos0.y > worldPos1.y ? meshes[0] : meshes[1];
+        const entMesh = worldPos0.y > worldPos1.y ? meshes[1] : meshes[0];
+        ealMesh.material = glassMaterialEAL;
+        entMesh.material = glassMaterialENT;
+        console.log(`EAL: ${ealMesh.name}, ENT: ${entMesh.name}`);
+      }
+
+      // Center and scale
       const box = new THREE.Box3().setFromObject(logoGroup);
       const center = box.getCenter(new THREE.Vector3());
+      const size = box.getSize(new THREE.Vector3());
+
+      // Create a pivot so we rotate around center
+      const pivot = new THREE.Group();
+      scene.add(pivot);
+      pivot.add(logoGroup);
       logoGroup.position.sub(center);
 
-      const size = box.getSize(new THREE.Vector3());
       const maxDim = Math.max(size.x, size.y, size.z);
       const scale = 4.5 / maxDim;
-      logoGroup.scale.setScalar(scale);
+      pivot.scale.setScalar(scale);
 
-      scene.add(logoGroup);
+      logoGroup = pivot;
     });
 
     // Mouse interaction - subtle follow
@@ -225,9 +241,12 @@
         // Float effect
         logoGroup.position.y = Math.sin(elapsed * 0.8) * 0.12;
 
-        // Gentle Y-axis turntable + mouse follow
-        logoGroup.rotation.x = mouseY * 0.1;
-        logoGroup.rotation.y = elapsed * 0.25 + mouseX * 0.15;
+        // Text is on XZ plane in glTF, rotate to stand upright (XY) facing camera
+        // Then add gentle Y turntable + mouse tilt
+        logoGroup.rotation.set(0, 0, 0); // reset
+        logoGroup.rotateX(-Math.PI / 2); // stand upright
+        logoGroup.rotateY(elapsed * 0.25 + mouseX * 0.15); // turntable
+        logoGroup.rotateX(mouseY * 0.08); // mouse tilt
       }
 
       renderer.render(scene, camera);
