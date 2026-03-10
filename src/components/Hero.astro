@@ -204,8 +204,8 @@
       const scale = 4 / maxDim;
       logoGroup.scale.setScalar(scale);
 
-      // Rotate to face camera
-      logoGroup.rotation.x = Math.PI / 2;
+      // Rotate to face camera (Blender Z-up → Three.js Y-up)
+      logoGroup.rotation.x = -Math.PI / 2;
 
       scene.add(logoGroup);
 
@@ -239,15 +239,13 @@
       }
 
       if (logoGroup) {
-        // Gentle continuous rotation
-        logoGroup.rotation.z = elapsed * 0.3;
-
         // Float effect
         logoGroup.position.y = Math.sin(elapsed * 0.8) * 0.15;
 
-        // Mouse follow
-        logoGroup.rotation.x = Math.PI / 2 + mouseY * 0.1;
-        logoGroup.rotation.y = mouseX * 0.15;
+        // Base rotation (Blender Z-up → Three.js Y-up) + gentle Y turntable + mouse follow
+        logoGroup.rotation.x = -Math.PI / 2 + mouseY * 0.1;
+        logoGroup.rotation.y = elapsed * 0.3 + mouseX * 0.15;
+        logoGroup.rotation.z = 0;
       }
 
       renderer.render(scene, camera);
