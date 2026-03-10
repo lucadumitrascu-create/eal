@@ -189,9 +189,8 @@
       const inner = new THREE.Group();
       inner.add(logoGroup);
       logoGroup.position.sub(center);
-      // glTF text is on XZ plane facing +Y, rotate to XY plane facing camera
-      inner.rotation.x = Math.PI / 2;
-      inner.rotation.y = Math.PI;
+      // Stand text upright and face camera
+      inner.rotation.x = -Math.PI / 2;
       inner.scale.x = -1;
 
       // Outer group: for turntable rotation + float animation
