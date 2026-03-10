@@ -33,6 +33,6 @@
     "tech": ["Next.js", "Vercel"],
     "url": "https://tutoring-platform-hu95.vercel.app",
     "image": "/images/projects/tutoring-platform.webp",
-    "featured": false
+    "featured": true
   }
 ]

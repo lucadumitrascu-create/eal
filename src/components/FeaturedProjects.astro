@@ -14,7 +14,7 @@ const featured = projects.filter((p) => p.featured);
       </p>
     </div>
 
-    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+    <div class="grid sm:grid-cols-2 gap-6 lg:gap-8">
       {featured.map((project) => (
         <ProjectCard
           title={project.title}
