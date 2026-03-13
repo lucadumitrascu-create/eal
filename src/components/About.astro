@@ -12,7 +12,13 @@ const principles = [
 ];
 ---
 
-<section id="despre" class="py-24 sm:py-32">
+<section id="despre" class="relative py-24 sm:py-32 overflow-hidden">
+  <!-- Section glow orbs -->
+  <div class="absolute inset-0 -z-10" aria-hidden="true">
+    <div class="absolute top-[20%] right-[-8%] w-[45%] h-[45%] rounded-full bg-violet-500 opacity-[0.06] blur-[120px]"></div>
+    <div class="absolute bottom-[5%] left-[10%] w-[30%] h-[30%] rounded-full bg-blue-500 opacity-[0.05] blur-[100px]"></div>
+  </div>
+
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
 
@@ -29,7 +35,7 @@ const principles = [
           <ul class="space-y-3">
             {principles.map((p) => (
               <li class="flex items-start gap-3 text-[var(--color-text-muted)]">
-                <span class="mt-1.5 flex-shrink-0 w-1.5 h-1.5 rounded-full bg-[var(--color-accent)]"></span>
+                <span class="mt-1.5 flex-shrink-0 w-1.5 h-1.5 rounded-full bg-[var(--color-accent)] shadow-[0_0_6px_rgba(59,130,246,0.4)]"></span>
                 <div>
                   <span class="text-base font-medium text-[var(--color-text)]" data-i18n={p.i18nTitle}>{p.title}</span>
                   <p class="text-sm mt-1" data-i18n={p.i18nDesc}>{p.desc}</p>
@@ -43,9 +49,14 @@ const principles = [
       <!-- Stats -->
       <div class="about-reveal about-reveal-delay grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-6">
         {stats.map((stat) => (
-          <div class="relative rounded-xl border border-[var(--color-border)] bg-[rgba(17,17,19,0.6)] backdrop-blur-sm p-8 text-center lg:text-left transition-all duration-300 hover:border-[rgba(59,130,246,0.15)] hover:shadow-[0_0_24px_rgba(59,130,246,0.06)] group overflow-hidden">
+          <div class="group relative rounded-2xl border border-[var(--color-border)] bg-[rgba(17,17,19,0.5)] backdrop-blur-xl p-8 text-center lg:text-left transition-all duration-400 hover:border-[rgba(59,130,246,0.2)] hover:shadow-[0_0_40px_rgba(59,130,246,0.07),0_0_80px_rgba(139,92,246,0.03)] hover:-translate-y-1 overflow-hidden">
+            <!-- Top highlight line -->
+            <div class="absolute top-0 left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent"></div>
+            <!-- Inner glow on hover -->
+            <div class="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-blue-500/0 group-hover:bg-blue-500/[0.08] blur-[30px] transition-all duration-500"></div>
+
             <div class="relative">
-              <span class="text-5xl sm:text-4xl lg:text-6xl font-extrabold bg-gradient-to-r from-blue-400 to-violet-400 bg-clip-text text-transparent" data-i18n={stat.i18nValue}>{stat.value}</span>
+              <span class="text-5xl sm:text-4xl lg:text-6xl font-extrabold bg-gradient-to-r from-blue-400 via-indigo-400 to-violet-400 bg-clip-text text-transparent" data-i18n={stat.i18nValue}>{stat.value}</span>
               <p class="mt-2 text-sm font-medium uppercase tracking-wider text-[var(--color-text-muted)]" data-i18n={stat.i18nLabel}>{stat.label}</p>
             </div>
           </div>
@@ -54,10 +65,12 @@ const principles = [
 
     </div>
   </div>
+
+  <!-- Bottom divider -->
+  <div class="absolute bottom-0 left-0 right-0 section-divider"></div>
 </section>
 
 <style>
-  /* Scroll-triggered fade-in */
   .about-reveal {
     opacity: 0;
     transform: translateY(30px);

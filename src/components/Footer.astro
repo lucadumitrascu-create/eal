@@ -6,16 +6,18 @@ const links = [
 ];
 ---
 
-<footer class="relative border-t border-transparent bg-[#09090B]">
-  <!-- Gradient top border -->
-  <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(59,130,246,0.25)] to-transparent"></div>
+<footer class="relative border-t border-transparent bg-[rgba(9,9,11,0.8)] backdrop-blur-xl">
+  <!-- Gradient top border — wider glow -->
+  <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(59,130,246,0.3)] to-transparent"></div>
+  <div class="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-[rgba(59,130,246,0.03)] to-transparent pointer-events-none"></div>
+
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-8">
 
       <!-- Logo + tagline -->
       <div>
         <a href="/" class="text-xl font-bold tracking-wider uppercase text-[var(--color-text)] no-underline hover:no-underline">
-          EAL <span class="text-[var(--color-accent)]">ENTERPRISES</span>
+          EAL <span class="bg-gradient-to-r from-blue-400 to-violet-400 bg-clip-text text-transparent">ENTERPRISES</span>
         </a>
         <p class="mt-2 text-sm text-[var(--color-text-muted)]">Software that works.</p>
       </div>

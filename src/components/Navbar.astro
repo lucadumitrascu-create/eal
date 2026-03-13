@@ -13,8 +13,8 @@ const ctaHref = isHome ? '#contact' : '/#contact';
 
 <header
   id="navbar"
-  class="fixed top-0 left-0 w-full z-50 backdrop-blur-md border-b"
-  style="background:transparent;border-color:transparent;transition:background 0.3s ease,border-color 0.3s ease;"
+  class="fixed top-0 left-0 w-full z-50 border-b"
+  style="background:transparent;border-color:transparent;transition:background 0.4s ease,border-color 0.4s ease,backdrop-filter 0.4s ease;"
 >
   <nav aria-label="Main navigation" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
     <!-- Logo -->
@@ -44,7 +44,7 @@ const ctaHref = isHome ? '#contact' : '/#contact';
     <!-- CTA button desktop -->
     <a
       href={ctaHref}
-      class="hidden md:inline-flex items-center px-5 py-2 rounded-lg text-sm font-medium text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] no-underline hover:no-underline transition-all duration-200 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+      class="hidden md:inline-flex items-center px-5 py-2 rounded-xl text-sm font-medium text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] no-underline hover:no-underline transition-all duration-300 hover:shadow-[0_0_24px_rgba(59,130,246,0.3)] hover:scale-[1.02]"
       data-i18n="nav.contactBtn"
     >
       Contact us
@@ -67,7 +67,7 @@ const ctaHref = isHome ? '#contact' : '/#contact';
   <!-- Mobile menu -->
   <div
     id="mobile-menu"
-    class="fixed inset-0 bg-[var(--color-bg)] z-40 flex flex-col items-center justify-center gap-8 translate-x-full transition-transform duration-300 ease-in-out md:hidden"
+    class="fixed inset-0 bg-[var(--color-bg)]/95 backdrop-blur-xl z-40 flex flex-col items-center justify-center gap-8 translate-x-full transition-transform duration-300 ease-in-out md:hidden"
   >
     {navLinks.map(({ label, href, i18nKey }) => (
       <a
@@ -80,7 +80,7 @@ const ctaHref = isHome ? '#contact' : '/#contact';
     ))}
     <a
       href={ctaHref}
-      class="mobile-link mt-4 px-8 py-3 rounded-lg text-lg font-medium text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] no-underline hover:no-underline transition-colors duration-200"
+      class="mobile-link mt-4 px-8 py-3 rounded-xl text-lg font-medium text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] no-underline hover:no-underline transition-colors duration-200"
       data-i18n="nav.contactBtn"
     >
       Contact us
@@ -101,25 +101,27 @@ const ctaHref = isHome ? '#contact' : '/#contact';
     let scrolled = false;
     let menuOpen = false;
 
-    // Scroll detection
     function onScroll() {
       const isScrolled = window.scrollY > 10;
       if (isScrolled === scrolled) return;
       scrolled = isScrolled;
 
       if (scrolled) {
-        navbar.style.background = 'rgba(10,10,10,0.7)';
+        navbar.style.background = 'rgba(10,10,10,0.6)';
         navbar.style.borderColor = 'rgba(255,255,255,0.06)';
+        navbar.style.backdropFilter = 'blur(16px)';
+        navbar.style.webkitBackdropFilter = 'blur(16px)';
       } else {
         navbar.style.background = 'transparent';
         navbar.style.borderColor = 'transparent';
+        navbar.style.backdropFilter = 'none';
+        navbar.style.webkitBackdropFilter = 'none';
       }
     }
 
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
 
-    // Mobile menu toggle
     const lines = toggle.querySelectorAll('.hamburger-line');
 
     function setMenu(open: boolean) {
@@ -145,18 +147,15 @@ const ctaHref = isHome ? '#contact' : '/#contact';
 
     toggle.addEventListener('click', () => setMenu(!menuOpen));
 
-    // Close on mobile link click
     menu.querySelectorAll('.mobile-link').forEach((link) => {
       link.addEventListener('click', () => setMenu(false));
     });
 
-    // Close on escape
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && menuOpen) setMenu(false);
     });
   }
 
-  // Smooth scroll for anchor links
   function initSmoothScroll() {
     document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
       anchor.addEventListener('click', (e) => {
@@ -175,7 +174,6 @@ const ctaHref = isHome ? '#contact' : '/#contact';
     initSmoothScroll();
   });
 
-  // Also run on initial load (non-ViewTransitions)
   initNavbar();
   initSmoothScroll();
 </script>
