@@ -2,7 +2,7 @@
 const stats = [
   { staticValue: '<7 days', i18nValue: 'about.stat1.value', label: 'Delivery time', i18nLabel: 'about.stat1.label' },
   { staticValue: '24/7', i18nValue: 'about.stat2.value', label: 'Post-launch support', i18nLabel: 'about.stat2.label' },
-  { staticValue: 'EU', i18nValue: 'about.stat3.value', label: 'International clients', i18nLabel: 'about.stat3.label', icon: 'globe' },
+  { staticValue: '10+', i18nValue: 'about.stat3.value', label: 'Clients served', i18nLabel: 'about.stat3.label' },
 ];
 
 const principles = [
@@ -61,20 +61,7 @@ const principles = [
 
             <div class="relative flex items-end justify-between">
               <div>
-                {'icon' in stat && stat.icon === 'globe' ? (
-                  <svg class="w-14 h-14 lg:w-16 lg:h-16" viewBox="0 0 24 24" fill="none" stroke="url(#globe-gradient)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                    <defs>
-                      <linearGradient id="globe-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#06B6D4" />
-                        <stop offset="50%" stop-color="#3B82F6" />
-                        <stop offset="100%" stop-color="#6366F1" />
-                      </linearGradient>
-                    </defs>
-                    <circle cx="12" cy="12" r="10" />
-                    <path d="M2 12h20" />
-                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-                  </svg>
-                ) : 'staticValue' in stat ? (
+                {'staticValue' in stat ? (
                   <span
                     class="text-5xl lg:text-6xl font-extrabold gradient-text-cyan"
                     data-i18n={stat.i18nValue}
