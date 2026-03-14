@@ -10,5 +10,5 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
   },
-  site: 'https://eal-enterprises.ro',
+  site: 'https://ealenterprises.com',
 });

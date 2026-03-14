@@ -82,11 +82,11 @@ const ctaHref = isHome ? '#contact' : '/#contact';
       type="button"
       aria-label="Open menu"
       aria-expanded="false"
-      class="md:hidden relative z-50 flex flex-col justify-center items-center w-10 h-10 gap-1.5 bg-transparent border-none cursor-pointer"
+      class="md:hidden relative z-50 flex flex-col justify-center items-center w-12 h-12 gap-1.5 bg-transparent border-none cursor-pointer -mr-1"
     >
-      <span class="hamburger-line block w-6 h-0.5 bg-[var(--color-text)] rounded transition-all duration-300 origin-center"></span>
-      <span class="hamburger-line block w-6 h-0.5 bg-[var(--color-text)] rounded transition-all duration-300 origin-center"></span>
-      <span class="hamburger-line block w-6 h-0.5 bg-[var(--color-text)] rounded transition-all duration-300 origin-center"></span>
+      <span class="hamburger-line block w-7 h-[2.5px] bg-[var(--color-text)] rounded-full transition-all duration-300 origin-center"></span>
+      <span class="hamburger-line block w-7 h-[2.5px] bg-[var(--color-text)] rounded-full transition-all duration-300 origin-center"></span>
+      <span class="hamburger-line block w-7 h-[2.5px] bg-[var(--color-text)] rounded-full transition-all duration-300 origin-center"></span>
     </button>
   </nav>
 
@@ -207,9 +207,9 @@ const ctaHref = isHome ? '#contact' : '/#contact';
           (link as HTMLElement).style.opacity = '1';
           (link as HTMLElement).style.transform = 'translateY(0)';
         });
-        (lines[0] as HTMLElement).style.transform = 'translateY(4px) rotate(45deg)';
+        (lines[0] as HTMLElement).style.transform = 'translateY(5.5px) rotate(45deg)';
         (lines[1] as HTMLElement).style.opacity = '0';
-        (lines[2] as HTMLElement).style.transform = 'translateY(-4px) rotate(-45deg)';
+        (lines[2] as HTMLElement).style.transform = 'translateY(-5.5px) rotate(-45deg)';
       } else {
         menu.style.pointerEvents = 'none';
         menu.style.opacity = '0';

@@ -2,7 +2,7 @@
   {
     "id": "solbotpro",
     "title": "SOLbot Pro",
-    "description": "Toolkit de trading pentru blockchain-ul Solana.",
+    "description": "Trading toolkit for the Solana blockchain.",
     "tech": ["React", "Web3", "Solana"],
     "url": "https://solbotpro.com",
     "image": "/images/projects/solbotpro.webp",
@@ -11,16 +11,16 @@
   {
     "id": "georgio-portfolio",
     "title": "Georgio Portfolio",
-    "description": "Portofoliu personal cu design modern și animații fluide.",
+    "description": "Personal portfolio with modern design and fluid animations.",
     "tech": ["HTML", "CSS", "JavaScript"],
-    "url": "https://lucadumitrascu-create.github.io/Georgio-Portofoglio/",
+    "url": "https://georgio-portofoglio.vercel.app",
     "image": "/images/projects/georgio-portfolio.webp",
     "featured": true
   },
   {
     "id": "transport-services",
     "title": "Transport Services",
-    "description": "Site de prezentare pentru firmă de transport din Austria.",
+    "description": "Presentation website for a transport company in Austria.",
     "tech": ["Astro", "Tailwind CSS"],
     "url": "https://transportservices.at/",
     "image": "/images/projects/transport-services.webp",
@@ -29,7 +29,7 @@
   {
     "id": "tutoring-platform",
     "title": "Tutoring Platform",
-    "description": "Platformă online pentru sesiuni de tutoring și management elevi.",
+    "description": "Online platform for tutoring sessions and student management.",
     "tech": ["Next.js", "Vercel"],
     "url": "https://tutoring-platform-hu95.vercel.app",
     "image": "/images/projects/tutoring-platform.webp",

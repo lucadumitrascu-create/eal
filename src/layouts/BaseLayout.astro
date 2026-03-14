@@ -10,7 +10,7 @@ interface Props {
 
 const {
   title,
-  description = 'EAL ENTERPRISES — Web development & software custom pentru startup-uri și business-uri. Execuție rapidă, cod curat, rezultate concrete.',
+  description = 'EAL ENTERPRISES — Web development & custom software for startups and businesses. Fast execution, clean code, concrete results.',
   ogImage = '/og-image.png',
 } = Astro.props;
 
@@ -19,20 +19,33 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'EAL ENTERPRISES',
-  url: Astro.site?.toString() || 'https://eal-enterprises.ro',
+  name: 'EAL ENTERPRISES S.R.L.',
+  alternateName: 'EAL ENTERPRISES',
+  url: Astro.site?.toString() || 'https://ealenterprises.com',
   logo: new URL('/favicon.svg', Astro.site).toString(),
-  description: 'Web development & software custom pentru startup-uri și business-uri.',
-  contactPoint: {
-    '@type': 'ContactPoint',
-    email: 'contact@eal-enterprises.ro',
-    contactType: 'customer service',
-    availableLanguage: ['Romanian', 'English'],
-  },
+  description: 'Web development & custom software for startups and businesses. Fast execution, clean code, concrete results.',
+  email: 'contact@ealenterprises.com',
+  telephone: '+4367764371363',
+  areaServed: 'Worldwide',
+  knowsLanguage: ['English', 'Romanian', 'German', 'French', 'Spanish', 'Italian'],
+  contactPoint: [
+    {
+      '@type': 'ContactPoint',
+      email: 'contact@ealenterprises.com',
+      telephone: '+4367764371363',
+      contactType: 'customer service',
+      availableLanguage: ['English', 'Romanian', 'German'],
+    },
+  ],
   sameAs: [
     'https://github.com/lucadumitrascu-create',
     'https://linkedin.com/in/lucadumitrascu',
   ],
+  founder: {
+    '@type': 'Person',
+    name: 'Luca Dumitrascu',
+  },
+  serviceType: ['Web Development', 'UI/UX Design', 'E-Commerce', 'Software Maintenance'],
 };
 ---
 
@@ -56,7 +69,7 @@ const jsonLd = {
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={new URL(ogImage, Astro.site)} />
-    <meta property="og:locale" content="ro_RO" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:site_name" content="EAL ENTERPRISES" />
 
     <!-- Twitter -->
