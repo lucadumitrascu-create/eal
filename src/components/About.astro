@@ -1,14 +1,14 @@
 ---
 const stats = [
-  { value: 4, suffix: '+', label: 'Completed projects', i18nLabel: 'about.stat1.label' },
-  { value: 100, suffix: '%', label: 'Custom code', i18nLabel: 'about.stat2.label' },
+  { value: 4, suffix: '+', label: 'Projects shipped', i18nLabel: 'about.stat1.label' },
+  { value: 100, suffix: '%', label: 'Hand-written code', i18nLabel: 'about.stat2.label' },
   { value: 48, suffix: 'h', label: 'Response time', i18nLabel: 'about.stat3.label' },
 ];
 
 const principles = [
-  { title: 'Quality code', desc: 'Every line of code is written with attention to detail and best practices.', i18nTitle: 'about.principle1.title', i18nDesc: 'about.principle1.desc' },
-  { title: 'Transparency', desc: 'Open and honest communication throughout the entire project.', i18nTitle: 'about.principle2.title', i18nDesc: 'about.principle2.desc' },
-  { title: 'Efficiency', desc: 'We deliver on time without compromising quality.', i18nTitle: 'about.principle3.title', i18nDesc: 'about.principle3.desc' },
+  { title: 'Clean code', desc: "No copy-paste. No spaghetti. Code that's built to last and easy to maintain.", i18nTitle: 'about.principle1.title', i18nDesc: 'about.principle1.desc' },
+  { title: 'No surprises', desc: "You'll always know where your project stands. Straight talk, honest timelines.", i18nTitle: 'about.principle2.title', i18nDesc: 'about.principle2.desc' },
+  { title: 'Fast delivery', desc: 'We ship on time. No endless meetings, no scope creep, no excuses.', i18nTitle: 'about.principle3.title', i18nDesc: 'about.principle3.desc' },
 ];
 ---
 
@@ -25,14 +25,14 @@ const principles = [
 
       <!-- Text -->
       <div data-animate="fade-right">
-        <p class="text-sm font-semibold uppercase tracking-widest text-[var(--color-accent)]" data-i18n="about.title">About us</p>
+        <p class="text-sm font-semibold uppercase tracking-widest text-[var(--color-accent)]" data-i18n="about.title">Who we are</p>
         <h2 class="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-[var(--color-text)]" data-i18n="about.description">
-          We are a team passionate about technology, dedicated to transforming ideas into high-performance digital products.
+          Small team. Big standards. We write every line ourselves.
         </h2>
 
         <!-- Principles -->
         <div class="mt-8">
-          <h3 class="text-lg font-semibold text-[var(--color-text)] mb-4" data-i18n="about.principles.title">Our principles</h3>
+          <h3 class="text-lg font-semibold text-[var(--color-text)] mb-4" data-i18n="about.principles.title">How we work</h3>
           <ul class="space-y-3">
             {principles.map((p, i) => (
               <li class="flex items-start gap-3 text-[var(--color-text-muted)]" data-animate="fade-up" data-stagger-delay={String(i + 1)}>
