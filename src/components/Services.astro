@@ -51,25 +51,19 @@ const services = [
   </div>
 
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="text-center max-w-2xl mx-auto mb-16" data-animate="fade-up">
+    <div class="text-center mb-16" data-animate="fade-up">
       <p class="text-sm font-semibold uppercase tracking-widest text-[var(--color-accent)]" data-i18n="services.title">What we build</p>
-      <h2 class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--color-text)]" data-i18n="services.subtitle">Your idea. Our code. Shipped fast.</h2>
     </div>
 
-    <!-- Bento grid: first card spans 2 cols on desktop, horizontal scroll on mobile -->
-    <div class="hidden md:grid md:grid-cols-3 gap-5 lg:gap-6">
-      {services.map(({ title, description, icon, i18nTitle, i18nDesc, accent, accentColor, num }, i) => (
+    <!-- 2x2 grid on desktop, horizontal scroll on mobile -->
+    <div class="hidden md:grid md:grid-cols-2 gap-5 lg:gap-6">
+      {services.map(({ title, description, icon, i18nTitle, i18nDesc, accent, accentColor }, i) => (
         <div
-          class:list={[
-            'group relative rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-neutral)] backdrop-blur-xl p-8 transition-all duration-400 hover:-translate-y-1.5 overflow-hidden',
-            i === 0 ? 'md:col-span-2 md:row-span-1' : '',
-          ]}
-          data-animate={i === 0 ? 'fade-right' : 'fade-up'}
+          class="group relative rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-neutral)] backdrop-blur-xl p-8 transition-all duration-400 hover:-translate-y-1.5 overflow-hidden"
+          data-animate="fade-up"
           data-stagger-delay={String(i)}
           style={`--card-accent: ${accentColor};`}
         >
-          <!-- Decorative number -->
-          <span class="absolute top-4 right-6 text-7xl lg:text-8xl font-black text-black/[0.03] leading-none select-none pointer-events-none">{num}</span>
 
           <!-- Hover glow -->
           <div class={`absolute -top-12 -left-12 w-32 h-32 rounded-full opacity-0 group-hover:opacity-100 blur-[40px] transition-all duration-500 bg-${accent}-500/10`}></div>
@@ -119,13 +113,12 @@ const services = [
 
     <!-- Mobile: horizontal scroll with snap -->
     <div class="md:hidden flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 scrollbar-hide">
-      {services.map(({ title, description, icon, i18nTitle, i18nDesc, accentColor, num }, i) => (
+      {services.map(({ title, description, icon, i18nTitle, i18nDesc, accentColor }, i) => (
         <div
           class="snap-center shrink-0 w-[85vw] max-w-[320px] group relative rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-neutral)] backdrop-blur-xl p-6 overflow-hidden"
           data-animate="fade-up"
           data-stagger-delay={String(i)}
         >
-          <span class="absolute top-3 right-5 text-6xl font-black text-black/[0.03] leading-none select-none pointer-events-none">{num}</span>
           <div class="relative">
             <div class="mb-4 inline-flex items-center justify-center w-11 h-11 rounded-xl" style={`background: rgba(${accentColor}, 0.1); color: rgb(${accentColor});`}>
               {icon === 'code' && (
