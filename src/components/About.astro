@@ -1,8 +1,8 @@
 ---
 const stats = [
-  { value: 4, suffix: '+', label: 'Completed projects', i18nLabel: 'about.stat1.label' },
-  { value: 100, suffix: '%', label: 'Custom code', i18nLabel: 'about.stat2.label' },
-  { value: 48, suffix: 'h', label: 'Response time', i18nLabel: 'about.stat3.label' },
+  { staticValue: '<7 days', i18nValue: 'about.stat1.value', label: 'Delivery time', i18nLabel: 'about.stat1.label' },
+  { value: 100, suffix: '%', label: 'On-time delivery', i18nLabel: 'about.stat2.label' },
+  { staticValue: 'EU', i18nValue: 'about.stat3.value', label: 'International clients', i18nLabel: 'about.stat3.label' },
 ];
 
 const principles = [
@@ -58,11 +58,18 @@ const principles = [
 
             <div class="relative flex items-end justify-between">
               <div>
-                <span
-                  class="counter-value text-5xl lg:text-6xl font-extrabold gradient-text-cyan"
-                  data-counter={String(stat.value)}
-                  data-counter-suffix={stat.suffix}
-                >0</span>
+                {'staticValue' in stat ? (
+                  <span
+                    class="text-5xl lg:text-6xl font-extrabold gradient-text-cyan"
+                    data-i18n={stat.i18nValue}
+                  >{stat.staticValue}</span>
+                ) : (
+                  <span
+                    class="counter-value text-5xl lg:text-6xl font-extrabold gradient-text-cyan"
+                    data-counter={String(stat.value)}
+                    data-counter-suffix={stat.suffix}
+                  >0</span>
+                )}
                 <p class="mt-2 text-sm font-medium uppercase tracking-wider text-[var(--color-text-muted)]" data-i18n={stat.i18nLabel}>{stat.label}</p>
               </div>
               <!-- Progress bar -->
@@ -70,7 +77,7 @@ const principles = [
                 <div
                   class="h-full rounded-full bg-gradient-to-r from-cyan-500 to-indigo-500 progress-fill"
                   style={`width: 0%; transition: width 1.8s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.15}s;`}
-                  data-fill={stat.value === 100 ? '100' : stat.value === 48 ? '65' : '40'}
+                  data-fill={i === 0 ? '70' : i === 1 ? '100' : '50'}
                 ></div>
               </div>
             </div>
