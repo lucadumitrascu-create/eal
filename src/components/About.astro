@@ -1,8 +1,8 @@
 ---
 const stats = [
-  { value: '4+', label: 'Completed projects', i18nValue: 'about.stat1.value', i18nLabel: 'about.stat1.label' },
-  { value: '100%', label: 'Custom code', i18nValue: 'about.stat2.value', i18nLabel: 'about.stat2.label' },
-  { value: '48h', label: 'Response time', i18nValue: 'about.stat3.value', i18nLabel: 'about.stat3.label' },
+  { value: 4, suffix: '+', label: 'Completed projects', i18nLabel: 'about.stat1.label' },
+  { value: 100, suffix: '%', label: 'Custom code', i18nLabel: 'about.stat2.label' },
+  { value: 48, suffix: 'h', label: 'Response time', i18nLabel: 'about.stat3.label' },
 ];
 
 const principles = [
@@ -12,18 +12,19 @@ const principles = [
 ];
 ---
 
-<section id="despre" class="relative py-24 sm:py-32 overflow-hidden">
+<section id="despre" class="relative py-24 sm:py-32 overflow-hidden section-transition">
   <!-- Section glow orbs -->
   <div class="absolute inset-0 -z-10" aria-hidden="true">
-    <div class="absolute top-[20%] right-[-8%] w-[45%] h-[45%] rounded-full bg-violet-500 opacity-[0.06] blur-[120px]"></div>
-    <div class="absolute bottom-[5%] left-[10%] w-[30%] h-[30%] rounded-full bg-blue-500 opacity-[0.05] blur-[100px]"></div>
+    <div class="absolute top-[20%] right-[-8%] w-[45%] h-[45%] rounded-full bg-indigo-500 opacity-[0.05] blur-[120px]"></div>
+    <div class="absolute bottom-[5%] left-[10%] w-[30%] h-[30%] rounded-full bg-cyan-500 opacity-[0.04] blur-[100px]"></div>
   </div>
 
+
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+    <div class="grid lg:grid-cols-2 gap-16 lg:gap-24 items-start">
 
       <!-- Text -->
-      <div class="about-reveal">
+      <div data-animate="fade-right">
         <p class="text-sm font-semibold uppercase tracking-widest text-[var(--color-accent)]" data-i18n="about.title">About us</p>
         <h2 class="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-[var(--color-text)]" data-i18n="about.description">
           We are a team passionate about technology, dedicated to transforming ideas into high-performance digital products.
@@ -33,9 +34,9 @@ const principles = [
         <div class="mt-8">
           <h3 class="text-lg font-semibold text-[var(--color-text)] mb-4" data-i18n="about.principles.title">Our principles</h3>
           <ul class="space-y-3">
-            {principles.map((p) => (
-              <li class="flex items-start gap-3 text-[var(--color-text-muted)]">
-                <span class="mt-1.5 flex-shrink-0 w-1.5 h-1.5 rounded-full bg-[var(--color-accent)] shadow-[0_0_6px_rgba(59,130,246,0.4)]"></span>
+            {principles.map((p, i) => (
+              <li class="flex items-start gap-3 text-[var(--color-text-muted)]" data-animate="fade-up" data-stagger-delay={String(i + 1)}>
+                <span class="mt-1.5 flex-shrink-0 w-1.5 h-1.5 rounded-full bg-[var(--color-accent)] shadow-[0_0_6px_rgba(6,182,212,0.4)]"></span>
                 <div>
                   <span class="text-base font-medium text-[var(--color-text)]" data-i18n={p.i18nTitle}>{p.title}</span>
                   <p class="text-sm mt-1" data-i18n={p.i18nDesc}>{p.desc}</p>
@@ -46,58 +47,65 @@ const principles = [
         </div>
       </div>
 
-      <!-- Stats -->
-      <div class="about-reveal about-reveal-delay grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-1 gap-6">
-        {stats.map((stat) => (
-          <div class="group relative rounded-2xl border border-[var(--color-border)] bg-[rgba(17,17,19,0.5)] backdrop-blur-xl p-8 text-center lg:text-left transition-all duration-400 hover:border-[rgba(59,130,246,0.2)] hover:shadow-[0_0_40px_rgba(59,130,246,0.07),0_0_80px_rgba(139,92,246,0.03)] hover:-translate-y-1 overflow-hidden">
-            <!-- Top highlight line -->
-            <div class="absolute top-0 left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent"></div>
-            <!-- Inner glow on hover -->
-            <div class="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-blue-500/0 group-hover:bg-blue-500/[0.08] blur-[30px] transition-all duration-500"></div>
+      <!-- Stats — stacked cards with animated counters -->
+      <div class="space-y-5" data-animate="fade-left">
+        {stats.map((stat, i) => (
+          <div
+            class="group relative rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-neutral)] backdrop-blur-xl p-8 transition-all duration-400 hover:border-[rgba(6,182,212,0.2)] hover:shadow-[0_0_40px_rgba(6,182,212,0.06)] hover:-translate-y-1 overflow-hidden"
+            data-stagger-delay={String(i + 1)}
+          >
+            <!-- Top highlight -->
+            <div class="absolute top-0 left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-black/[0.04] to-transparent"></div>
+            <!-- Hover glow -->
+            <div class="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-cyan-500/0 group-hover:bg-cyan-500/[0.06] blur-[30px] transition-all duration-500"></div>
 
-            <div class="relative">
-              <span class="text-5xl sm:text-4xl lg:text-6xl font-extrabold bg-gradient-to-r from-blue-400 via-indigo-400 to-violet-400 bg-clip-text text-transparent" data-i18n={stat.i18nValue}>{stat.value}</span>
-              <p class="mt-2 text-sm font-medium uppercase tracking-wider text-[var(--color-text-muted)]" data-i18n={stat.i18nLabel}>{stat.label}</p>
+            <div class="relative flex items-end justify-between">
+              <div>
+                <span
+                  class="counter-value text-5xl lg:text-6xl font-extrabold gradient-text-cyan"
+                  data-counter={String(stat.value)}
+                  data-counter-suffix={stat.suffix}
+                >0</span>
+                <p class="mt-2 text-sm font-medium uppercase tracking-wider text-[var(--color-text-muted)]" data-i18n={stat.i18nLabel}>{stat.label}</p>
+              </div>
+              <!-- Progress bar -->
+              <div class="w-24 lg:w-32 h-1 rounded-full bg-black/[0.06] overflow-hidden mb-2">
+                <div
+                  class="h-full rounded-full bg-gradient-to-r from-cyan-500 to-indigo-500 progress-fill"
+                  style={`width: 0%; transition: width 1.8s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.15}s;`}
+                  data-fill={stat.value === 100 ? '100' : stat.value === 48 ? '65' : '40'}
+                ></div>
+              </div>
             </div>
           </div>
         ))}
       </div>
 
     </div>
+
+    <!-- Stats horizontal bar on large screens -->
+    <!-- (keeping stacked for now as it fits the layout better) -->
   </div>
 
-  <!-- Bottom divider -->
-  <div class="absolute bottom-0 left-0 right-0 section-divider"></div>
+  <!-- Bottom gradient transition -->
+  <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#f0fdfa] to-transparent pointer-events-none"></div>
 </section>
 
-<style>
-  .about-reveal {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
-  }
-
-  .about-reveal.is-visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .about-reveal-delay {
-    transition-delay: 0.2s;
-  }
-</style>
-
 <script>
-  const observer = new IntersectionObserver(
+  // Animate progress bars when they come into view
+  const progressBars = document.querySelectorAll<HTMLElement>('.progress-fill');
+  const progressObserver = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
+          const el = entry.target as HTMLElement;
+          const fill = el.dataset.fill || '0';
+          el.style.width = fill + '%';
+          progressObserver.unobserve(el);
         }
       });
     },
-    { threshold: 0.15 }
+    { threshold: 0.3 }
   );
-
-  document.querySelectorAll('.about-reveal').forEach((el) => observer.observe(el));
+  progressBars.forEach((bar) => progressObserver.observe(bar));
 </script>

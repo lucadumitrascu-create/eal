@@ -6,6 +6,9 @@ const services = [
     icon: 'code',
     i18nTitle: 'services.web.title',
     i18nDesc: 'services.web.desc',
+    accent: 'cyan',
+    accentColor: '6, 182, 212',
+    num: '01',
   },
   {
     title: 'UI/UX Design',
@@ -13,6 +16,9 @@ const services = [
     icon: 'palette',
     i18nTitle: 'services.ui.title',
     i18nDesc: 'services.ui.desc',
+    accent: 'pink',
+    accentColor: '236, 72, 153',
+    num: '02',
   },
   {
     title: 'E-Commerce',
@@ -20,6 +26,9 @@ const services = [
     icon: 'store',
     i18nTitle: 'services.ecommerce.title',
     i18nDesc: 'services.ecommerce.desc',
+    accent: 'amber',
+    accentColor: '245, 158, 11',
+    num: '03',
   },
   {
     title: 'Maintenance & Support',
@@ -27,33 +36,48 @@ const services = [
     icon: 'shield',
     i18nTitle: 'services.maintenance.title',
     i18nDesc: 'services.maintenance.desc',
+    accent: 'emerald',
+    accentColor: '16, 185, 129',
+    num: '04',
   },
 ];
 ---
 
-<section id="servicii" class="relative py-24 sm:py-32 overflow-hidden">
+<section id="servicii" class="relative py-24 sm:py-32 overflow-hidden section-transition">
   <!-- Section glow orbs -->
   <div class="absolute inset-0 -z-10" aria-hidden="true">
-    <div class="absolute top-[10%] left-[-5%] w-[40%] h-[40%] rounded-full bg-blue-500 opacity-[0.06] blur-[120px]"></div>
-    <div class="absolute bottom-[10%] right-[-5%] w-[35%] h-[35%] rounded-full bg-violet-500 opacity-[0.05] blur-[100px]"></div>
+    <div class="absolute top-[10%] left-[-5%] w-[40%] h-[40%] rounded-full bg-cyan-500 opacity-[0.06] blur-[120px]"></div>
+    <div class="absolute bottom-[10%] right-[-5%] w-[35%] h-[35%] rounded-full bg-indigo-500 opacity-[0.04] blur-[100px]"></div>
   </div>
 
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="text-center max-w-2xl mx-auto mb-16 services-reveal">
+    <div class="text-center max-w-2xl mx-auto mb-16" data-animate="fade-up">
       <p class="text-sm font-semibold uppercase tracking-widest text-[var(--color-accent)]" data-i18n="services.title">What we do</p>
-      <h2 class="mt-3 text-3xl sm:text-4xl font-bold text-[var(--color-text)]" data-i18n="services.subtitle">Complete solutions for the digital world</h2>
+      <h2 class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--color-text)]" data-i18n="services.subtitle">Complete solutions for the digital world</h2>
     </div>
 
-    <div class="grid sm:grid-cols-2 gap-6 lg:gap-8">
-      {services.map(({ title, description, icon, i18nTitle, i18nDesc }, i) => (
-        <div class="services-reveal group relative rounded-2xl border border-[var(--color-border)] bg-[rgba(17,17,19,0.5)] backdrop-blur-xl p-8 transition-all duration-400 hover:-translate-y-1.5 hover:border-[rgba(59,130,246,0.2)] hover:shadow-[0_0_40px_rgba(59,130,246,0.07),0_0_80px_rgba(139,92,246,0.03)] overflow-hidden" style={`animation-delay: ${i * 100}ms`}>
-          <!-- Inner top-left glow on hover -->
-          <div class="absolute -top-12 -left-12 w-32 h-32 rounded-full bg-blue-500/0 group-hover:bg-blue-500/[0.08] blur-[40px] transition-all duration-500"></div>
-          <!-- Top highlight line -->
-          <div class="absolute top-0 left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent"></div>
+    <!-- Bento grid: first card spans 2 cols on desktop, horizontal scroll on mobile -->
+    <div class="hidden md:grid md:grid-cols-3 gap-5 lg:gap-6">
+      {services.map(({ title, description, icon, i18nTitle, i18nDesc, accent, accentColor, num }, i) => (
+        <div
+          class:list={[
+            'group relative rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-neutral)] backdrop-blur-xl p-8 transition-all duration-400 hover:-translate-y-1.5 overflow-hidden',
+            i === 0 ? 'md:col-span-2 md:row-span-1' : '',
+          ]}
+          data-animate={i === 0 ? 'fade-right' : 'fade-up'}
+          data-stagger-delay={String(i)}
+          style={`--card-accent: ${accentColor};`}
+        >
+          <!-- Decorative number -->
+          <span class="absolute top-4 right-6 text-7xl lg:text-8xl font-black text-black/[0.03] leading-none select-none pointer-events-none">{num}</span>
+
+          <!-- Hover glow -->
+          <div class={`absolute -top-12 -left-12 w-32 h-32 rounded-full opacity-0 group-hover:opacity-100 blur-[40px] transition-all duration-500 bg-${accent}-500/10`}></div>
+          <!-- Top highlight -->
+          <div class="absolute top-0 left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-black/[0.04] to-transparent"></div>
 
           <div class="relative">
-            <div class="mb-5 inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[var(--color-accent-light)] text-[var(--color-accent)] transition-all duration-300 group-hover:bg-[var(--color-accent)] group-hover:text-white group-hover:shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+            <div class={`mb-5 inline-flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(var(--card-accent),0.3)]`} style={`background: rgba(${accentColor}, 0.1); color: rgb(${accentColor});`}>
               {icon === 'code' && (
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
@@ -77,40 +101,72 @@ const services = [
             </div>
             <h3 class="text-xl font-semibold text-[var(--color-text)]" data-i18n={i18nTitle}>{title}</h3>
             <p class="mt-3 text-[var(--color-text-muted)] leading-relaxed" data-i18n={i18nDesc}>{description}</p>
+
+            <!-- Decorative accent line on hover -->
+            <div class="mt-5 w-8 h-0.5 rounded-full opacity-0 group-hover:opacity-50 group-hover:w-12 transition-all duration-500" style={`background: rgb(${accentColor});`}></div>
+          </div>
+
+          <!-- Hover border color -->
+          <style define:vars={{ accentColor }}>
+            div:hover {
+              border-color: rgba(var(--accentColor), 0.2);
+              box-shadow: 0 0 40px rgba(var(--accentColor), 0.06), 0 0 80px rgba(var(--accentColor), 0.02);
+            }
+          </style>
+        </div>
+      ))}
+    </div>
+
+    <!-- Mobile: horizontal scroll with snap -->
+    <div class="md:hidden flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 scrollbar-hide">
+      {services.map(({ title, description, icon, i18nTitle, i18nDesc, accentColor, num }, i) => (
+        <div
+          class="snap-center shrink-0 w-[85vw] max-w-[320px] group relative rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-neutral)] backdrop-blur-xl p-6 overflow-hidden"
+          data-animate="fade-up"
+          data-stagger-delay={String(i)}
+        >
+          <span class="absolute top-3 right-5 text-6xl font-black text-black/[0.03] leading-none select-none pointer-events-none">{num}</span>
+          <div class="relative">
+            <div class="mb-4 inline-flex items-center justify-center w-11 h-11 rounded-xl" style={`background: rgba(${accentColor}, 0.1); color: rgb(${accentColor});`}>
+              {icon === 'code' && (
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+                </svg>
+              )}
+              {icon === 'palette' && (
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" />
+                </svg>
+              )}
+              {icon === 'store' && (
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016A3.001 3.001 0 0021 9.349m-18 0a2.999 2.999 0 00.97-1.599L5.49 3h13.02l1.52 4.75A3 3 0 0021 9.349" />
+                </svg>
+              )}
+              {icon === 'shield' && (
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+                </svg>
+              )}
+            </div>
+            <h3 class="text-lg font-semibold text-[var(--color-text)]" data-i18n={i18nTitle}>{title}</h3>
+            <p class="mt-2 text-sm text-[var(--color-text-muted)] leading-relaxed" data-i18n={i18nDesc}>{description}</p>
           </div>
         </div>
       ))}
     </div>
   </div>
 
-  <!-- Bottom divider -->
-  <div class="absolute bottom-0 left-0 right-0 section-divider"></div>
+  <!-- Bottom gradient transition -->
+  <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#f0fdfa] to-transparent pointer-events-none"></div>
 </section>
 
 <style>
-  .services-reveal {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
-
-  .services-reveal.is-visible {
-    opacity: 1;
-    transform: translateY(0);
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
   }
 </style>
-
-<script>
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-        }
-      });
-    },
-    { threshold: 0.1 }
-  );
-
-  document.querySelectorAll('.services-reveal').forEach((el) => observer.observe(el));
-</script>

@@ -11,23 +11,23 @@ import projects from '../data/projects.json';
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 
       <!-- Header -->
-      <div class="max-w-2xl projects-fade-in">
+      <div class="max-w-2xl" data-animate="fade-up">
         <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-accent)] hover:underline no-underline hover:no-underline mb-8">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          Înapoi acasă
+          <span data-i18n="projects.back">Back home</span>
         </a>
-        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--color-text)]">Proiectele noastre</h1>
-        <p class="mt-4 text-lg text-[var(--color-text-muted)] leading-relaxed">
-          O selecție din proiectele la care am lucrat.
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--color-text)]" data-i18n="projects.pageTitle">Our projects</h1>
+        <p class="mt-4 text-lg text-[var(--color-text-muted)] leading-relaxed" data-i18n="projects.pageDesc">
+          A selection of the projects we've worked on.
         </p>
       </div>
 
       <!-- Grid -->
       <div class="mt-14 grid sm:grid-cols-2 gap-6 lg:gap-8">
         {projects.map((project, i) => (
-          <div class="projects-fade-in" style={`animation-delay: ${(i + 1) * 120}ms`}>
+          <div data-animate="fade-up" data-stagger-delay={String(i + 1)}>
             <ProjectCard
               title={project.title}
               description={project.description}
@@ -42,20 +42,3 @@ import projects from '../data/projects.json';
     </div>
   </main>
 </BaseLayout>
-
-<style>
-  @keyframes projectsFadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  .projects-fade-in {
-    animation: projectsFadeIn 0.6s ease-out both;
-  }
-</style>

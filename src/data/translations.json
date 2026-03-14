@@ -47,7 +47,18 @@
     "contact.info.title": "Contact information",
     "contact.info.email": "contact@eal-enterprises.ro",
     "contact.info.response": "We respond within 48 hours",
-    "footer.rights": "All rights reserved."
+    "footer.rights": "All rights reserved.",
+    "hero.label": "< Digital Agency />",
+    "hero.scroll": "Scroll",
+    "services.learnMore": "Learn more",
+    "footer.description": "Web development & custom software for startups and businesses. Fast execution, clean code, concrete results.",
+    "footer.navigation": "Navigation",
+    "footer.connect": "Connect",
+    "projects.back": "Back home",
+    "projects.pageTitle": "Our projects",
+    "projects.pageDesc": "A selection of the projects we've worked on.",
+    "error.title": "Page not found",
+    "error.description": "The page you're looking for doesn't exist. Check the URL or go back home."
   },
   "ro": {
     "hero.title1": "Construim software",
@@ -97,7 +108,18 @@
     "contact.info.title": "Informatii de contact",
     "contact.info.email": "contact@eal-enterprises.ro",
     "contact.info.response": "Raspundem in maximum 48 de ore",
-    "footer.rights": "Toate drepturile rezervate."
+    "footer.rights": "Toate drepturile rezervate.",
+    "hero.label": "< Agentie Digitala />",
+    "hero.scroll": "Deruleaza",
+    "services.learnMore": "Afla mai mult",
+    "footer.description": "Dezvoltare web si software personalizat pentru startup-uri si afaceri. Executie rapida, cod curat, rezultate concrete.",
+    "footer.navigation": "Navigare",
+    "footer.connect": "Conecteaza-te",
+    "projects.back": "Inapoi acasa",
+    "projects.pageTitle": "Proiectele noastre",
+    "projects.pageDesc": "O selectie din proiectele la care am lucrat.",
+    "error.title": "Pagina nu a fost gasita",
+    "error.description": "Pagina pe care o cauti nu exista. Verifica URL-ul sau intoarce-te acasa."
   },
   "de": {
     "hero.title1": "Wir entwickeln Software,",
@@ -147,7 +169,18 @@
     "contact.info.title": "Kontaktinformationen",
     "contact.info.email": "contact@eal-enterprises.ro",
     "contact.info.response": "Wir antworten innerhalb von 48 Stunden",
-    "footer.rights": "Alle Rechte vorbehalten."
+    "footer.rights": "Alle Rechte vorbehalten.",
+    "hero.label": "< Digitalagentur />",
+    "hero.scroll": "Scrollen",
+    "services.learnMore": "Mehr erfahren",
+    "footer.description": "Webentwicklung und individuelle Software fuer Startups und Unternehmen. Schnelle Umsetzung, sauberer Code, konkrete Ergebnisse.",
+    "footer.navigation": "Navigation",
+    "footer.connect": "Verbinden",
+    "projects.back": "Zurueck zur Startseite",
+    "projects.pageTitle": "Unsere Projekte",
+    "projects.pageDesc": "Eine Auswahl unserer bisherigen Projekte.",
+    "error.title": "Seite nicht gefunden",
+    "error.description": "Die gesuchte Seite existiert nicht. Prufen Sie die URL oder kehren Sie zur Startseite zuruck."
   },
   "fr": {
     "hero.title1": "Nous creons des logiciels",
@@ -197,7 +230,18 @@
     "contact.info.title": "Coordonnees",
     "contact.info.email": "contact@eal-enterprises.ro",
     "contact.info.response": "Nous repondons sous 48 heures",
-    "footer.rights": "Tous droits reserves."
+    "footer.rights": "Tous droits reserves.",
+    "hero.label": "< Agence Digitale />",
+    "hero.scroll": "Defiler",
+    "services.learnMore": "En savoir plus",
+    "footer.description": "Developpement web et logiciels sur mesure pour startups et entreprises. Execution rapide, code propre, resultats concrets.",
+    "footer.navigation": "Navigation",
+    "footer.connect": "Connectez-vous",
+    "projects.back": "Retour a l'accueil",
+    "projects.pageTitle": "Nos projets",
+    "projects.pageDesc": "Une selection de nos projets realises.",
+    "error.title": "Page introuvable",
+    "error.description": "La page que vous recherchez n'existe pas. Verifiez l'URL ou retournez a l'accueil."
   },
   "es": {
     "hero.title1": "Creamos software",
@@ -247,7 +291,18 @@
     "contact.info.title": "Informacion de contacto",
     "contact.info.email": "contact@eal-enterprises.ro",
     "contact.info.response": "Respondemos en un maximo de 48 horas",
-    "footer.rights": "Todos los derechos reservados."
+    "footer.rights": "Todos los derechos reservados.",
+    "hero.label": "< Agencia Digital />",
+    "hero.scroll": "Desplazar",
+    "services.learnMore": "Saber mas",
+    "footer.description": "Desarrollo web y software personalizado para startups y empresas. Ejecucion rapida, codigo limpio, resultados concretos.",
+    "footer.navigation": "Navegacion",
+    "footer.connect": "Conecta",
+    "projects.back": "Volver al inicio",
+    "projects.pageTitle": "Nuestros proyectos",
+    "projects.pageDesc": "Una seleccion de los proyectos en los que hemos trabajado.",
+    "error.title": "Pagina no encontrada",
+    "error.description": "La pagina que buscas no existe. Verifica la URL o vuelve al inicio."
   },
   "it": {
     "hero.title1": "Creiamo software",
@@ -297,6 +352,17 @@
     "contact.info.title": "Informazioni di contatto",
     "contact.info.email": "contact@eal-enterprises.ro",
     "contact.info.response": "Rispondiamo entro 48 ore",
-    "footer.rights": "Tutti i diritti riservati."
+    "footer.rights": "Tutti i diritti riservati.",
+    "hero.label": "< Agenzia Digitale />",
+    "hero.scroll": "Scorri",
+    "services.learnMore": "Scopri di piu",
+    "footer.description": "Sviluppo web e software personalizzato per startup e aziende. Esecuzione rapida, codice pulito, risultati concreti.",
+    "footer.navigation": "Navigazione",
+    "footer.connect": "Connettiti",
+    "projects.back": "Torna alla home",
+    "projects.pageTitle": "I nostri progetti",
+    "projects.pageDesc": "Una selezione dei progetti su cui abbiamo lavorato.",
+    "error.title": "Pagina non trovata",
+    "error.description": "La pagina che stai cercando non esiste. Controlla l'URL o torna alla home."
   }
 }

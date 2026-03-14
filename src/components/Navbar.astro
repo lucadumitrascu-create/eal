@@ -2,10 +2,10 @@
 const isHome = Astro.url.pathname === '/' || Astro.url.pathname === '';
 
 const navLinks = [
-  { label: 'Services', href: isHome ? '#servicii' : '/#servicii', i18nKey: 'nav.services' },
-  { label: 'Projects', href: '/projects', i18nKey: 'nav.projects' },
-  { label: 'About', href: isHome ? '#despre' : '/#despre', i18nKey: 'nav.about' },
-  { label: 'Contact', href: isHome ? '#contact' : '/#contact', i18nKey: 'nav.contact' },
+  { label: 'Services', href: isHome ? '#servicii' : '/#servicii', i18nKey: 'nav.services', section: 'servicii' },
+  { label: 'Projects', href: '/projects', i18nKey: 'nav.projects', section: '' },
+  { label: 'About', href: isHome ? '#despre' : '/#despre', i18nKey: 'nav.about', section: 'despre' },
+  { label: 'Contact', href: isHome ? '#contact' : '/#contact', i18nKey: 'nav.contact', section: 'contact' },
 ];
 
 const ctaHref = isHome ? '#contact' : '/#contact';
@@ -13,42 +13,68 @@ const ctaHref = isHome ? '#contact' : '/#contact';
 
 <header
   id="navbar"
-  class="fixed top-0 left-0 w-full z-50 border-b"
-  style="background:transparent;border-color:transparent;transition:background 0.4s ease,border-color 0.4s ease,backdrop-filter 0.4s ease;"
+  class="fixed top-0 left-0 right-0 z-50 flex justify-center pointer-events-none"
 >
-  <nav aria-label="Main navigation" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+  <nav
+    aria-label="Main navigation"
+    class="navbar-pill pointer-events-auto mx-3 sm:mx-4 mt-3 px-4 sm:px-6 flex items-center justify-between h-14 sm:h-15 w-full max-w-5xl rounded-2xl border border-transparent transition-all duration-500 ease-out"
+  >
     <!-- Logo -->
-    <a href="/" aria-label="EAL ENTERPRISES — Home" class="flex items-baseline gap-1 text-xl uppercase tracking-wider no-underline hover:no-underline">
-      <span class="font-bold text-[var(--color-text)]">EAL</span>
-      <span class="font-normal text-[var(--color-text-muted)]">ENTERPRISES</span>
+    <a href="/" aria-label="EAL ENTERPRISES — Home" class="flex items-baseline gap-1 text-lg sm:text-xl uppercase tracking-wider no-underline hover:no-underline shrink-0">
+      <span class="font-bold text-[#0c1a2a]">EAL</span>
+      <span class="font-normal text-[#4b6478] text-sm hidden sm:inline">ENTERPRISES</span>
     </a>
 
     <!-- Desktop links -->
-    <ul class="hidden md:flex items-center gap-8 list-none m-0 p-0">
-      {navLinks.map(({ label, href, i18nKey }) => (
+    <ul class="hidden md:flex items-center gap-6 lg:gap-8 list-none m-0 p-0">
+      {navLinks.map(({ label, href, i18nKey, section }) => (
         <li>
           <a
             href={href}
             class:list={[
-              'nav-link text-sm font-medium no-underline hover:no-underline transition-colors duration-200',
+              'nav-link relative text-sm font-medium no-underline hover:no-underline transition-colors duration-200',
               'text-[var(--color-text-muted)] hover:text-[var(--color-text)]',
             ]}
             data-i18n={i18nKey}
+            data-nav-section={section}
           >
             {label}
+            <!-- Active dot indicator -->
+            <span class="nav-dot absolute -bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[var(--color-accent)] opacity-0 transition-opacity duration-300"></span>
           </a>
         </li>
       ))}
     </ul>
 
-    <!-- CTA button desktop -->
-    <a
-      href={ctaHref}
-      class="hidden md:inline-flex items-center px-5 py-2 rounded-xl text-sm font-medium text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] no-underline hover:no-underline transition-all duration-300 hover:shadow-[0_0_24px_rgba(59,130,246,0.3)] hover:scale-[1.02]"
-      data-i18n="nav.contactBtn"
-    >
-      Contact us
-    </a>
+    <!-- Language switcher + CTA desktop -->
+    <div class="hidden md:flex items-center gap-3">
+      <div class="relative" id="lang-switcher">
+        <button
+          id="lang-toggle"
+          type="button"
+          class="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)] hover:text-[var(--color-text)] border border-transparent hover:border-[var(--color-border)] transition-all duration-200 cursor-pointer"
+          aria-label="Change language"
+        >
+          <span id="lang-current">EN</span>
+          <svg class="w-3 h-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/></svg>
+        </button>
+        <div id="lang-dropdown" class="absolute top-full right-0 mt-2 py-1 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] backdrop-blur-xl shadow-xl min-w-[100px] opacity-0 pointer-events-none scale-95 transition-all duration-200 origin-top-right">
+          <button data-set-lang="en" class="lang-option w-full text-left px-4 py-1.5 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-black/[0.04] transition-colors cursor-pointer">English</button>
+          <button data-set-lang="ro" class="lang-option w-full text-left px-4 py-1.5 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-black/[0.04] transition-colors cursor-pointer">Romana</button>
+          <button data-set-lang="de" class="lang-option w-full text-left px-4 py-1.5 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-black/[0.04] transition-colors cursor-pointer">Deutsch</button>
+          <button data-set-lang="fr" class="lang-option w-full text-left px-4 py-1.5 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-black/[0.04] transition-colors cursor-pointer">Francais</button>
+          <button data-set-lang="es" class="lang-option w-full text-left px-4 py-1.5 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-black/[0.04] transition-colors cursor-pointer">Espanol</button>
+          <button data-set-lang="it" class="lang-option w-full text-left px-4 py-1.5 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-black/[0.04] transition-colors cursor-pointer">Italiano</button>
+        </div>
+      </div>
+      <a
+        href={ctaHref}
+        class="inline-flex items-center px-5 py-2 rounded-xl text-sm font-medium text-[#0A0A0A] bg-[var(--color-accent-secondary)] hover:bg-[var(--color-accent-secondary-hover)] no-underline hover:no-underline transition-all duration-300 hover:shadow-[0_0_24px_rgba(245,158,11,0.3)] hover:scale-[1.02]"
+        data-i18n="nav.contactBtn"
+      >
+        Contact us
+      </a>
+    </div>
 
     <!-- Hamburger button mobile -->
     <button
@@ -64,15 +90,17 @@ const ctaHref = isHome ? '#contact' : '/#contact';
     </button>
   </nav>
 
-  <!-- Mobile menu -->
+  <!-- Mobile menu — scale from center -->
   <div
     id="mobile-menu"
-    class="fixed inset-0 bg-[var(--color-bg)]/95 backdrop-blur-xl z-40 flex flex-col items-center justify-center gap-8 translate-x-full transition-transform duration-300 ease-in-out md:hidden"
+    class="fixed inset-0 bg-white/95 backdrop-blur-xl z-40 flex flex-col items-center justify-center gap-8 pointer-events-auto md:hidden"
+    style="opacity:0;transform:scale(0.95);pointer-events:none;transition:opacity 0.3s ease,transform 0.3s ease;"
   >
-    {navLinks.map(({ label, href, i18nKey }) => (
+    {navLinks.map(({ label, href, i18nKey }, index) => (
       <a
         href={href}
-        class="mobile-link text-2xl font-medium text-[var(--color-text)] no-underline hover:no-underline hover:text-[var(--color-accent)] transition-colors duration-200"
+        class="mobile-link text-2xl font-medium text-[var(--color-text)] no-underline hover:no-underline hover:text-[var(--color-accent)] transition-all duration-200"
+        style={`opacity:0;transform:translateY(15px);transition:opacity 0.3s ease ${0.08 * (index + 1)}s,transform 0.3s ease ${0.08 * (index + 1)}s,color 0.2s ease;`}
         data-i18n={i18nKey}
       >
         {label}
@@ -80,7 +108,8 @@ const ctaHref = isHome ? '#contact' : '/#contact';
     ))}
     <a
       href={ctaHref}
-      class="mobile-link mt-4 px-8 py-3 rounded-xl text-lg font-medium text-white bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] no-underline hover:no-underline transition-colors duration-200"
+      class="mobile-link mt-4 px-8 py-3 rounded-xl text-lg font-medium text-[#0A0A0A] bg-[var(--color-accent-secondary)] hover:bg-[var(--color-accent-secondary-hover)] no-underline hover:no-underline transition-all duration-200"
+      style={`opacity:0;transform:translateY(15px);transition:opacity 0.3s ease ${0.08 * 5}s,transform 0.3s ease ${0.08 * 5}s,background 0.2s ease;`}
       data-i18n="nav.contactBtn"
     >
       Contact us
@@ -88,57 +117,108 @@ const ctaHref = isHome ? '#contact' : '/#contact';
   </div>
 </header>
 
-<!-- Spacer so content doesn't hide behind fixed navbar -->
-<div class="h-16"></div>
+<!-- Spacer -->
+<div class="h-20"></div>
 
 <script>
   function initNavbar() {
     const navbar = document.getElementById('navbar');
+    const pill = navbar?.querySelector('.navbar-pill') as HTMLElement | null;
     const toggle = document.getElementById('menu-toggle');
     const menu = document.getElementById('mobile-menu');
-    if (!navbar || !toggle || !menu) return;
+    if (!navbar || !pill || !toggle || !menu) return;
 
     let scrolled = false;
     let menuOpen = false;
 
+    // Scroll — glassmorphism on pill
     function onScroll() {
-      const isScrolled = window.scrollY > 10;
+      const isScrolled = window.scrollY > 30;
       if (isScrolled === scrolled) return;
       scrolled = isScrolled;
 
       if (scrolled) {
-        navbar.style.background = 'rgba(10,10,10,0.6)';
-        navbar.style.borderColor = 'rgba(255,255,255,0.06)';
-        navbar.style.backdropFilter = 'blur(16px)';
-        navbar.style.webkitBackdropFilter = 'blur(16px)';
+        pill.style.background = 'rgba(255,255,255,0.75)';
+        pill.style.borderColor = 'rgba(0,0,0,0.06)';
+        pill.style.boxShadow = '0 4px 30px rgba(0,0,0,0.08)';
+        pill.style.backdropFilter = 'blur(20px)';
+        pill.style.webkitBackdropFilter = 'blur(20px)';
       } else {
-        navbar.style.background = 'transparent';
-        navbar.style.borderColor = 'transparent';
-        navbar.style.backdropFilter = 'none';
-        navbar.style.webkitBackdropFilter = 'none';
+        pill.style.background = 'transparent';
+        pill.style.borderColor = 'transparent';
+        pill.style.backdropFilter = 'none';
+        pill.style.webkitBackdropFilter = 'none';
+        pill.style.boxShadow = 'none';
       }
     }
 
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
 
+    // Active section tracking
+    const sections = document.querySelectorAll<HTMLElement>('[id]');
+    const navDots = document.querySelectorAll<HTMLElement>('.nav-dot');
+    const navLinkEls = document.querySelectorAll<HTMLAnchorElement>('[data-nav-section]');
+
+    function updateActiveSection() {
+      let activeSection = '';
+      const scrollPos = window.scrollY + window.innerHeight / 3;
+
+      sections.forEach((section) => {
+        if (section.offsetTop <= scrollPos) {
+          activeSection = section.id;
+        }
+      });
+
+      navLinkEls.forEach((link) => {
+        const dot = link.querySelector('.nav-dot') as HTMLElement;
+        if (!dot) return;
+        const sectionId = link.dataset.navSection;
+        if (sectionId && sectionId === activeSection) {
+          dot.style.opacity = '1';
+          link.classList.add('text-[var(--color-text)]');
+          link.classList.remove('text-[var(--color-text-muted)]');
+        } else {
+          dot.style.opacity = '0';
+          link.classList.remove('text-[var(--color-text)]');
+          link.classList.add('text-[var(--color-text-muted)]');
+        }
+      });
+    }
+
+    window.addEventListener('scroll', updateActiveSection, { passive: true });
+    updateActiveSection();
+
+    // Mobile menu — scale from center with stagger
     const lines = toggle.querySelectorAll('.hamburger-line');
+    const mobileLinks = menu.querySelectorAll('.mobile-link');
 
     function setMenu(open: boolean) {
       menuOpen = open;
       toggle.setAttribute('aria-expanded', String(open));
 
       if (open) {
-        menu.classList.remove('translate-x-full');
-        menu.classList.add('translate-x-0');
+        menu.style.pointerEvents = 'auto';
+        menu.style.opacity = '1';
+        menu.style.transform = 'scale(1)';
         document.body.style.overflow = 'hidden';
+        // Stagger links in
+        mobileLinks.forEach((link) => {
+          (link as HTMLElement).style.opacity = '1';
+          (link as HTMLElement).style.transform = 'translateY(0)';
+        });
         (lines[0] as HTMLElement).style.transform = 'translateY(4px) rotate(45deg)';
         (lines[1] as HTMLElement).style.opacity = '0';
         (lines[2] as HTMLElement).style.transform = 'translateY(-4px) rotate(-45deg)';
       } else {
-        menu.classList.remove('translate-x-0');
-        menu.classList.add('translate-x-full');
+        menu.style.pointerEvents = 'none';
+        menu.style.opacity = '0';
+        menu.style.transform = 'scale(0.95)';
         document.body.style.overflow = '';
+        mobileLinks.forEach((link) => {
+          (link as HTMLElement).style.opacity = '0';
+          (link as HTMLElement).style.transform = 'translateY(15px)';
+        });
         (lines[0] as HTMLElement).style.transform = '';
         (lines[1] as HTMLElement).style.opacity = '1';
         (lines[2] as HTMLElement).style.transform = '';
@@ -147,7 +227,7 @@ const ctaHref = isHome ? '#contact' : '/#contact';
 
     toggle.addEventListener('click', () => setMenu(!menuOpen));
 
-    menu.querySelectorAll('.mobile-link').forEach((link) => {
+    mobileLinks.forEach((link) => {
       link.addEventListener('click', () => setMenu(false));
     });
 
@@ -169,11 +249,56 @@ const ctaHref = isHome ? '#contact' : '/#contact';
     });
   }
 
+  function initLangSwitcher() {
+    const langToggle = document.getElementById('lang-toggle');
+    const langDropdown = document.getElementById('lang-dropdown');
+    const langCurrent = document.getElementById('lang-current');
+    if (!langToggle || !langDropdown || !langCurrent) return;
+
+    // Set current lang display
+    const stored = localStorage.getItem('lang') || 'en';
+    langCurrent.textContent = stored.toUpperCase();
+
+    let open = false;
+    function toggleDropdown(show: boolean) {
+      open = show;
+      if (show) {
+        langDropdown.style.opacity = '1';
+        langDropdown.style.pointerEvents = 'auto';
+        langDropdown.style.transform = 'scale(1)';
+      } else {
+        langDropdown.style.opacity = '0';
+        langDropdown.style.pointerEvents = 'none';
+        langDropdown.style.transform = 'scale(0.95)';
+      }
+    }
+
+    langToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleDropdown(!open);
+    });
+
+    document.addEventListener('click', () => toggleDropdown(false));
+
+    document.querySelectorAll<HTMLButtonElement>('[data-set-lang]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const lang = btn.dataset.setLang as string;
+        import('../scripts/i18n').then(({ setLang }) => {
+          setLang(lang as any);
+          langCurrent.textContent = lang.toUpperCase();
+          toggleDropdown(false);
+        });
+      });
+    });
+  }
+
   document.addEventListener('astro:page-load', () => {
     initNavbar();
     initSmoothScroll();
+    initLangSwitcher();
   });
 
   initNavbar();
   initSmoothScroll();
+  initLangSwitcher();
 </script>

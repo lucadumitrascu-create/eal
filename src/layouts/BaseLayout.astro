@@ -25,7 +25,7 @@ const jsonLd = {
   description: 'Web development & software custom pentru startup-uri și business-uri.',
   contactPoint: {
     '@type': 'ContactPoint',
-    email: 'contact@eal-enterprises.com',
+    email: 'contact@eal-enterprises.ro',
     contactType: 'customer service',
     availableLanguage: ['Romanian', 'English'],
   },
@@ -48,7 +48,7 @@ const jsonLd = {
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalURL} />
     <meta name="robots" content="index, follow" />
-    <meta name="theme-color" content="#0A0A0A" />
+    <meta name="theme-color" content="#f0fdfa" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
@@ -89,8 +89,17 @@ const jsonLd = {
       <slot />
     </div>
     <Footer />
+
+    <!-- Back to top button -->
+    <button class="back-to-top" aria-label="Back to top">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 16V4M10 4L4 10M10 4L16 10"/>
+      </svg>
+    </button>
+
     <script>
       import { initI18n } from '../scripts/i18n';
+      import '../scripts/scroll-animations';
       initI18n();
     </script>
   </body>
