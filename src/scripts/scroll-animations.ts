@@ -110,29 +110,6 @@ function initMagneticButtons(): void {
 }
 
 /**
- * Back-to-top button visibility toggle.
- */
-function initBackToTop(): void {
-  const btn = document.querySelector<HTMLElement>('.back-to-top');
-  if (!btn) return;
-
-  const toggle = () => {
-    if (window.scrollY > window.innerHeight * 0.8) {
-      btn.classList.add('is-visible');
-    } else {
-      btn.classList.remove('is-visible');
-    }
-  };
-
-  window.addEventListener('scroll', toggle, { passive: true });
-  toggle();
-
-  btn.addEventListener('click', () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-}
-
-/**
  * Subtle parallax on glow orbs.
  */
 function initParallax(): void {
@@ -159,6 +136,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initScrollAnimations();
   initCounters();
   initMagneticButtons();
-  initBackToTop();
+
   initParallax();
 });

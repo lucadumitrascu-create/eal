@@ -401,39 +401,6 @@ body::before {
   transform: none;
 }
 
-/* ── Back to top button ── */
-.back-to-top {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  z-index: 50;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  background: var(--color-accent);
-  color: white;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.3s ease, transform 0.3s ease, background 0.2s ease;
-  pointer-events: none;
-  box-shadow: 0 4px 20px rgba(6, 182, 212, 0.3);
-}
-
-.back-to-top.is-visible {
-  opacity: 1;
-  transform: translateY(0);
-  pointer-events: auto;
-}
-
-.back-to-top:hover {
-  background: var(--color-accent-hover);
-  transform: translateY(-2px);
-}
 
 /* ── Mobile performance ── */
 @media (max-width: 768px) {
