@@ -25,18 +25,18 @@ const principles = [
 
       <!-- Text -->
       <div data-animate="fade-right">
-        <p class="text-sm font-semibold uppercase tracking-widest text-[var(--color-accent)] mb-6" data-i18n="about.title">About us</p>
+        <p class="text-base font-semibold uppercase tracking-widest text-[var(--color-accent)] mb-8" data-i18n="about.title">About us</p>
 
         <!-- Principles -->
         <div>
-          <h3 class="text-lg font-semibold text-[var(--color-text)] mb-4" data-i18n="about.principles.title">Our principles</h3>
-          <ul class="space-y-3">
+          <h3 class="text-2xl font-bold text-[var(--color-text)] mb-6" data-i18n="about.principles.title">Our principles</h3>
+          <ul class="space-y-5">
             {principles.map((p, i) => (
               <li class="flex items-start gap-3 text-[var(--color-text-muted)]" data-animate="fade-up" data-stagger-delay={String(i + 1)}>
-                <span class="mt-1.5 flex-shrink-0 w-1.5 h-1.5 rounded-full bg-[var(--color-accent)] shadow-[0_0_6px_rgba(6,182,212,0.4)]"></span>
+                <span class="mt-2 flex-shrink-0 w-2 h-2 rounded-full bg-[var(--color-accent)] shadow-[0_0_6px_rgba(6,182,212,0.4)]"></span>
                 <div>
-                  <span class="text-base font-medium text-[var(--color-text)]" data-i18n={p.i18nTitle}>{p.title}</span>
-                  <p class="text-sm mt-1" data-i18n={p.i18nDesc}>{p.desc}</p>
+                  <span class="text-lg font-semibold text-[var(--color-text)]" data-i18n={p.i18nTitle}>{p.title}</span>
+                  <p class="text-base mt-1" data-i18n={p.i18nDesc}>{p.desc}</p>
                 </div>
               </li>
             ))}
