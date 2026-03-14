@@ -6,9 +6,9 @@ const stats = [
 ];
 
 const principles = [
-  { title: 'Clean code', desc: "No copy-paste. No spaghetti. Code that's built to last and easy to maintain.", i18nTitle: 'about.principle1.title', i18nDesc: 'about.principle1.desc' },
-  { title: 'No surprises', desc: "You'll always know where your project stands. Straight talk, honest timelines.", i18nTitle: 'about.principle2.title', i18nDesc: 'about.principle2.desc' },
-  { title: 'Fast delivery', desc: 'We ship on time. No endless meetings, no scope creep, no excuses.', i18nTitle: 'about.principle3.title', i18nDesc: 'about.principle3.desc' },
+  { title: 'Production-grade code', desc: 'Architected for performance, scalability, and long-term maintainability.', i18nTitle: 'about.principle1.title', i18nDesc: 'about.principle1.desc' },
+  { title: 'Full visibility', desc: 'Real-time progress, clear milestones, and direct access to your team.', i18nTitle: 'about.principle2.title', i18nDesc: 'about.principle2.desc' },
+  { title: 'On-time execution', desc: 'Defined scope, structured sprints, and reliable delivery every time.', i18nTitle: 'about.principle3.title', i18nDesc: 'about.principle3.desc' },
 ];
 ---
 
@@ -25,14 +25,14 @@ const principles = [
 
       <!-- Text -->
       <div data-animate="fade-right">
-        <p class="text-sm font-semibold uppercase tracking-widest text-[var(--color-accent)]" data-i18n="about.title">Who we are</p>
+        <p class="text-sm font-semibold uppercase tracking-widest text-[var(--color-accent)]" data-i18n="about.title">Our approach</p>
         <h2 class="mt-4 text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-[var(--color-text)]" data-i18n="about.description">
-          Small team. Big standards. We write every line ourselves.
+          Lean by design. Built for precision. Every project gets our full attention.
         </h2>
 
         <!-- Principles -->
         <div class="mt-8">
-          <h3 class="text-lg font-semibold text-[var(--color-text)] mb-4" data-i18n="about.principles.title">How we work</h3>
+          <h3 class="text-lg font-semibold text-[var(--color-text)] mb-4" data-i18n="about.principles.title">What we deliver</h3>
           <ul class="space-y-3">
             {principles.map((p, i) => (
               <li class="flex items-start gap-3 text-[var(--color-text-muted)]" data-animate="fade-up" data-stagger-delay={String(i + 1)}>
