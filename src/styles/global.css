@@ -402,11 +402,34 @@ body::before {
 }
 
 
+/* ── Pause animations when tab is hidden ── */
+.animations-paused::before,
+.animations-paused::after,
+.animations-paused .hero-wave-back,
+.animations-paused .hero-wave-mid,
+.animations-paused .hero-wave-front,
+.animations-paused .hero-scroll-line,
+.animations-paused .hero-fade-in,
+.animations-paused .hero-fade-in-delay,
+.animations-paused .hero-fade-in-delay-2,
+.animations-paused .hero-fade-in-cards,
+.animations-paused .scroll-indicator,
+.animations-paused .typing-cursor::after {
+  animation-play-state: paused !important;
+}
+
 /* ── Mobile performance ── */
 @media (max-width: 768px) {
   .glass-card {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
+  }
+
+  /* Disable expensive meshShift gradient animation on mobile —
+     animating background (gradients) can't be GPU-composited and
+     causes continuous full-viewport repaints */
+  body::after {
+    animation: none;
   }
 }
 

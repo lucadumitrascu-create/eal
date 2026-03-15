@@ -26,7 +26,7 @@ import projects from '../data/projects.json';
           class="hero-card"
           style={`--card-index: ${i};`}
         >
-          <img src={project.image} alt={project.title} loading="eager" />
+          <img src={project.image} alt={project.title} loading="eager" decoding="async" width="480" height="300" />
         </a>
       ))}
     </div>

@@ -109,6 +109,16 @@ const jsonLd = {
       import { initI18n } from '../scripts/i18n';
       import '../scripts/scroll-animations';
       initI18n();
+
+      // Pause all CSS animations when the tab is hidden to save
+      // CPU/GPU while the user is on another tab. Resume instantly
+      // when the user switches back — makes return feel instant.
+      document.addEventListener('visibilitychange', () => {
+        document.documentElement.classList.toggle(
+          'animations-paused',
+          document.hidden
+        );
+      });
     </script>
   </body>
 </html>
