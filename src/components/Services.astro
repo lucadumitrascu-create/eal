@@ -71,7 +71,7 @@ const services = [
           <div class="absolute top-0 left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-black/[0.04] to-transparent"></div>
 
           <div class="relative">
-            <div class={`mb-5 inline-flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(var(--card-accent),0.3)]`} style={`background: rgba(${accentColor}, 0.1); color: rgb(${accentColor});`}>
+            <div class={`mb-3 sm:mb-5 inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(var(--card-accent),0.3)]`} style={`background: rgba(${accentColor}, 0.1); color: rgb(${accentColor});`}>
               {icon === 'code' && (
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
@@ -93,8 +93,8 @@ const services = [
                 </svg>
               )}
             </div>
-            <h3 class="text-xl font-semibold text-[var(--color-text)]" data-i18n={i18nTitle}>{title}</h3>
-            <p class="mt-3 text-[var(--color-text-muted)] leading-relaxed" data-i18n={i18nDesc}>{description}</p>
+            <h3 class="text-base sm:text-xl font-semibold text-[var(--color-text)]" data-i18n={i18nTitle}>{title}</h3>
+            <p class="mt-2 sm:mt-3 text-sm sm:text-base text-[var(--color-text-muted)] leading-relaxed" data-i18n={i18nDesc}>{description}</p>
 
             <!-- Decorative accent line on hover -->
             <div class="mt-5 w-8 h-0.5 rounded-full opacity-0 group-hover:opacity-50 group-hover:w-12 transition-all duration-500" style={`background: rgb(${accentColor});`}></div>

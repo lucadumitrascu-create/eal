@@ -32,7 +32,7 @@ import projects from '../data/projects.json';
       </div>
 
       <!-- 2x2 grid -->
-      <div class="mt-14 grid grid-cols-2 gap-5 sm:gap-6 lg:gap-8">
+      <div class="mt-14 grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 lg:gap-8">
         {projects.map((project, i) => (
           <div data-animate="fade-up" data-stagger-delay={String(i + 1)}>
             <ProjectCard
