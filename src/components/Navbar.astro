@@ -84,9 +84,9 @@ const ctaHref = isHome ? '#contact' : '/#contact';
       aria-expanded="false"
       class="md:hidden relative z-50 flex flex-col justify-center items-center w-12 h-12 gap-1.5 bg-transparent border-none cursor-pointer -mr-1"
     >
-      <span class="hamburger-line block w-7 h-[2.5px] bg-[var(--color-text)] rounded-full transition-all duration-300 origin-center"></span>
-      <span class="hamburger-line block w-7 h-[2.5px] bg-[var(--color-text)] rounded-full transition-all duration-300 origin-center"></span>
-      <span class="hamburger-line block w-7 h-[2.5px] bg-[var(--color-text)] rounded-full transition-all duration-300 origin-center"></span>
+      <span class="hamburger-line block w-7 h-[2.5px] bg-[var(--color-text)] transition-all duration-300 origin-center"></span>
+      <span class="hamburger-line block w-7 h-[2.5px] bg-[var(--color-text)] transition-all duration-300 origin-center"></span>
+      <span class="hamburger-line block w-7 h-[2.5px] bg-[var(--color-text)] transition-all duration-300 origin-center"></span>
     </button>
   </nav>
 
@@ -223,6 +223,7 @@ const ctaHref = isHome ? '#contact' : '/#contact';
         });
         (lines[0] as HTMLElement).style.transform = 'translateY(8.5px) rotate(45deg)';
         (lines[1] as HTMLElement).style.opacity = '0';
+        (lines[1] as HTMLElement).style.transform = 'scaleX(0)';
         (lines[2] as HTMLElement).style.transform = 'translateY(-8.5px) rotate(-45deg)';
       } else {
         menu.style.pointerEvents = 'none';
@@ -235,6 +236,7 @@ const ctaHref = isHome ? '#contact' : '/#contact';
         });
         (lines[0] as HTMLElement).style.transform = '';
         (lines[1] as HTMLElement).style.opacity = '1';
+        (lines[1] as HTMLElement).style.transform = '';
         (lines[2] as HTMLElement).style.transform = '';
       }
     }
