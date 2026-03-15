@@ -346,5 +346,12 @@ import projects from '../data/projects.json';
     }
 
     window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Reinitialize on bfcache restore (browser back/forward)
+    window.addEventListener('pageshow', (e) => {
+      if (e.persisted) {
+        onScroll();
+      }
+    });
   }
 </script>

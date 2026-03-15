@@ -6,20 +6,17 @@
   <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(8,145,178,0.2)] to-transparent"></div>
   <div class="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-[rgba(8,145,178,0.04)] to-transparent pointer-events-none"></div>
 
-  <!-- Watermark -->
-  <div class="absolute inset-x-0 bottom-20 sm:bottom-24 flex items-center justify-center pointer-events-none select-none" aria-hidden="true">
-    <span class="text-[8rem] sm:text-[12rem] lg:text-[16rem] font-black uppercase tracking-widest text-black/[0.02] leading-none">EAL</span>
-  </div>
-
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-12 sm:pb-16 relative">
-    <!-- Spacer for watermark -->
-    <div class="h-24 sm:h-32 lg:h-40"></div>
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
+    <!-- Watermark area with symmetric spacing -->
+    <div class="relative flex items-center justify-center py-16 sm:py-24 lg:py-28">
+      <span class="text-[8rem] sm:text-[12rem] lg:text-[16rem] font-black uppercase tracking-widest text-black/[0.02] leading-none select-none pointer-events-none" aria-hidden="true">EAL</span>
+    </div>
 
     <!-- Grey divider -->
     <div class="h-px bg-gradient-to-r from-transparent via-[rgba(0,0,0,0.12)] to-transparent"></div>
 
     <!-- Copyright -->
-    <div class="mt-6 flex items-center justify-center">
+    <div class="mt-6 pb-8 flex items-center justify-center">
       <p class="text-xs text-[var(--color-text-muted)]" data-i18n="footer.rights">
         &copy; 2026 EAL ENTERPRISES S.R.L. All rights reserved.
       </p>
