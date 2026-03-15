@@ -403,10 +403,18 @@ body::before {
 
 
 /* ── Pause animations when tab is hidden ── */
-.animations-paused,
-.animations-paused *,
-.animations-paused *::before,
-.animations-paused *::after {
+.animations-paused::before,
+.animations-paused::after,
+.animations-paused .hero-wave-back,
+.animations-paused .hero-wave-mid,
+.animations-paused .hero-wave-front,
+.animations-paused .hero-scroll-line,
+.animations-paused .hero-fade-in,
+.animations-paused .hero-fade-in-delay,
+.animations-paused .hero-fade-in-delay-2,
+.animations-paused .hero-fade-in-cards,
+.animations-paused .scroll-indicator,
+.animations-paused .typing-cursor::after {
   animation-play-state: paused !important;
 }
 
