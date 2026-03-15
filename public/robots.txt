@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://eal-enterprises.ro/sitemap-index.xml
+Sitemap: https://ealenterprises.com/sitemap-index.xml

@@ -2,7 +2,7 @@
 const services = [
   {
     title: 'Web Development',
-    description: 'Modern, fast, and scalable websites and web applications built with the latest technologies.',
+    description: 'Fast, clean sites and apps that actually perform. No bloat, no templates, no shortcuts.',
     icon: 'code',
     i18nTitle: 'services.web.title',
     i18nDesc: 'services.web.desc',
@@ -12,7 +12,7 @@ const services = [
   },
   {
     title: 'UI/UX Design',
-    description: 'Intuitive and attractive interfaces that provide an exceptional user experience.',
+    description: 'Interfaces people enjoy using. We design for clarity, speed, and zero confusion.',
     icon: 'palette',
     i18nTitle: 'services.ui.title',
     i18nDesc: 'services.ui.desc',
@@ -22,7 +22,7 @@ const services = [
   },
   {
     title: 'E-Commerce',
-    description: 'Complete online store solutions with secure payments and inventory management.',
+    description: 'Online stores that sell. Secure payments, smooth checkout, built to convert.',
     icon: 'store',
     i18nTitle: 'services.ecommerce.title',
     i18nDesc: 'services.ecommerce.desc',
@@ -32,7 +32,7 @@ const services = [
   },
   {
     title: 'Maintenance & Support',
-    description: 'Continuous monitoring, updates, and technical support for your applications.',
+    description: "We don't disappear after launch. Updates, fixes, monitoring — we've got your back.",
     icon: 'shield',
     i18nTitle: 'services.maintenance.title',
     i18nDesc: 'services.maintenance.desc',
@@ -51,25 +51,19 @@ const services = [
   </div>
 
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="text-center max-w-2xl mx-auto mb-16" data-animate="fade-up">
-      <p class="text-sm font-semibold uppercase tracking-widest text-[var(--color-accent)]" data-i18n="services.title">What we do</p>
-      <h2 class="mt-3 text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--color-text)]" data-i18n="services.subtitle">Complete solutions for the digital world</h2>
+    <div class="text-center mb-10" data-animate="fade-up">
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--color-text)]" data-i18n="services.title">What we build</h2>
     </div>
 
-    <!-- Bento grid: first card spans 2 cols on desktop, horizontal scroll on mobile -->
-    <div class="hidden md:grid md:grid-cols-3 gap-5 lg:gap-6">
-      {services.map(({ title, description, icon, i18nTitle, i18nDesc, accent, accentColor, num }, i) => (
+    <!-- 2x2 grid -->
+    <div class="grid grid-cols-2 gap-3 sm:gap-5 lg:gap-6">
+      {services.map(({ title, description, icon, i18nTitle, i18nDesc, accent, accentColor }, i) => (
         <div
-          class:list={[
-            'group relative rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-neutral)] backdrop-blur-xl p-8 transition-all duration-400 hover:-translate-y-1.5 overflow-hidden',
-            i === 0 ? 'md:col-span-2 md:row-span-1' : '',
-          ]}
-          data-animate={i === 0 ? 'fade-right' : 'fade-up'}
+          class="group relative rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-neutral)] backdrop-blur-xl p-5 sm:p-8 transition-all duration-400 hover:-translate-y-1.5 overflow-hidden"
+          data-animate="fade-up"
           data-stagger-delay={String(i)}
           style={`--card-accent: ${accentColor};`}
         >
-          <!-- Decorative number -->
-          <span class="absolute top-4 right-6 text-7xl lg:text-8xl font-black text-black/[0.03] leading-none select-none pointer-events-none">{num}</span>
 
           <!-- Hover glow -->
           <div class={`absolute -top-12 -left-12 w-32 h-32 rounded-full opacity-0 group-hover:opacity-100 blur-[40px] transition-all duration-500 bg-${accent}-500/10`}></div>
@@ -77,7 +71,7 @@ const services = [
           <div class="absolute top-0 left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-black/[0.04] to-transparent"></div>
 
           <div class="relative">
-            <div class={`mb-5 inline-flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(var(--card-accent),0.3)]`} style={`background: rgba(${accentColor}, 0.1); color: rgb(${accentColor});`}>
+            <div class={`mb-3 sm:mb-5 inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-xl transition-all duration-300 group-hover:shadow-[0_0_20px_rgba(var(--card-accent),0.3)]`} style={`background: rgba(${accentColor}, 0.1); color: rgb(${accentColor});`}>
               {icon === 'code' && (
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
@@ -99,8 +93,8 @@ const services = [
                 </svg>
               )}
             </div>
-            <h3 class="text-xl font-semibold text-[var(--color-text)]" data-i18n={i18nTitle}>{title}</h3>
-            <p class="mt-3 text-[var(--color-text-muted)] leading-relaxed" data-i18n={i18nDesc}>{description}</p>
+            <h3 class="text-base sm:text-xl font-semibold text-[var(--color-text)]" data-i18n={i18nTitle}>{title}</h3>
+            <p class="mt-2 sm:mt-3 text-sm sm:text-base text-[var(--color-text-muted)] leading-relaxed" data-i18n={i18nDesc}>{description}</p>
 
             <!-- Decorative accent line on hover -->
             <div class="mt-5 w-8 h-0.5 rounded-full opacity-0 group-hover:opacity-50 group-hover:w-12 transition-all duration-500" style={`background: rgb(${accentColor});`}></div>
@@ -117,56 +111,9 @@ const services = [
       ))}
     </div>
 
-    <!-- Mobile: horizontal scroll with snap -->
-    <div class="md:hidden flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 scrollbar-hide">
-      {services.map(({ title, description, icon, i18nTitle, i18nDesc, accentColor, num }, i) => (
-        <div
-          class="snap-center shrink-0 w-[85vw] max-w-[320px] group relative rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-neutral)] backdrop-blur-xl p-6 overflow-hidden"
-          data-animate="fade-up"
-          data-stagger-delay={String(i)}
-        >
-          <span class="absolute top-3 right-5 text-6xl font-black text-black/[0.03] leading-none select-none pointer-events-none">{num}</span>
-          <div class="relative">
-            <div class="mb-4 inline-flex items-center justify-center w-11 h-11 rounded-xl" style={`background: rgba(${accentColor}, 0.1); color: rgb(${accentColor});`}>
-              {icon === 'code' && (
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
-                </svg>
-              )}
-              {icon === 'palette' && (
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42" />
-                </svg>
-              )}
-              {icon === 'store' && (
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016A3.001 3.001 0 0021 9.349m-18 0a2.999 2.999 0 00.97-1.599L5.49 3h13.02l1.52 4.75A3 3 0 0021 9.349" />
-                </svg>
-              )}
-              {icon === 'shield' && (
-                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-                </svg>
-              )}
-            </div>
-            <h3 class="text-lg font-semibold text-[var(--color-text)]" data-i18n={i18nTitle}>{title}</h3>
-            <p class="mt-2 text-sm text-[var(--color-text-muted)] leading-relaxed" data-i18n={i18nDesc}>{description}</p>
-          </div>
-        </div>
-      ))}
-    </div>
   </div>
 
   <!-- Bottom gradient transition -->
   <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#f0fdfa] to-transparent pointer-events-none"></div>
 </section>
 
-<style>
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-</style>

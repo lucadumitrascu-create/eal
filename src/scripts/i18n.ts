@@ -2,21 +2,11 @@ import translations from '../data/translations.json';
 
 type Lang = keyof typeof translations;
 
-const COUNTRY_TO_LANG: Record<string, Lang> = {
-  ro: 'ro', md: 'ro',
-  de: 'de', at: 'de', ch: 'de',
-  fr: 'fr', be: 'fr', mc: 'fr',
-  es: 'es', mx: 'es', ar: 'es', co: 'es', cl: 'es', pe: 'es',
-  it: 'it', sm: 'it',
-};
-
 function detectLang(): Lang {
   const stored = localStorage.getItem('lang') as Lang | null;
   if (stored && translations[stored]) return stored;
 
-  const browserLang = navigator.language.split('-')[0].toLowerCase();
-  if (translations[browserLang as Lang]) return browserLang as Lang;
-
+  // Default to English — user can switch manually
   return 'en';
 }
 
