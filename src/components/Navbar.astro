@@ -155,20 +155,34 @@ const ctaHref = isHome ? '#contact' : '/#contact';
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
 
-    // Active section tracking
-    const sections = document.querySelectorAll<HTMLElement>('[id]');
-    const navDots = document.querySelectorAll<HTMLElement>('.nav-dot');
+    // Active section tracking — only track sections that have nav links
     const navLinkEls = document.querySelectorAll<HTMLAnchorElement>('[data-nav-section]');
+    const sectionIds = Array.from(navLinkEls)
+      .map((l) => l.dataset.navSection)
+      .filter((id): id is string => !!id);
+    const trackedSections = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => el !== null);
 
+    // Cache section positions — recalculate on resize, not on every scroll
+    let sectionOffsets: { id: string; top: number }[] = [];
+    function cacheSectionOffsets() {
+      sectionOffsets = trackedSections.map((s) => ({ id: s.id, top: s.offsetTop }));
+    }
+    cacheSectionOffsets();
+    window.addEventListener('resize', cacheSectionOffsets, { passive: true });
+
+    let lastActiveSection = '';
     function updateActiveSection() {
       let activeSection = '';
       const scrollPos = window.scrollY + window.innerHeight / 3;
 
-      sections.forEach((section) => {
-        if (section.offsetTop <= scrollPos) {
-          activeSection = section.id;
-        }
-      });
+      for (const { id, top } of sectionOffsets) {
+        if (top <= scrollPos) activeSection = id;
+      }
+
+      if (activeSection === lastActiveSection) return;
+      lastActiveSection = activeSection;
 
       navLinkEls.forEach((link) => {
         const dot = link.querySelector('.nav-dot') as HTMLElement;
