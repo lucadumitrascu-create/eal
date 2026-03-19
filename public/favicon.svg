@@ -1,9 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" rx="4" fill="#FFFFFF"/>
-  <!-- E -->
-  <path d="M4 8h8v3H7.5v2.5H11v3H7.5V19H12v3H4V8z" fill="#1B2A4A"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="4" fill="#1B2A4A"/>
+  <!-- E - pixel aligned, bold -->
+  <rect x="3" y="8" width="8" height="3" fill="#FFFFFF"/>
+  <rect x="3" y="8" width="3" height="16" fill="#FFFFFF"/>
+  <rect x="3" y="14.5" width="7" height="3" fill="#FFFFFF"/>
+  <rect x="3" y="21" width="8" height="3" fill="#FFFFFF"/>
   <!-- A -->
-  <path d="M13.5 22l3.5-14h2l3.5 14h-3.2l-.6-2.8h-2.4l-.6 2.8H13.5zm4.1-5.6h1.8l-.9-4.2-.9 4.2z" fill="#1B2A4A"/>
+  <path d="M12 24l2.8-16h2.4l2.8 16h-2.8l-.5-3h-1.4l-.5 3H12zm3.2-6h1.6l-.8-5.5-.8 5.5z" fill="#FFFFFF"/>
   <!-- L -->
-  <path d="M23.5 8h3.5v11H31v3h-7.5V8z" fill="#1B2A4A"/>
+  <rect x="22" y="8" width="3" height="16" fill="#FFFFFF"/>
+  <rect x="22" y="21" width="7" height="3" fill="#FFFFFF"/>
 </svg>
