@@ -1,4 +1,16 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" rx="6" fill="#2563EB"/>
-  <text x="16" y="22" text-anchor="middle" font-family="Outfit, sans-serif" font-weight="700" font-size="16" fill="#FFFFFF">E</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="4" fill="#1B2A4A"/>
+  <!-- E -->
+  <rect x="3" y="8" width="7" height="2.5" fill="#FFF"/>
+  <rect x="3" y="8" width="2.5" height="16" fill="#FFF"/>
+  <rect x="3" y="14.75" width="6" height="2.5" fill="#FFF"/>
+  <rect x="3" y="21.5" width="7" height="2.5" fill="#FFF"/>
+  <!-- A -->
+  <rect x="12" y="8" width="6" height="2.5" fill="#FFF"/>
+  <rect x="12" y="8" width="2.5" height="16" fill="#FFF"/>
+  <rect x="16" y="8" width="2.5" height="16" fill="#FFF"/>
+  <rect x="12" y="14.75" width="6.5" height="2.5" fill="#FFF"/>
+  <!-- L -->
+  <rect x="21" y="8" width="2.5" height="16" fill="#FFF"/>
+  <rect x="21" y="21.5" width="7" height="2.5" fill="#FFF"/>
 </svg>
