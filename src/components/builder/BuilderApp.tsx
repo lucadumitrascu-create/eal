@@ -110,7 +110,6 @@ function ReadOnlyPreview({ spec, dParam }: { spec: DesignSpec; dParam: string })
 function Editor({ decoded }: { decoded: DesignSpec | null }) {
   const t = useT();
   const [spec, dispatch] = useReducer(reducer, decoded, initSpec);
-  const [tab, setTab] = useState<'edit' | 'preview'>('edit');
   const [showSubmit, setShowSubmit] = useState(false);
 
   useEffect(() => {
@@ -133,74 +132,54 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 sm:px-6">
-      <div className="mb-5 flex items-center justify-between gap-3">
-        <span className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-neutral)] px-3 py-1 text-xs font-medium uppercase tracking-wider text-[var(--color-text-muted)]">
-          <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-accent)]" />
-          {t('builder.badge')}
-        </span>
-        <div className="flex items-center gap-2">
-          <div className="flex rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-1 lg:hidden">
-            {(['edit', 'preview'] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                onClick={() => setTab(m)}
-                className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${tab === m ? 'bg-[var(--color-accent)] text-white' : 'text-[var(--color-text-muted)]'}`}
-              >
-                {t(`builder.tab.${m}`)}
-              </button>
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={onReset}
-            className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-1.5 text-xs font-medium text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text)]"
-          >
-            {t('builder.action.reset')}
-          </button>
-          <button
-            type="button"
-            onClick={() => setShowSubmit(true)}
-            className="rounded-lg bg-[var(--color-accent-secondary)] px-4 py-1.5 text-xs font-semibold text-[#0A0A0A] shadow-sm transition-colors hover:bg-[var(--color-accent-secondary-hover)]"
-          >
-            {t('builder.action.submit')}
-          </button>
-        </div>
+      <div className="mb-5 flex items-center justify-end gap-2">
+        <button
+          type="button"
+          onClick={onReset}
+          className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-1.5 text-xs font-medium text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text)]"
+        >
+          {t('builder.action.reset')}
+        </button>
+        <button
+          type="button"
+          onClick={() => setShowSubmit(true)}
+          className="rounded-lg bg-[var(--color-accent-secondary)] px-4 py-1.5 text-xs font-semibold text-[#0A0A0A] shadow-sm transition-colors hover:bg-[var(--color-accent-secondary-hover)]"
+        >
+          {t('builder.action.submit')}
+        </button>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(330px,380px)_1fr]">
-        <div className={`${tab === 'edit' ? 'block' : 'hidden'} lg:block`}>
-          <div className="lg:max-h-[calc(100vh-9rem)] lg:overflow-y-auto lg:pr-1.5">
-            <EditorPanel
-              spec={spec}
-              onTemplate={(id) => dispatch({ type: 'template', id })}
-              onMeta={(field, value) => dispatch({ type: 'meta', field, value })}
-              onTheme={(value) => dispatch({ type: 'theme', value })}
-              onFont={(value) => dispatch({ type: 'font', value })}
-              onAnim={(value) => dispatch({ type: 'anim', value })}
-              onText={(sid, slot, value) => dispatch({ type: 'text', sid, slot, value })}
-              onImage={(sid, slot, value) => dispatch({ type: 'image', sid, slot, value })}
-              onToggle={(sid) => dispatch({ type: 'toggle', sid })}
-              onIdea={(slot, value) => dispatch({ type: 'text', sid: 'hero', slot, value })}
-            />
-          </div>
+      <div className="flex flex-col gap-6 md:grid md:grid-cols-[minmax(320px,380px)_1fr]">
+        {/* Controls — left on desktop, below the pinned preview on mobile */}
+        <div className="order-2 md:order-1 md:max-h-[calc(100vh-9rem)] md:overflow-y-auto md:pr-1.5">
+          <EditorPanel
+            spec={spec}
+            onTemplate={(id) => dispatch({ type: 'template', id })}
+            onMeta={(field, value) => dispatch({ type: 'meta', field, value })}
+            onTheme={(value) => dispatch({ type: 'theme', value })}
+            onFont={(value) => dispatch({ type: 'font', value })}
+            onAnim={(value) => dispatch({ type: 'anim', value })}
+            onText={(sid, slot, value) => dispatch({ type: 'text', sid, slot, value })}
+            onImage={(sid, slot, value) => dispatch({ type: 'image', sid, slot, value })}
+            onToggle={(sid) => dispatch({ type: 'toggle', sid })}
+            onIdea={(slot, value) => dispatch({ type: 'text', sid: 'hero', slot, value })}
+          />
         </div>
 
-        <div className={`${tab === 'preview' ? 'block' : 'hidden'} lg:block`}>
-          <div className="overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] shadow-[0_20px_60px_rgba(0,0,0,0.08)] lg:sticky lg:top-24">
-            <div className="flex items-center gap-2 border-b border-[var(--color-border)] bg-[var(--color-surface-neutral)] px-4 py-2.5">
-              <span className="flex gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-black/15" />
-                <span className="h-2.5 w-2.5 rounded-full bg-black/15" />
-                <span className="h-2.5 w-2.5 rounded-full bg-black/15" />
-              </span>
-              <span className="mx-auto truncate rounded-md bg-[var(--color-bg)] px-3 py-1 text-xs text-[var(--color-text-muted)]">
-                {(spec.meta.siteName || 'your-brand').toLowerCase().replace(/[^a-z0-9]+/g, '') || 'your-brand'}.com
-              </span>
-            </div>
-            <div className="max-h-[calc(100vh-12rem)] overflow-y-auto">
-              <LivePreview spec={spec} />
-            </div>
+        {/* Live preview — pinned (sticky) so your edits are always visible while you scroll the controls */}
+        <div className="order-1 sticky top-20 z-30 overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] shadow-[0_20px_60px_rgba(0,0,0,0.08)] md:order-2 md:top-24 md:self-start">
+          <div className="flex items-center gap-2 border-b border-[var(--color-border)] bg-[var(--color-surface-neutral)] px-4 py-2.5">
+            <span className="flex gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full bg-black/15" />
+              <span className="h-2.5 w-2.5 rounded-full bg-black/15" />
+              <span className="h-2.5 w-2.5 rounded-full bg-black/15" />
+            </span>
+            <span className="mx-auto truncate rounded-md bg-[var(--color-bg)] px-3 py-1 text-xs text-[var(--color-text-muted)]">
+              {(spec.meta.siteName || 'your-brand').toLowerCase().replace(/[^a-z0-9]+/g, '') || 'your-brand'}.com
+            </span>
+          </div>
+          <div className="max-h-[44vh] overflow-y-auto md:max-h-[calc(100vh-12rem)]">
+            <LivePreview spec={spec} />
           </div>
         </div>
       </div>
