@@ -59,8 +59,12 @@ export const POST: APIRoute = async ({ request }) => {
   if (!company) return json({ error: 'company required' }, 400);
 
   const key = getKey();
+  console.log(`[ideas] keyPresent=${!!key}`);
   // No key configured -> graceful static fallback (never hard-fail).
-  if (!key) return json({ ...fallbackIdeas(industry, company), source: 'fallback' });
+  if (!key) {
+    console.error('[ideas] fallback: NVIDIA_API_KEY missing in runtime env');
+    return json({ ...fallbackIdeas(industry, company), source: 'fallback' });
+  }
 
   const sys =
     'You are a website copywriter for small businesses. Reply with ONLY valid JSON of the shape ' +
@@ -87,12 +91,19 @@ export const POST: APIRoute = async ({ request }) => {
       signal: ctrl.signal,
     });
     clearTimeout(timer);
-    if (!res.ok) return json({ ...fallbackIdeas(industry, company), source: 'fallback' });
+    if (!res.ok) {
+      const errBody = await res.text().catch(() => '');
+      console.error(`[ideas] fallback: nvidia status ${res.status} ${errBody.slice(0, 200)}`);
+      return json({ ...fallbackIdeas(industry, company), source: 'fallback' });
+    }
 
     const data = await res.json();
     const content: string = data?.choices?.[0]?.message?.content ?? '';
     const parsed = extractJson(content);
-    if (!parsed) return json({ ...fallbackIdeas(industry, company), source: 'fallback' });
+    if (!parsed) {
+      console.error(`[ideas] fallback: unparseable model output: ${content.slice(0, 200)}`);
+      return json({ ...fallbackIdeas(industry, company), source: 'fallback' });
+    }
 
     return json({
       headline: clamp(parsed.headline, 60),
@@ -103,8 +114,9 @@ export const POST: APIRoute = async ({ request }) => {
       cta: clamp(parsed.cta, 24),
       source: 'ai',
     });
-  } catch {
+  } catch (e) {
     clearTimeout(timer);
+    console.error(`[ideas] fallback: exception ${String(e)}`);
     return json({ ...fallbackIdeas(industry, company), source: 'fallback' });
   }
 };
