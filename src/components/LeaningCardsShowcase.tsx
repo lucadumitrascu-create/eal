@@ -9,10 +9,10 @@ type Props = {
 };
 
 const TILT = 70; // degrees the cards lean at rest
-const OVERLAP = -214; // px (negative = overlap) at rest
-const SPREAD = 128; // px neighbours slide aside when a card pops (must clear the rest overlap)
+const OVERLAP = -235; // px (negative = overlap) at rest — scaled with the card size
+const SPREAD = 141; // px neighbours slide aside when a card pops (must clear the rest overlap)
 const POP_Z = 96; // px the active card comes forward (kept modest so it doesn't grow over a neighbour)
-const POP_Y = -42; // px the active card lifts
+const POP_Y = -46; // px the active card lifts
 
 /**
  * Leaning-cards showcase: four project screenshots lean against each other like
@@ -157,10 +157,10 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
     <div className="lc-root w-full flex flex-col items-center overflow-x-hidden">
       <style>{`
         .lc-stage { display:flex; justify-content:center; align-items:center; width:100%;
-          perspective:2000px; padding:88px 40px 40px; min-height:460px; }
+          perspective:2000px; padding:92px 40px 44px; min-height:510px; }
         .lc-shelf { position:relative; display:flex; align-items:center; transform-style:preserve-3d; transform:rotateX(8deg); }
         .lc-card {
-          position:relative; flex:none; width:360px; aspect-ratio:16/10;
+          position:relative; flex:none; width:396px; aspect-ratio:16/10;
           border-radius:14px; overflow:hidden; background:#0d1422;
           transform-origin:center bottom; transform:rotateY(${TILT}deg);
           backface-visibility:hidden;
@@ -186,7 +186,7 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
         @media (hover: none) {
           .lc-stage{ perspective:none; padding:8px 16px 0; min-height:0; }
           .lc-shelf{ transform:none; flex-wrap:wrap; gap:16px; justify-content:center; max-width:760px; }
-          .lc-card{ transform:none !important; margin:0 !important; width:min(86vw,340px);
+          .lc-card{ transform:none !important; margin:0 !important; width:min(86vw,360px);
             border:1px solid #1e2940; box-shadow:0 10px 24px -10px rgba(15,23,42,.45); }
           .lc-card::before{ background:transparent; }
           .lc-floor{ display:none; }
