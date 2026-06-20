@@ -25,8 +25,9 @@ export function ImageSlotControl({
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
-          aria-label={t('builder.image.style')}
-          className="h-9 w-9 shrink-0 rounded-lg border border-[var(--color-border)]"
+          aria-label={`${t('builder.image.style')}: ${value.presetId}`}
+          aria-expanded={open}
+          className="h-9 w-9 shrink-0 rounded-lg border border-[var(--color-border)] outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)]"
           style={{ background: p?.css }}
         />
         <input
@@ -44,12 +45,13 @@ export function ImageSlotControl({
               key={pr.id}
               type="button"
               title={pr.id}
-              aria-label={pr.id}
+              aria-label={`${t('builder.image.style')}: ${pr.id}`}
+              aria-pressed={value.presetId === pr.id}
               onClick={() => {
                 onChange({ ...value, presetId: pr.id });
                 setOpen(false);
               }}
-              className={`h-8 rounded-md border transition-transform hover:scale-105 ${
+              className={`h-8 rounded-md border outline-none transition-transform hover:scale-105 focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] ${
                 value.presetId === pr.id ? 'border-[var(--color-accent)] ring-1 ring-[var(--color-accent)]' : 'border-black/10'
               }`}
               style={{ background: pr.css }}
