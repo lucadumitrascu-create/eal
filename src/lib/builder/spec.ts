@@ -3,7 +3,7 @@ import { templateById } from '../../data/templates';
 
 export const SPEC_VERSION = 1 as const;
 
-const THEMES: ColorTheme[] = ['cyan', 'warm', 'indigo', 'mono', 'dark', 'vivid'];
+const THEMES: ColorTheme[] = ['cyan', 'warm', 'indigo', 'mono', 'dark', 'vivid', 'rose', 'teal', 'sky'];
 const FONTS: FontPair[] = ['modern', 'editorial', 'mono'];
 const ANIMS: AnimationPreset[] = ['none', 'subtle', 'lively'];
 

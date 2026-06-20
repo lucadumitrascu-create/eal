@@ -160,7 +160,16 @@
     "builder.tpl.app.name": "App / Startup",
     "builder.tpl.app.tagline": "Dark, pricing-led product",
     "builder.tpl.fitness.name": "Fitness / Gym",
-    "builder.tpl.fitness.tagline": "Energetic, membership-led"
+    "builder.tpl.fitness.tagline": "Energetic, membership-led",
+    "builder.theme.rose": "Rose",
+    "builder.theme.teal": "Teal",
+    "builder.theme.sky": "Sky",
+    "builder.tpl.beauty.name": "Beauty / Salon",
+    "builder.tpl.beauty.tagline": "Elegant, editorial, calm",
+    "builder.tpl.realestate.name": "Real estate",
+    "builder.tpl.realestate.tagline": "Clean, listing-led",
+    "builder.tpl.medical.name": "Medical / Clinic",
+    "builder.tpl.medical.tagline": "Calm, trustworthy, clear"
   },
   "ro": {
     "hero.title1": "Construim software",
@@ -323,7 +332,16 @@
     "builder.tpl.app.name": "Aplicatie / Startup",
     "builder.tpl.app.tagline": "Dark, axat pe preturi",
     "builder.tpl.fitness.name": "Fitness / Sala",
-    "builder.tpl.fitness.tagline": "Energic, axat pe abonamente"
+    "builder.tpl.fitness.tagline": "Energic, axat pe abonamente",
+    "builder.theme.rose": "Roz",
+    "builder.theme.teal": "Turcoaz",
+    "builder.theme.sky": "Albastru",
+    "builder.tpl.beauty.name": "Beauty / Salon",
+    "builder.tpl.beauty.tagline": "Elegant, editorial, calm",
+    "builder.tpl.realestate.name": "Imobiliare",
+    "builder.tpl.realestate.tagline": "Curat, axat pe anunturi",
+    "builder.tpl.medical.name": "Medical / Clinica",
+    "builder.tpl.medical.tagline": "Calm, de incredere, clar"
   },
   "de": {
     "hero.title1": "Wir entwickeln Software,",
@@ -486,7 +504,16 @@
     "builder.tpl.app.name": "App / Startup",
     "builder.tpl.app.tagline": "Dunkel, preisorientiert",
     "builder.tpl.fitness.name": "Fitness / Studio",
-    "builder.tpl.fitness.tagline": "Energetisch, mitgliederorientiert"
+    "builder.tpl.fitness.tagline": "Energetisch, mitgliederorientiert",
+    "builder.theme.rose": "Rosa",
+    "builder.theme.teal": "Tuerkis",
+    "builder.theme.sky": "Himmelblau",
+    "builder.tpl.beauty.name": "Beauty / Salon",
+    "builder.tpl.beauty.tagline": "Elegant, redaktionell, ruhig",
+    "builder.tpl.realestate.name": "Immobilien",
+    "builder.tpl.realestate.tagline": "Klar, angebotsorientiert",
+    "builder.tpl.medical.name": "Medizin / Klinik",
+    "builder.tpl.medical.tagline": "Ruhig, vertrauenswuerdig, klar"
   },
   "fr": {
     "hero.title1": "Nous creons des logiciels",
@@ -649,7 +676,16 @@
     "builder.tpl.app.name": "App / Startup",
     "builder.tpl.app.tagline": "Sombre, axe tarifs",
     "builder.tpl.fitness.name": "Fitness / Salle",
-    "builder.tpl.fitness.tagline": "Energique, axe abonnements"
+    "builder.tpl.fitness.tagline": "Energique, axe abonnements",
+    "builder.theme.rose": "Rose",
+    "builder.theme.teal": "Sarcelle",
+    "builder.theme.sky": "Ciel",
+    "builder.tpl.beauty.name": "Beaute / Salon",
+    "builder.tpl.beauty.tagline": "Elegant, editorial, calme",
+    "builder.tpl.realestate.name": "Immobilier",
+    "builder.tpl.realestate.tagline": "Epure, axe annonces",
+    "builder.tpl.medical.name": "Medical / Clinique",
+    "builder.tpl.medical.tagline": "Calme, rassurant, clair"
   },
   "es": {
     "hero.title1": "Creamos software",
@@ -812,7 +848,16 @@
     "builder.tpl.app.name": "App / Startup",
     "builder.tpl.app.tagline": "Oscuro, centrado en precios",
     "builder.tpl.fitness.name": "Fitness / Gimnasio",
-    "builder.tpl.fitness.tagline": "Energico, centrado en membresias"
+    "builder.tpl.fitness.tagline": "Energico, centrado en membresias",
+    "builder.theme.rose": "Rosa",
+    "builder.theme.teal": "Verde azulado",
+    "builder.theme.sky": "Cielo",
+    "builder.tpl.beauty.name": "Belleza / Salon",
+    "builder.tpl.beauty.tagline": "Elegante, editorial, sereno",
+    "builder.tpl.realestate.name": "Inmobiliaria",
+    "builder.tpl.realestate.tagline": "Limpio, centrado en anuncios",
+    "builder.tpl.medical.name": "Medico / Clinica",
+    "builder.tpl.medical.tagline": "Sereno, confiable, claro"
   },
   "it": {
     "hero.title1": "Creiamo software",
@@ -975,6 +1020,15 @@
     "builder.tpl.app.name": "App / Startup",
     "builder.tpl.app.tagline": "Scuro, incentrato sui prezzi",
     "builder.tpl.fitness.name": "Fitness / Palestra",
-    "builder.tpl.fitness.tagline": "Energico, incentrato sugli abbonamenti"
+    "builder.tpl.fitness.tagline": "Energico, incentrato sugli abbonamenti",
+    "builder.theme.rose": "Rosa",
+    "builder.theme.teal": "Verde acqua",
+    "builder.theme.sky": "Cielo",
+    "builder.tpl.beauty.name": "Bellezza / Salone",
+    "builder.tpl.beauty.tagline": "Elegante, editoriale, calmo",
+    "builder.tpl.realestate.name": "Immobiliare",
+    "builder.tpl.realestate.tagline": "Pulito, incentrato sugli annunci",
+    "builder.tpl.medical.name": "Medico / Clinica",
+    "builder.tpl.medical.tagline": "Calmo, affidabile, chiaro"
   }
 }
