@@ -137,7 +137,7 @@ export default function EditorPanel(props: Props) {
 
   return (
     <div className="space-y-3">
-      <IdeasHelper onApply={onIdea} />
+      <IdeasHelper onApply={onIdea} defaultCompany={spec.meta.siteName} />
 
       <Group title={t('builder.panel.template')}>
         <TemplatePicker current={spec.templateId} onSelect={onTemplate} />

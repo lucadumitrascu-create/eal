@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useT } from '../../lib/builder/i18n';
 import type { Idea } from '../../lib/ai/fallbackIdeas';
 
@@ -7,17 +7,22 @@ const inputCls =
 
 type Tone = 'professional' | 'friendly' | 'bold';
 
-export default function IdeasHelper({ onApply }: { onApply: (slot: 'headline' | 'subhead' | 'cta', value: string) => void }) {
+export default function IdeasHelper({ onApply, defaultCompany = '' }: { onApply: (slot: 'headline' | 'subhead' | 'cta', value: string) => void; defaultCompany?: string }) {
   const t = useT();
-  const [company, setCompany] = useState('');
+  const [company, setCompany] = useState(defaultCompany);
   const [industry, setIndustry] = useState('');
   const [tone, setTone] = useState<Tone>('professional');
   const [loading, setLoading] = useState(false);
   const [idea, setIdea] = useState<Idea | null>(null);
   const [offline, setOffline] = useState(false);
+  const companyRef = useRef<HTMLInputElement>(null);
 
   const run = async () => {
-    if (!company.trim() || loading) return;
+    if (loading) return;
+    if (!company.trim()) {
+      companyRef.current?.focus();
+      return;
+    }
     setLoading(true);
     setOffline(false);
     try {
@@ -62,7 +67,7 @@ export default function IdeasHelper({ onApply }: { onApply: (slot: 'headline' | 
       <p className="mb-3 text-xs text-[var(--color-text-muted)]">{t('builder.ideas.desc')}</p>
 
       <div className="space-y-2.5">
-        <input value={company} onChange={(e) => setCompany(e.target.value)} maxLength={80} placeholder={t('builder.ideas.company')} className={inputCls} />
+        <input ref={companyRef} value={company} onChange={(e) => setCompany(e.target.value)} maxLength={80} placeholder={t('builder.ideas.company')} className={inputCls} />
         <input value={industry} onChange={(e) => setIndustry(e.target.value)} maxLength={60} placeholder={t('builder.ideas.industry')} className={inputCls} />
         <div className="flex gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-1">
           {(['professional', 'friendly', 'bold'] as Tone[]).map((tn) => (
@@ -79,8 +84,8 @@ export default function IdeasHelper({ onApply }: { onApply: (slot: 'headline' | 
         <button
           type="button"
           onClick={run}
-          disabled={loading || !company.trim()}
-          className="w-full rounded-lg bg-[var(--color-accent)] px-3 py-2 text-sm font-semibold text-white transition-opacity disabled:opacity-50"
+          disabled={loading}
+          className="w-full rounded-lg bg-[var(--color-accent)] px-3 py-2 text-sm font-semibold text-white transition-opacity disabled:opacity-60"
         >
           {loading ? t('builder.ideas.generating') : t('builder.ideas.generate')}
         </button>
