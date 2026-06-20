@@ -12,15 +12,15 @@ import projects from '../data/projects.json';
  * Order matches projects.json: SOLbot, Georgio, Transport, Adricut.
  */
 const layout = [
-  { lx: '1%',  ly: '7%',  rx: 7,  ry: 13,  rz: -3, tz: -28, z: 2, shadow: '0 22px 36px rgba(18,18,22,0.22)' },
-  { lx: '23%', ly: '40%', rx: -6, ry: 10,  rz: 2,  tz: 42,  z: 4, shadow: '0 46px 64px rgba(12,12,16,0.34)' },
-  { lx: '45%', ly: '1%',  rx: 9,  ry: -9,  rz: 3,  tz: 14,  z: 3, shadow: '0 32px 48px rgba(15,15,18,0.26)' },
-  { lx: '62%', ly: '33%', rx: -8, ry: -14, rz: -2, tz: -52, z: 1, shadow: '0 15px 26px rgba(20,20,24,0.16)' },
+  { lx: '-3%', ly: '9%',  rx: 11,  ry: 19,  rz: -4, tz: -65, z: 2, shadow: '0 30px 50px rgba(15,15,20,0.26)' },
+  { lx: '20%', ly: '45%', rx: -9,  ry: 16,  rz: 3,  tz: 30,  z: 4, shadow: '0 56px 88px rgba(8,8,14,0.42)' },
+  { lx: '42%', ly: '-3%', rx: 14,  ry: -13, rz: 4,  tz: -12, z: 3, shadow: '0 40px 66px rgba(12,12,18,0.32)' },
+  { lx: '58%', ly: '37%', rx: -11, ry: -21, rz: -3, tz: -100, z: 1, shadow: '0 20px 38px rgba(20,20,26,0.16)' },
 ];
 ---
 
 <section id="projects-fan" class="relative overflow-hidden py-20 sm:py-28">
-  <div class="mx-auto max-w-5xl px-6">
+  <div class="mx-auto max-w-6xl px-6">
     <div class="scene3d">
       {projects.map((project, i) => {
         const l = layout[i % layout.length];
@@ -46,16 +46,16 @@ const layout = [
     position: relative;
     width: 100%;
     margin-inline: auto;
-    perspective: 1200px;
-    perspective-origin: 50% 32%;
-    --cardw: 38%;
-    height: 240px;
+    perspective: 900px;
+    perspective-origin: 50% 34%;
+    --cardw: 52%;
+    height: 300px;
   }
   @media (min-width: 640px) {
-    .scene3d { --cardw: 34%; height: 320px; }
+    .scene3d { --cardw: 44%; height: 400px; }
   }
   @media (min-width: 1024px) {
-    .scene3d { --cardw: 30%; height: 390px; }
+    .scene3d { --cardw: 40%; height: 480px; }
   }
 
   .card3d {
