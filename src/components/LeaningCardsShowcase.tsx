@@ -9,12 +9,11 @@ type Props = {
 };
 
 const TILT = 64; // degrees the cards lean at rest
-const OVERLAP = -235; // px (negative = overlap) at rest — scaled with the card size
 // neighbours slide aside when a card pops; asymmetric because every card leans
 // the same way, so the LEFT neighbour's (receding) edge needs a bigger push to
 // clear the popped card than the right neighbour's.
-const SPREAD_LEFT = 188;
-const SPREAD_RIGHT = 152;
+const SPREAD_LEFT = 176;
+const SPREAD_RIGHT = 160;
 const POP_Z = 96; // px the active card comes forward (kept modest so it doesn't grow over a neighbour)
 const POP_Y = -46; // px the active card lifts
 
@@ -171,7 +170,12 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
           transition:transform .5s cubic-bezier(.22,.7,.3,1), box-shadow .5s cubic-bezier(.22,.7,.3,1);
           box-shadow:0 2px 6px rgba(15,23,42,.22), 26px 28px 50px -18px rgba(15,23,42,.50);
         }
-        .lc-card:not(:last-child){ margin-right:${OVERLAP}px; }
+        /* Progressive overlap: perspective foreshortens the right cards (they get
+           narrower), so a uniform margin leaves a gap on the right. Overlap more
+           toward the right to keep the rendered overlap even. */
+        .lc-card:nth-child(1){ margin-right:-215px; }
+        .lc-card:nth-child(2){ margin-right:-243px; }
+        .lc-card:nth-child(3){ margin-right:-267px; }
         .lc-card.is-active{
           box-shadow:0 12px 24px rgba(15,23,42,.28), 0 60px 110px -28px rgba(15,23,42,.55);
           z-index:50;
