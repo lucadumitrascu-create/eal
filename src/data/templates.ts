@@ -7,19 +7,36 @@
 
 export type SectionType =
   | 'hero' | 'features' | 'gallery' | 'about' | 'contact' | 'cta'
-  | 'steps' | 'stats' | 'pricing' | 'products';
+  | 'steps' | 'stats' | 'pricing' | 'products'
+  | 'logos' | 'quote' | 'faq';
 export type ColorTheme = 'cyan' | 'warm' | 'indigo' | 'mono' | 'dark' | 'vivid' | 'rose' | 'teal' | 'sky';
-export type FontPair = 'modern' | 'editorial' | 'mono';
-export type AnimationPreset = 'none' | 'subtle' | 'lively';
+export type FontPair = 'modern' | 'editorial' | 'mono' | 'grotesk' | 'humanist';
+export type AnimationPreset = 'none' | 'fade' | 'rise' | 'slide' | 'sweep' | 'zoom' | 'blur' | 'flip' | 'pop';
 
 export type HeroStyle = 'split' | 'centered' | 'overlay' | 'minimal' | 'bold' | 'editorial';
-export type CardStyle = 'card' | 'plain' | 'bordered' | 'list';
+export type CardStyle = 'card' | 'plain' | 'bordered' | 'list' | 'numbered' | 'ticket';
+export type NavStyle = 'left' | 'center' | 'spread' | 'serif' | 'links' | 'minimal';
+export type FeatureLayout = 'grid' | 'rows' | 'split';   // how features/steps lay out
+export type RadiusScale = 'sharp' | 'soft' | 'round';    // corner language
+export type TypeStyle = 'default' | 'condensed' | 'serifDisplay'; // heading treatment
+export type ButtonStyle = 'solid' | 'outline' | 'pill' | 'underline';
+export type Density = 'tight' | 'normal' | 'airy';       // section padding rhythm
+export type SectionDisplay = 'grid' | 'carousel' | 'marquee' | 'masonry' | 'list' | 'rows' | 'split' | 'cards' | 'numbered'; // gallery/products + features/steps layout modes
+export type HeroPos = 'right' | 'left' | 'full' | 'fullLeft' | 'fullRight' | 'top' | 'bannerTop' | 'frame' | 'none'; // hero image layout
+export type HeroWidth = 'sm' | 'md' | 'lg' | 'full'; // hero text column width
+export type HeroVAlign = 'top' | 'mid' | 'bottom'; // hero text vertical placement
 export interface LayoutStyle {
   hero: HeroStyle;
+  nav: NavStyle;
+  feature: FeatureLayout;
   cards: CardStyle;
   align: 'left' | 'center';
   bands: boolean;          // alternate section backgrounds
   scale: 'sm' | 'md' | 'lg' | 'xl'; // headline scale
+  radius: RadiusScale;
+  type: TypeStyle;
+  btn: ButtonStyle;
+  density: Density;
 }
 
 export interface ImageRef { presetId: string; label: string; alt: string }
@@ -47,6 +64,7 @@ export interface SectionDef {
   toggleable: boolean;
   textSlots: TextSlot[];
   imageSlots: ImageSlot[];
+  display?: SectionDisplay; // default lay-out for gallery/products
 }
 
 export interface Template {
@@ -69,8 +87,10 @@ export interface DesignSpec {
   theme: ColorTheme;
   font: FontPair;
   animation: AnimationPreset;
+  btn?: ButtonStyle;
+  nav?: string[];
   meta: { siteName: string; tagline: string };
-  sections: { id: string; enabled: boolean; text: Record<string, string>; images: Record<string, ImageRef> }[];
+  sections: { id: string; enabled: boolean; display?: SectionDisplay; pos?: HeroPos; width?: HeroWidth; valign?: HeroVAlign; offsets?: Record<string, { x: number; y: number }>; widths?: Record<string, number>; colors?: Record<string, string>; text: Record<string, string>; images: Record<string, ImageRef> }[];
 }
 
 /* ── Theme presets ── */
@@ -92,9 +112,11 @@ export const themes: Record<ColorTheme, { label: string; swatch: string; vars: T
 
 /* ── Font presets ── */
 export const fonts: Record<FontPair, { label: string; heading: string; body: string; href: string }> = {
-  modern:    { label: 'builder.font.modern',    heading: "'Outfit'",          body: "'Work Sans'",     href: 'https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Work+Sans:wght@400;500;600&display=swap' },
-  editorial: { label: 'builder.font.editorial', heading: "'Playfair Display'", body: "'Karla'",         href: 'https://fonts.googleapis.com/css2?family=Karla:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap' },
-  mono:      { label: 'builder.font.mono',      heading: "'Archivo'",         body: "'Space Grotesk'", href: 'https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=Space+Grotesk:wght@400;500;600&display=swap' },
+  modern:    { label: 'builder.font.modern',    heading: "'Outfit'",          body: "'Work Sans'",     href: 'https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Work+Sans:wght@400;500;600&display=swap' },
+  editorial: { label: 'builder.font.editorial', heading: "'Playfair Display'", body: "'Karla'",         href: 'https://fonts.googleapis.com/css2?family=Karla:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700;800&display=swap' },
+  mono:      { label: 'builder.font.mono',      heading: "'Archivo'",         body: "'Space Grotesk'", href: 'https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Space+Grotesk:wght@400;500;600&display=swap' },
+  grotesk:   { label: 'builder.font.grotesk',   heading: "'Inter'",           body: "'Inter'",         href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap' },
+  humanist:  { label: 'builder.font.humanist',  heading: "'Figtree'",         body: "'Figtree'",       href: 'https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap' },
 };
 
 /* ── slot helpers ── */
@@ -132,13 +154,13 @@ const pricing = (title: string, plans: [string, string, string][]): SectionDef =
   textSlots: [t('title', 'builder.slot.sectionTitle', 'short', 60, title), ...plans.flatMap(([n, pr, fe], i) => [t(`plan${i + 1}.name`, 'builder.slot.planName', 'short', 30, n), t(`plan${i + 1}.price`, 'builder.slot.price', 'short', 20, pr), t(`plan${i + 1}.features`, 'builder.slot.bodyText', 'long', 160, fe)])],
   imageSlots: [],
 });
-const products = (title: string, items: [string, string, string][]): SectionDef => ({
-  id: 'products', type: 'products', label: 'builder.section.products', enabledByDefault: true, toggleable: true,
+const products = (title: string, items: [string, string, string][], display: SectionDisplay = 'grid'): SectionDef => ({
+  id: 'products', type: 'products', label: 'builder.section.products', enabledByDefault: true, toggleable: true, display,
   textSlots: [t('title', 'builder.slot.sectionTitle', 'short', 60, title), ...items.flatMap(([, n, pr], i) => [t(`prod${i + 1}.name`, 'builder.slot.itemTitle', 'short', 40, n), t(`prod${i + 1}.price`, 'builder.slot.price', 'short', 16, pr)])],
   imageSlots: items.map(([preset, n], i) => im(`prod${i + 1}.img`, 'builder.slot.image', '1:1', preset, n)),
 });
-const gallery = (title: string, imgs: [string, string][]): SectionDef => ({
-  id: 'gallery', type: 'gallery', label: 'builder.section.gallery', enabledByDefault: true, toggleable: true,
+const gallery = (title: string, imgs: [string, string][], display: SectionDisplay = 'grid'): SectionDef => ({
+  id: 'gallery', type: 'gallery', label: 'builder.section.gallery', enabledByDefault: true, toggleable: true, display,
   textSlots: [t('title', 'builder.slot.sectionTitle', 'short', 60, title)],
   imageSlots: imgs.map(([preset, lbl], i) => im(`img${i + 1}`, 'builder.slot.image', '1:1', preset, lbl)),
 });
@@ -158,30 +180,55 @@ const cta = (title: string, sub: string, button: string, enabled = true): Sectio
   imageSlots: [],
 });
 
+const logos = (title: string, items: string[]): SectionDef => ({
+  id: 'logos', type: 'logos', label: 'builder.section.logos', enabledByDefault: true, toggleable: true, display: 'marquee',
+  textSlots: [t('title', 'builder.slot.sectionTitle', 'short', 60, title), ...items.map((n, i) => t(`logo${i + 1}`, 'builder.slot.itemTitle', 'short', 24, n))],
+  imageSlots: [],
+});
+const quote = (text: string, author: string): SectionDef => ({
+  id: 'quote', type: 'quote', label: 'builder.section.quote', enabledByDefault: true, toggleable: true,
+  textSlots: [t('quote', 'builder.slot.bodyText', 'long', 240, text), t('author', 'builder.slot.itemTitle', 'short', 60, author)],
+  imageSlots: [],
+});
+const faq = (title: string, items: [string, string][]): SectionDef => ({
+  id: 'faq', type: 'faq', label: 'builder.section.faq', enabledByDefault: true, toggleable: true,
+  textSlots: [t('title', 'builder.slot.sectionTitle', 'short', 60, title), ...items.flatMap(([q, a], i) => [t(`q${i + 1}`, 'builder.slot.itemTitle', 'short', 90, q), t(`a${i + 1}`, 'builder.slot.itemBody', 'long', 220, a)])],
+  imageSlots: [],
+});
+
+/** Blocks any template can add via "+ Add section", on top of its own sections. */
+export const universalBlocks: SectionDef[] = [
+  logos('Trusted by', ['Northwind', 'Acme', 'Lumen', 'Vertex', 'Praxis', 'Form']),
+  stats([['10+', 'Years'], ['500+', 'Clients'], ['4.9/5', 'Rating']]),
+  quote('They understood exactly what we needed and delivered beyond it. Easily the best team we have worked with.', 'Alex Rivera, Founder'),
+  faq('Frequently asked', [['How long does it take?', 'Most projects ship in two to four weeks, depending on scope.'], ['What does it cost?', 'Every project is quoted up front, no surprises.'], ['Do you offer support?', 'Yes, we stay on after launch for updates and fixes.']]),
+  cta('Ready to start?', 'Tell us what you have in mind.', 'Get in touch'),
+];
+
 /* ── Templates — distinct theme + font + LAYOUT + composition ── */
 export const templates: Template[] = [
   {
     id: 'restaurant', name: 'builder.tpl.restaurant.name', tagline: 'builder.tpl.restaurant.tagline',
     industryHint: ['restaurant', 'cafe', 'food', 'hospitality', 'bakery'],
-    theme: 'warm', font: 'editorial', animation: 'lively',
-    layout: { hero: 'overlay', cards: 'plain', align: 'center', bands: true, scale: 'lg' },
+    theme: 'warm', font: 'editorial', animation: 'rise',
+    layout: { hero: 'overlay', nav: 'serif', feature: 'rows', cards: 'plain', align: 'center', bands: true, scale: 'lg', radius: 'soft', type: 'serifDisplay', btn: 'underline', density: 'airy' },
     defaultSiteName: 'Trattoria Sole', defaultTagline: 'Cucina italiana',
     sections: [
-      hero('Since 1998', 'Taste the tradition', 'Fresh pasta made by hand every morning, in the heart of the old town.', 'Reserve a table', 'terracotta', 'Signature dish'),
+      hero('Since 1998', 'Taste the tradition', 'Fresh pasta made by hand every morning, in the heart of the old town.', 'Reserve a table', 'ph-dish', 'Signature dish'),
       features('Why guests love us', [['Made fresh daily', 'No freezers, no shortcuts — only what the market gives us each morning.'], ['Family recipes', "Three generations of Nonna's recipes, unchanged and unhurried."], ['Warm hospitality', "You arrive a guest and leave family."]]),
-      gallery('From our kitchen', [['sand', 'Antipasti'], ['citrus', 'Wood-fired'], ['plum', 'Dolci']]),
-      about('Our story', 'What started as a tiny corner kitchen is now the table the whole street gathers around. Same hands, same fire, same love.', 'mesh', 'Our dining room'),
+      gallery('From our kitchen', [['ph-antipasti', 'Antipasti'], ['ph-woodfire', 'Wood-fired'], ['ph-dolci', 'Dolci']], 'marquee'),
+      about('Our story', 'What started as a tiny corner kitchen is now the table the whole street gathers around. Same hands, same fire, same love.', 'ph-trattoria', 'Our dining room'),
       contact('Visit us', 'Open Tue–Sun, 12:00–23:00', 'ciao@trattoriasole.it', '+39 02 1234 567'),
     ],
   },
   {
     id: 'agency', name: 'builder.tpl.agency.name', tagline: 'builder.tpl.agency.tagline',
     industryHint: ['agency', 'studio', 'consultancy', 'marketing', 'design'],
-    theme: 'indigo', font: 'modern', animation: 'subtle',
-    layout: { hero: 'split', cards: 'card', align: 'left', bands: false, scale: 'md' },
+    theme: 'indigo', font: 'grotesk', animation: 'slide',
+    layout: { hero: 'split', nav: 'links', feature: 'split', cards: 'bordered', align: 'left', bands: false, scale: 'md', radius: 'sharp', type: 'default', btn: 'solid', density: 'normal' },
     defaultSiteName: 'Northwind', defaultTagline: 'A product studio',
     sections: [
-      hero('Product studio', 'Launch faster, with less', 'We design and build web products that feel effortless — from first sketch to production.', 'Start a project', 'indigo', 'Product dashboard'),
+      hero('Product studio', 'Launch faster, with less', 'We design and build web products that feel effortless — from first sketch to production.', 'Start a project', 'ph-workspace', 'Product dashboard'),
       steps('How we work', [['Discover', 'A sharp workshop turns a fuzzy idea into a clear plan.'], ['Design & build', 'One senior team takes it from wireframe to production.'], ['Launch & grow', 'We stay on after launch — measure, refine, repeat.']]),
       stats([['120+', 'Projects shipped'], ['9 yrs', 'In business'], ['4.9/5', 'Client rating']]),
       features('What we do', [['Strategy', 'We turn fuzzy ideas into a sharp, buildable plan.'], ['Design', 'Interfaces people understand on the very first try.'], ['Engineering', "Clean, fast code that won't haunt you later."]]),
@@ -192,25 +239,25 @@ export const templates: Template[] = [
   {
     id: 'portfolio', name: 'builder.tpl.portfolio.name', tagline: 'builder.tpl.portfolio.tagline',
     industryHint: ['portfolio', 'designer', 'photographer', 'creative', 'freelancer', 'artist'],
-    theme: 'mono', font: 'mono', animation: 'subtle',
-    layout: { hero: 'minimal', cards: 'list', align: 'left', bands: false, scale: 'xl' },
+    theme: 'mono', font: 'mono', animation: 'fade',
+    layout: { hero: 'minimal', nav: 'minimal', feature: 'rows', cards: 'numbered', align: 'left', bands: false, scale: 'xl', radius: 'sharp', type: 'default', btn: 'underline', density: 'airy' },
     defaultSiteName: 'Maya Ito', defaultTagline: 'Designer & art director',
     sections: [
-      hero('Portfolio', 'Maya Ito — design & art direction', 'Independent designer crafting brands and interfaces with a quiet, deliberate hand.', 'View work', 'mono', 'Selected project'),
-      gallery('Selected work', [['mono', 'Aroma — packaging'], ['slate', 'Field — identity'], ['plum', 'Lumen — app'], ['ocean', 'Praxis — web']]),
-      about('About', "I've spent ten years helping founders and studios look as good as the work they do. Currently open to a few select projects.", 'mesh', 'Studio portrait'),
+      hero('Portfolio', 'Maya Ito — design & art direction', 'Independent designer crafting brands and interfaces with a quiet, deliberate hand.', 'View work', 'ph-proj1', 'Selected project'),
+      gallery('Selected work', [['ph-proj2', 'Aroma — packaging'], ['ph-proj3', 'Field — identity'], ['ph-proj4', 'Lumen — app'], ['ph-proj1', 'Praxis — web']]),
+      about('About', "I've spent ten years helping founders and studios look as good as the work they do. Currently open to a few select projects.", 'ph-portrait', 'Studio portrait'),
       contact('Get in touch', 'Open for freelance and collaborations.', 'studio@mayaito.com', ''),
     ],
   },
   {
     id: 'ecommerce', name: 'builder.tpl.ecommerce.name', tagline: 'builder.tpl.ecommerce.tagline',
     industryHint: ['ecommerce', 'shop', 'store', 'brand', 'retail', 'boutique', 'product'],
-    theme: 'vivid', font: 'modern', animation: 'lively',
-    layout: { hero: 'centered', cards: 'card', align: 'center', bands: true, scale: 'md' },
+    theme: 'vivid', font: 'modern', animation: 'zoom',
+    layout: { hero: 'centered', nav: 'spread', feature: 'grid', cards: 'card', align: 'center', bands: true, scale: 'md', radius: 'soft', type: 'default', btn: 'pill', density: 'normal' },
     defaultSiteName: 'Maker & Co', defaultTagline: 'Goods worth keeping',
     sections: [
-      hero('New season', 'Things made to last', 'A tight, well-chosen range of everyday goods — designed once, made properly, shipped fast.', 'Shop the range', 'citrus', 'Hero product'),
-      products('Best sellers', [['sand', 'The Daily Tote', '€48'], ['terracotta', 'Ceramic Mug', '€22'], ['sage', 'Linen Apron', '€36'], ['ocean', 'Travel Bottle', '€28']]),
+      hero('New season', 'Things made to last', 'A tight, well-chosen range of everyday goods — designed once, made properly, shipped fast.', 'Shop the range', 'ph-shop', 'Hero product'),
+      products('Best sellers', [['ph-tote', 'The Daily Tote', '€48'], ['ph-mug', 'Ceramic Mug', '€22'], ['ph-apron', 'Linen Apron', '€36'], ['ph-bottle', 'Travel Bottle', '€28']], 'carousel'),
       features('Why shop with us', [['Free delivery', 'Dispatched within a day, tracked to your door.'], ['30-day returns', 'Changed your mind? No fuss, send it back.'], ['Made responsibly', 'Small batches, real materials, fair makers.']]),
       pricing('Memberships', [['Guest', '€0', 'Standard checkout, tracked delivery, easy returns.'], ['Insider', '€9/yr', 'Free shipping, early drops, 10% off everything.'], ['Pro', '€29/yr', 'Everything in Insider plus priority support and gifts.']]),
       cta('Ready to shop?', 'New pieces drop every month.', 'Browse the shop'),
@@ -219,11 +266,11 @@ export const templates: Template[] = [
   {
     id: 'app', name: 'builder.tpl.app.name', tagline: 'builder.tpl.app.tagline',
     industryHint: ['app', 'tool', 'crypto', 'trading', 'fintech', 'startup', 'platform'],
-    theme: 'dark', font: 'modern', animation: 'lively',
-    layout: { hero: 'bold', cards: 'card', align: 'center', bands: true, scale: 'xl' },
+    theme: 'dark', font: 'grotesk', animation: 'slide',
+    layout: { hero: 'bold', nav: 'left', feature: 'rows', cards: 'card', align: 'left', bands: false, scale: 'xl', radius: 'sharp', type: 'default', btn: 'solid', density: 'normal' },
     defaultSiteName: 'Voltline', defaultTagline: 'Tools for serious traders',
     sections: [
-      hero('Now live', 'Trade smarter, not harder', 'Professional-grade tools built for people who do this every day. One payment, lifetime access.', 'Get started', 'slate', 'App dashboard'),
+      hero('Now live', 'Trade smarter, not harder', 'Professional-grade tools built for people who do this every day. One payment, lifetime access.', 'Get started', 'ph-appdash', 'App dashboard'),
       features('Built for power users', [['Lightning fast', 'Sub-second execution and a UI that never gets in your way.'], ['All in one place', 'Charts, alerts, automation and analytics, unified.'], ['Yours forever', 'No subscriptions. Pay once, keep every update.']]),
       steps('How it works', [['Connect', 'Link your account in two clicks — read-only, secure.'], ['Configure', 'Set your strategy with sane defaults and full control.'], ['Run', 'Let it work while you watch the numbers move.']]),
       pricing('One simple price', [['Starter', '$0', 'Core tools, manual mode, community support.'], ['Pro', '$199 once', 'Everything unlocked, lifetime access, priority help.']]),
@@ -234,42 +281,42 @@ export const templates: Template[] = [
   {
     id: 'fitness', name: 'builder.tpl.fitness.name', tagline: 'builder.tpl.fitness.tagline',
     industryHint: ['gym', 'fitness', 'studio', 'yoga', 'coach', 'wellness', 'crossfit'],
-    theme: 'cyan', font: 'modern', animation: 'lively',
-    layout: { hero: 'overlay', cards: 'card', align: 'left', bands: false, scale: 'xl' },
+    theme: 'cyan', font: 'modern', animation: 'zoom',
+    layout: { hero: 'overlay', nav: 'spread', feature: 'grid', cards: 'ticket', align: 'left', bands: false, scale: 'xl', radius: 'sharp', type: 'condensed', btn: 'solid', density: 'tight' },
     defaultSiteName: 'Forge Gym', defaultTagline: 'Train with intent',
     sections: [
-      hero('Now enrolling', 'Stronger every week', 'Coached strength and conditioning in a community that actually shows up. First class is on us.', 'Book a free class', 'forest', 'Training floor'),
+      hero('Now enrolling', 'Stronger every week', 'Coached strength and conditioning in a community that actually shows up. First class is on us.', 'Book a free class', 'ph-gymfloor', 'Training floor'),
       stats([['2.5k+', 'Members'], ['40+', 'Classes / week'], ['12', 'Expert coaches']]),
       features('Programs', [['Strength', 'Barbell-focused coaching to build real, lasting power.'], ['Conditioning', 'High-energy sessions that leave you better than yesterday.'], ['Mobility', 'Move well, recover faster, train for the long game.']]),
       pricing('Memberships', [['Drop-in', '€15', 'One class, no commitment, all welcome.'], ['Unlimited', '€69/mo', 'Every class, open gym access, free assessments.'], ['Coached', '€129/mo', 'Unlimited plus a personal coach and plan.']]),
-      gallery('Inside the box', [['slate', 'The floor'], ['forest', 'Rig & racks'], ['ocean', 'Recovery zone']]),
+      gallery('Inside the box', [['ph-class', 'The floor'], ['ph-rig', 'Rig & racks'], ['ph-recovery', 'Recovery zone']], 'carousel'),
       contact('Come train', 'Open Mon–Sat, 6:00–21:00', 'hello@forgegym.com', '+1 555 0192'),
     ],
   },
   {
     id: 'beauty', name: 'builder.tpl.beauty.name', tagline: 'builder.tpl.beauty.tagline',
     industryHint: ['beauty', 'salon', 'spa', 'hair', 'nails', 'makeup', 'wellness'],
-    theme: 'rose', font: 'editorial', animation: 'subtle',
-    layout: { hero: 'editorial', cards: 'plain', align: 'center', bands: true, scale: 'lg' },
+    theme: 'rose', font: 'editorial', animation: 'blur',
+    layout: { hero: 'editorial', nav: 'center', feature: 'split', cards: 'plain', align: 'center', bands: true, scale: 'lg', radius: 'round', type: 'serifDisplay', btn: 'outline', density: 'airy' },
     defaultSiteName: 'Lumière Studio', defaultTagline: 'Hair & beauty',
     sections: [
-      hero('Est. 2014', 'Look like yourself, only lovelier', 'A calm, modern salon for hair, skin and nails — unhurried, attentive, and quietly luxurious.', 'Book an appointment', 'plum', 'The studio'),
+      hero('Est. 2014', 'Look like yourself, only lovelier', 'A calm, modern salon for hair, skin and nails — unhurried, attentive, and quietly luxurious.', 'Book an appointment', 'ph-salon', 'The studio'),
       features('What we offer', [['Hair', 'Cuts, colour and care by stylists who actually listen.'], ['Skin', 'Facials and treatments tailored to your skin, not a script.'], ['Nails', 'Meticulous manicures in a space made for slowing down.']]),
-      gallery('The look book', [['plum', 'Colour work'], ['sand', 'Bridal'], ['mesh', 'Editorial'], ['mono', 'Everyday']]),
+      gallery('The look book', [['ph-colour', 'Colour work'], ['ph-bridal', 'Bridal'], ['ph-editorial', 'Editorial'], ['ph-nails', 'Everyday']], 'marquee'),
       pricing('Treatments', [['Cut & finish', 'from €45', 'Consultation, wash, cut and style.'], ['Colour', 'from €80', 'Full colour, gloss and a nourishing treatment.'], ['Spa facial', 'from €65', 'A 60-minute reset for tired skin.']]),
-      about('Our space', 'A light-filled room, good coffee, and a team that treats every appointment like the highlight of your week.', 'plum', 'Inside Lumière'),
+      about('Our space', 'A light-filled room, good coffee, and a team that treats every appointment like the highlight of your week.', 'ph-inside', 'Inside Lumière'),
       contact('Visit us', 'Tue–Sat, 9:00–19:00', 'hello@lumierestudio.com', '+1 555 0147'),
     ],
   },
   {
     id: 'realestate', name: 'builder.tpl.realestate.name', tagline: 'builder.tpl.realestate.tagline',
     industryHint: ['real estate', 'property', 'realtor', 'homes', 'agency', 'rentals'],
-    theme: 'teal', font: 'modern', animation: 'subtle',
-    layout: { hero: 'split', cards: 'bordered', align: 'left', bands: false, scale: 'md' },
+    theme: 'teal', font: 'humanist', animation: 'rise',
+    layout: { hero: 'split', nav: 'links', feature: 'grid', cards: 'bordered', align: 'left', bands: false, scale: 'md', radius: 'soft', type: 'default', btn: 'solid', density: 'normal' },
     defaultSiteName: 'Casa Nova', defaultTagline: 'Find your place',
     sections: [
-      hero('Now listing', 'Homes you will actually love', 'Hand-picked properties and honest advice from a team that knows the neighbourhood inside out.', 'Browse listings', 'ocean', 'Featured home'),
-      products('Featured listings', [['sand', 'Sunlit 2-bed loft', '€320,000'], ['sage', 'Garden townhouse', '€485,000'], ['ocean', 'Riverside apartment', '€275,000']]),
+      hero('Now listing', 'Homes you will actually love', 'Hand-picked properties and honest advice from a team that knows the neighbourhood inside out.', 'Browse listings', 'ph-home', 'Featured home'),
+      products('Featured listings', [['ph-loft', 'Sunlit 2-bed loft', '€320,000'], ['ph-townhouse', 'Garden townhouse', '€485,000'], ['ph-riverside', 'Riverside apartment', '€275,000']]),
       features('Why work with us', [['Local experts', 'We live here too — we know what each street is really like.'], ['Honest advice', 'No pressure, no jargon, just straight answers.'], ['Smooth process', 'We handle the paperwork so you can focus on moving.']]),
       steps('Buying with us', [['Tell us your brief', 'Budget, area, must-haves — we listen first.'], ['View the shortlist', 'Only homes that actually fit, no time wasted.'], ['Make it yours', 'We negotiate and guide you to the keys.']]),
       stats([['600+', 'Homes sold'], ['21 days', 'Avg. time to offer'], ['98%', 'Asking achieved']]),
@@ -279,15 +326,15 @@ export const templates: Template[] = [
   {
     id: 'medical', name: 'builder.tpl.medical.name', tagline: 'builder.tpl.medical.tagline',
     industryHint: ['medical', 'clinic', 'dental', 'doctor', 'health', 'therapy', 'care'],
-    theme: 'sky', font: 'modern', animation: 'subtle',
-    layout: { hero: 'centered', cards: 'bordered', align: 'center', bands: false, scale: 'sm' },
+    theme: 'sky', font: 'humanist', animation: 'fade',
+    layout: { hero: 'centered', nav: 'center', feature: 'rows', cards: 'bordered', align: 'center', bands: false, scale: 'sm', radius: 'round', type: 'default', btn: 'pill', density: 'airy' },
     defaultSiteName: 'Vita Clinic', defaultTagline: 'Care you can trust',
     sections: [
-      hero('Accepting new patients', 'Health care that listens', 'Modern, unhurried care from a team that treats you like a person, not a chart. Same-week appointments.', 'Book an appointment', 'ocean', 'Reception'),
+      hero('Accepting new patients', 'Health care that listens', 'Modern, unhurried care from a team that treats you like a person, not a chart. Same-week appointments.', 'Book an appointment', 'ph-reception', 'Reception'),
       features('Our services', [['Primary care', 'Check-ups, screening and everyday health, all in one place.'], ['Specialists', 'On-site experts and fast, coordinated referrals.'], ['Diagnostics', 'Lab and imaging with results explained clearly.']]),
       steps('How it works', [['Book online', 'Pick a time that works in under a minute.'], ['Meet your doctor', 'Unhurried visits, real conversations.'], ['Stay on track', 'Follow-ups and reminders so nothing slips.']]),
       stats([['25k+', 'Patients cared for'], ['Same week', 'Appointments'], ['4.9/5', 'Patient rating']]),
-      about('About the clinic', 'A calm, modern practice built around one idea: care should feel personal, clear and unrushed.', 'mesh', 'Our team'),
+      about('About the clinic', 'A calm, modern practice built around one idea: care should feel personal, clear and unrushed.', 'ph-team', 'Our team'),
       contact('Get in touch', 'Mon–Fri, 8:00–18:00', 'care@vitaclinic.com', '+1 555 0110'),
     ],
   },
