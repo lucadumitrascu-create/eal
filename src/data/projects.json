@@ -31,7 +31,7 @@
     "title": "Adricut",
     "description": "Custom personalization studio — laser engraving, custom mugs & t-shirts, 3D printing, and vinyl.",
     "tech": ["Next.js", "React"],
-    "url": "https://vercel.com/lucadumitrascu-creates-projects/adricut",
+    "url": "https://adricut.com",
     "image": "/images/projects/adricut.webp",
     "featured": true
   }
