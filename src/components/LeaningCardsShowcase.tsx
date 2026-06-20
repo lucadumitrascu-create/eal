@@ -10,7 +10,9 @@ type Props = {
 
 const TILT = 70; // degrees the cards lean at rest
 const OVERLAP = -214; // px (negative = overlap) at rest
-const SPREAD = 84; // px neighbours slide aside when a card pops
+const SPREAD = 156; // px neighbours slide aside when a card pops (must clear the rest overlap)
+const POP_Z = 96; // px the active card comes forward (kept modest so it doesn't grow over a neighbour)
+const POP_Y = -42; // px the active card lifts
 
 /**
  * Leaning-cards showcase: four project screenshots lean against each other like
@@ -147,7 +149,7 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
   // Undefined => fall back to the CSS rest transform (and the touch override).
   const transformFor = (i: number): string | undefined => {
     if (active < 0) return undefined;
-    if (i === active) return `rotateY(0deg) translateY(-40px) translateZ(140px)`;
+    if (i === active) return `rotateY(0deg) translateY(${POP_Y}px) translateZ(${POP_Z}px)`;
     return `translateX(${i < active ? -SPREAD : SPREAD}px) rotateY(${TILT}deg)`;
   };
 
