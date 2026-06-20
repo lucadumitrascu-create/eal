@@ -8,9 +8,13 @@ type Props = {
   titles?: string[];
 };
 
-const TILT = 70; // degrees the cards lean at rest
+const TILT = 64; // degrees the cards lean at rest
 const OVERLAP = -235; // px (negative = overlap) at rest — scaled with the card size
-const SPREAD = 141; // px neighbours slide aside when a card pops (must clear the rest overlap)
+// neighbours slide aside when a card pops; asymmetric because every card leans
+// the same way, so the LEFT neighbour's (receding) edge needs a bigger push to
+// clear the popped card than the right neighbour's.
+const SPREAD_LEFT = 188;
+const SPREAD_RIGHT = 152;
 const POP_Z = 96; // px the active card comes forward (kept modest so it doesn't grow over a neighbour)
 const POP_Y = -46; // px the active card lifts
 
@@ -150,7 +154,7 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
   const transformFor = (i: number): string | undefined => {
     if (active < 0) return undefined;
     if (i === active) return `rotateY(0deg) translateY(${POP_Y}px) translateZ(${POP_Z}px)`;
-    return `translateX(${i < active ? -SPREAD : SPREAD}px) rotateY(${TILT}deg)`;
+    return `translateX(${i < active ? -SPREAD_LEFT : SPREAD_RIGHT}px) rotateY(${TILT}deg)`;
   };
 
   return (
