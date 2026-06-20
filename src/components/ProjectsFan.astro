@@ -2,22 +2,26 @@
 import projects from '../data/projects.json';
 
 /**
- * Overlapping project-card cluster with a per-card hover-lift, modelled on the
- * "Works with every agent" section of tasteskill.dev. Pure CSS :hover — no JS,
- * no mouse-parallax, no drag. Each card keeps a FIXED base tilt; on hover only
- * that card lifts, scales, deepens its shadow and rises to the front.
+ * 3D scattered project scene, modelled on tasteskill.dev's "Works with every
+ * agent" section. A perspective container holds cards floating at different
+ * depths: each has its own rotateX + rotateY (real 3D tilt, not flat 2D),
+ * a distinct vertical position (diagonal scatter), a distinct z-index, and a
+ * per-card shadow whose size implies how forward/high the card sits.
+ * Per-card hover-lift on desktop (pure CSS :hover). Reduced-motion = static.
+ *
+ * Order matches projects.json: SOLbot, Georgio, Transport, Adricut.
  */
 const layout = [
-  { pos: -1.5, ty: -8, rot: -3, z: 1 },
-  { pos: -0.5, ty: 6, rot: 2, z: 4 },
-  { pos: 0.5, ty: -6, rot: -2, z: 3 },
-  { pos: 1.5, ty: 8, rot: 3, z: 2 },
+  { lx: '1%',  ly: '7%',  rx: 7,  ry: 13,  rz: -3, tz: -28, z: 2, shadow: '0 22px 36px rgba(18,18,22,0.22)' },
+  { lx: '23%', ly: '40%', rx: -6, ry: 10,  rz: 2,  tz: 42,  z: 4, shadow: '0 46px 64px rgba(12,12,16,0.34)' },
+  { lx: '45%', ly: '1%',  rx: 9,  ry: -9,  rz: 3,  tz: 14,  z: 3, shadow: '0 32px 48px rgba(15,15,18,0.26)' },
+  { lx: '62%', ly: '33%', rx: -8, ry: -14, rz: -2, tz: -52, z: 1, shadow: '0 15px 26px rgba(20,20,24,0.16)' },
 ];
 ---
 
-<section id="projects-fan" class="relative overflow-hidden py-16 sm:py-24">
+<section id="projects-fan" class="relative overflow-hidden py-20 sm:py-28">
   <div class="mx-auto max-w-5xl px-6">
-    <div class="ov-cluster">
+    <div class="scene3d">
       {projects.map((project, i) => {
         const l = layout[i % layout.length];
         return (
@@ -25,8 +29,8 @@ const layout = [
             href={project.url}
             target="_blank"
             rel="noopener noreferrer"
-            class="ov-card"
-            style={`--pos:${l.pos}; --ty:${l.ty}px; --rot:${l.rot}deg; --z:${l.z};`}
+            class="card3d"
+            style={`--lx:${l.lx}; --ly:${l.ly}; --rx:${l.rx}deg; --ry:${l.ry}deg; --rz:${l.rz}deg; --tz:${l.tz}px; --z:${l.z}; --shadow:${l.shadow};`}
             aria-label={project.title}
           >
             <img src={project.image} alt={project.title} loading="lazy" width="640" height="360" />
@@ -38,38 +42,40 @@ const layout = [
 </section>
 
 <style>
-  .ov-cluster {
+  .scene3d {
     position: relative;
-    margin-inline: auto;
     width: 100%;
-    --cardw: 140px;
-    --gap: 50px;
-    height: 200px;
+    margin-inline: auto;
+    perspective: 1200px;
+    perspective-origin: 50% 32%;
+    --cardw: 38%;
+    height: 240px;
   }
   @media (min-width: 640px) {
-    .ov-cluster { --cardw: 200px; --gap: 90px; height: 240px; }
+    .scene3d { --cardw: 34%; height: 320px; }
   }
   @media (min-width: 1024px) {
-    .ov-cluster { --cardw: 268px; --gap: 144px; height: 280px; }
+    .scene3d { --cardw: 30%; height: 390px; }
   }
 
-  .ov-card {
+  .card3d {
     position: absolute;
-    top: 50%;
-    left: 50%;
+    left: var(--lx);
+    top: var(--ly);
     width: var(--cardw);
     z-index: var(--z);
-    border-radius: 18px;
+    border-radius: 16px;
     overflow: hidden;
     background: #fff;
     border: 1px solid rgba(0, 0, 0, 0.06);
-    filter: drop-shadow(0 22px 32px rgba(20, 20, 20, 0.18));
-    transform: translate(calc(-50% + var(--pos) * var(--gap)), calc(-50% + var(--ty))) rotate(var(--rot));
+    filter: drop-shadow(var(--shadow));
+    transform-origin: center center;
+    transform: translateY(0) translateZ(var(--tz)) rotateX(var(--rx)) rotateY(var(--ry)) rotate(var(--rz)) scale(1);
     transition: transform 0.5s cubic-bezier(0, 0, 0.2, 1), filter 0.5s cubic-bezier(0, 0, 0.2, 1);
     will-change: transform;
     text-decoration: none;
   }
-  .ov-card img {
+  .card3d img {
     display: block;
     width: 100%;
     height: auto;
@@ -78,21 +84,22 @@ const layout = [
   }
 
   /* Per-card hover lift — desktop only (≥1024px), like the reference's lg:hover.
-     On tablet/touch there's no lift, just the static tilted overlap. */
+     The card pops forward (translateZ) + up, scales a touch, deepens its shadow
+     and jumps to the front. Its 3D tilt is preserved. Siblings stay put. */
   @media (min-width: 1024px) {
-    .ov-card:hover {
-      transform: translate(calc(-50% + var(--pos) * var(--gap)), calc(-50% + var(--ty) - 10px)) rotate(var(--rot)) scale(1.04);
-      filter: drop-shadow(0 32px 48px rgba(20, 20, 20, 0.28));
-      z-index: 50;
+    .card3d:hover {
+      transform: translateY(-12px) translateZ(calc(var(--tz) + 60px)) rotateX(var(--rx)) rotateY(var(--ry)) rotate(var(--rz)) scale(1.03);
+      filter: drop-shadow(0 52px 76px rgba(10, 10, 14, 0.42));
+      z-index: 60;
     }
   }
 
-  /* Keep the static tilt + overlap; disable the lift entirely. */
+  /* Reduced motion: keep the static 3D scatter, no lift, no transition. */
   @media (prefers-reduced-motion: reduce) {
-    .ov-card { transition: none; }
-    .ov-card:hover {
-      transform: translate(calc(-50% + var(--pos) * var(--gap)), calc(-50% + var(--ty))) rotate(var(--rot));
-      filter: drop-shadow(0 22px 32px rgba(20, 20, 20, 0.18));
+    .card3d { transition: none; }
+    .card3d:hover {
+      transform: translateY(0) translateZ(var(--tz)) rotateX(var(--rx)) rotateY(var(--ry)) rotate(var(--rz)) scale(1);
+      filter: drop-shadow(var(--shadow));
       z-index: var(--z);
     }
   }
