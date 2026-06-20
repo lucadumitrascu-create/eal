@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Navbar from '../components/Navbar.astro';
+import BuilderApp from '../components/builder/BuilderApp.tsx';
+---
+
+<BaseLayout
+  title="Website Builder — EAL Enterprises"
+  description="Build a mockup of your future website — pick a template, edit the text, swap images, preview it live, and send it to us. No account, no AI guessing."
+>
+  <Navbar slot="navbar" />
+  <main id="builder-main" class="relative min-h-[100svh] overflow-hidden pt-28 pb-16 sm:pt-32">
+    <!-- Section glow orbs (consistent with other sections) -->
+    <div class="absolute inset-0 -z-10" aria-hidden="true">
+      <div class="absolute right-[5%] top-[10%] h-[40%] w-[40%] rounded-full bg-cyan-500 opacity-[0.05] blur-[120px]"></div>
+      <div class="absolute bottom-[10%] left-[-5%] h-[35%] w-[35%] rounded-full bg-amber-500 opacity-[0.03] blur-[100px]"></div>
+    </div>
+
+    <!-- SEO / always-in-DOM heading (island renders the visible UI) -->
+    <h1 class="sr-only">Website Builder — EAL Enterprises</h1>
+
+    <!-- No-JS fallback -->
+    <noscript>
+      <div class="mx-auto max-w-2xl px-6 pt-8 text-center">
+        <p class="text-3xl font-bold text-[var(--color-text)]">Website Builder</p>
+        <p class="mt-4 text-[var(--color-text-muted)]">
+          This tool needs JavaScript. Please enable it, or
+          <a href="/#contact" class="text-[var(--color-accent)] underline">contact us</a>
+          and we'll help you directly.
+        </p>
+      </div>
+    </noscript>
+
+    <BuilderApp client:only="react" />
+  </main>
+</BaseLayout>
