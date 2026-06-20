@@ -33,12 +33,16 @@ function getKey(): string | undefined {
 
 export const POST: APIRoute = async ({ request }) => {
   // Same-origin guard: block requests from other websites' browsers.
+  // Compare the browser Origin against the PUBLIC host (x-forwarded-host on
+  // Vercel). request.url is the function's internal URL and would always
+  // mismatch the public origin -> false 403 on every legit request.
   const origin = request.headers.get('origin');
   if (origin) {
+    const host = request.headers.get('x-forwarded-host') || request.headers.get('host');
     try {
-      if (new URL(origin).host !== new URL(request.url).host) return json({ error: 'forbidden' }, 403);
+      if (host && new URL(origin).host !== host) return json({ error: 'forbidden' }, 403);
     } catch {
-      return json({ error: 'forbidden' }, 403);
+      /* malformed Origin header — don't hard-block legitimate traffic */
     }
   }
 

@@ -31,9 +31,15 @@ export default function IdeasHelper({ onApply, defaultCompany = '' }: { onApply:
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ company: company.trim(), industry: industry.trim(), tone }),
       });
-      const data = await res.json();
-      setIdea(data);
-      if (data?.source === 'fallback') setOffline(true);
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || !data.headline) {
+        const { fallbackIdeas } = await import('../../lib/ai/fallbackIdeas');
+        setIdea(fallbackIdeas(industry, company));
+        setOffline(true);
+      } else {
+        setIdea(data);
+        if (data.source === 'fallback') setOffline(true);
+      }
     } catch {
       const { fallbackIdeas } = await import('../../lib/ai/fallbackIdeas');
       setIdea(fallbackIdeas(industry, company));
