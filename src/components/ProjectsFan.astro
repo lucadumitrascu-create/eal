@@ -1,105 +1,18 @@
 ---
 import projects from '../data/projects.json';
+import ProjectsScene from './ProjectsScene.tsx';
 
 /**
- * 3D scattered project scene, modelled on tasteskill.dev's "Works with every
- * agent" section. A perspective container holds cards floating at different
- * depths: each has its own rotateX + rotateY (real 3D tilt, not flat 2D),
- * a distinct vertical position (diagonal scatter), a distinct z-index, and a
- * per-card shadow whose size implies how forward/high the card sits.
- * Per-card hover-lift on desktop (pure CSS :hover). Reduced-motion = static.
- *
- * Order matches projects.json: SOLbot, Georgio, Transport, Adricut.
+ * Real WebGL 3D project cards (three.js / react-three-fiber): rounded boxes with
+ * thickness, the site screenshot textured on the front face, soft lighting,
+ * ambient float, hover tilt-toward-cursor + lift, click -> external link.
+ * Renders client-only (WebGL has no SSR). Placement unchanged: above "Let's talk".
  */
-const layout = [
-  { lx: '-3%', ly: '9%',  rx: 11,  ry: 19,  rz: -4, tz: -65, z: 2, shadow: '0 30px 50px rgba(15,15,20,0.26)' },
-  { lx: '20%', ly: '45%', rx: -9,  ry: 16,  rz: 3,  tz: 30,  z: 4, shadow: '0 56px 88px rgba(8,8,14,0.42)' },
-  { lx: '42%', ly: '-3%', rx: 14,  ry: -13, rz: 4,  tz: -12, z: 3, shadow: '0 40px 66px rgba(12,12,18,0.32)' },
-  { lx: '58%', ly: '37%', rx: -11, ry: -21, rz: -3, tz: -100, z: 1, shadow: '0 20px 38px rgba(20,20,26,0.16)' },
-];
+const cards = projects.map((p) => ({ url: p.url, texture: p.image, title: p.title }));
 ---
 
-<section id="projects-fan" class="relative overflow-hidden py-20 sm:py-28">
+<section id="projects-fan" class="relative overflow-hidden py-16 sm:py-24">
   <div class="mx-auto max-w-6xl px-6">
-    <div class="scene3d">
-      {projects.map((project, i) => {
-        const l = layout[i % layout.length];
-        return (
-          <a
-            href={project.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="card3d"
-            style={`--lx:${l.lx}; --ly:${l.ly}; --rx:${l.rx}deg; --ry:${l.ry}deg; --rz:${l.rz}deg; --tz:${l.tz}px; --z:${l.z}; --shadow:${l.shadow};`}
-            aria-label={project.title}
-          >
-            <img src={project.image} alt={project.title} loading="lazy" width="640" height="360" />
-          </a>
-        );
-      })}
-    </div>
+    <ProjectsScene client:only="react" cards={cards} />
   </div>
 </section>
-
-<style>
-  .scene3d {
-    position: relative;
-    width: 100%;
-    margin-inline: auto;
-    perspective: 900px;
-    perspective-origin: 50% 34%;
-    --cardw: 52%;
-    height: 300px;
-  }
-  @media (min-width: 640px) {
-    .scene3d { --cardw: 44%; height: 400px; }
-  }
-  @media (min-width: 1024px) {
-    .scene3d { --cardw: 40%; height: 480px; }
-  }
-
-  .card3d {
-    position: absolute;
-    left: var(--lx);
-    top: var(--ly);
-    width: var(--cardw);
-    z-index: var(--z);
-    border-radius: 16px;
-    overflow: hidden;
-    background: #fff;
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    box-shadow: var(--shadow);
-    transform-origin: center center;
-    transform: translateY(0) translateZ(var(--tz)) rotateX(var(--rx)) rotateY(var(--ry)) rotate(var(--rz)) scale(1);
-    transition: transform 0.5s cubic-bezier(0, 0, 0.2, 1), box-shadow 0.5s cubic-bezier(0, 0, 0.2, 1);
-    text-decoration: none;
-  }
-  .card3d img {
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-  }
-
-  /* Per-card hover lift — desktop only (≥1024px), like the reference's lg:hover.
-     The card pops forward (translateZ) + up, scales a touch, deepens its shadow
-     and jumps to the front. Its 3D tilt is preserved. Siblings stay put. */
-  @media (min-width: 1024px) {
-    .card3d:hover {
-      transform: translateY(-12px) translateZ(calc(var(--tz) + 60px)) rotateX(var(--rx)) rotateY(var(--ry)) rotate(var(--rz)) scale(1.03);
-      box-shadow: 0 52px 76px rgba(10, 10, 14, 0.42);
-      z-index: 60;
-    }
-  }
-
-  /* Reduced motion: keep the static 3D scatter, no lift, no transition. */
-  @media (prefers-reduced-motion: reduce) {
-    .card3d { transition: none; }
-    .card3d:hover {
-      transform: translateY(0) translateZ(var(--tz)) rotateX(var(--rx)) rotateY(var(--ry)) rotate(var(--rz)) scale(1);
-      box-shadow: var(--shadow);
-      z-index: var(--z);
-    }
-  }
-</style>
