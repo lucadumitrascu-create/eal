@@ -8,19 +8,22 @@ type Props = {
   titles?: string[];
 };
 
+const TILT = 70; // degrees the cards lean at rest
+const OVERLAP = -214; // px (negative = overlap) at rest
+const SPREAD = 84; // px neighbours slide aside when a card pops
+
 /**
  * Leaning-cards showcase: four project screenshots lean against each other like
- * cards on a shelf. Hovering one pops it upright + forward to reveal the site;
- * clicking opens the live URL.
+ * cards on a shelf. The card under the cursor pops upright + forward; its
+ * neighbours slide aside so it has clean room; clicking opens the live URL.
  *
- * Hover is detected by POSITION in JS (cursor vs the fixed REST rects), NOT CSS
- * :hover — the card moves out from under the cursor on activation, so :hover
- * would flicker (out -> re-enter -> loop). measure()/pick() is the core of it.
- *
- * On no-hover devices (phones/tablets) the lean can't be activated, so a
- * `@media (hover: none)` layout renders the cards flat, upright, non-overlapping
- * and legible — and since the rest rects then match the cards, a tap hit-tests
- * correctly and opens the right project.
+ * Hover is detected by POSITION in JS (NOT CSS :hover — the card moves out from
+ * under the cursor on activation, which would make :hover flicker). To avoid the
+ * jitter of hit-testing heavily-overlapping leaning slivers, the desktop pick
+ * uses STABLE nearest-centre zones (transform-agnostic layout centres), so
+ * `active` only changes when the cursor crosses a midpoint between two cards.
+ * On no-hover devices the cards render flat (CSS) and a tap hit-tests the real,
+ * non-overlapping rects.
  */
 export default function LeaningCardsShowcase({ images, urls = [], titles = [] }: Props) {
   const shelfRef = useRef<HTMLDivElement>(null);
@@ -29,33 +32,56 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
   urlsRef.current = urls;
   const [active, setActive] = useState<number>(-1);
 
-  // how hard the cards lean / how much they overlap at rest (desktop)
-  const TILT = 70; // degrees
-  const OVERLAP = -214; // px (negative = overlap)
-
   useEffect(() => {
     const cards = cardRefs.current; // dense [0..3]; index == card == active == urls index
-    let rects: (DOMRect | null)[] = [];
+    const shelf = shelfRef.current!;
+
+    let touch = false;
+    let shelfRect: DOMRect | null = null;
+    let centers: (number | null)[] = []; // desktop: viewport-x of each card's layout centre
+    let rects: (DOMRect | null)[] = []; // touch: real (flat) card rects
     let current = -1;
 
-    // measure the REST positions (with the active card NOT lifted out)
     const measure = () => {
-      const wasActive = cards.find((c) => c?.classList.contains('is-active')) ?? null;
-      wasActive?.classList.remove('is-active');
-      rects = cards.map((c) => (c ? c.getBoundingClientRect() : null));
-      wasActive?.classList.add('is-active');
-    };
-
-    // which card is under the point, from the FIXED rest rects (right -> left)
-    const pick = (x: number, y: number) => {
-      for (let i = cards.length - 1; i >= 0; i--) {
-        const r = rects[i];
-        if (r && x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return i;
+      touch = typeof window.matchMedia === 'function' && window.matchMedia('(hover: none)').matches;
+      if (touch) {
+        rects = cards.map((c) => (c ? c.getBoundingClientRect() : null));
+        return;
       }
-      return -1;
+      const sr = shelf.getBoundingClientRect();
+      shelfRect = sr;
+      const lw = shelf.offsetWidth || sr.width; // layout width (pre-transform)
+      const sx = lw ? sr.width / lw : 1; // map layout-x -> rendered-x
+      // rotateY pivots around each card's centre, so the layout centre x is stable
+      centers = cards.map((c) => (c ? sr.left + (c.offsetLeft + c.offsetWidth / 2) * sx : null));
     };
 
-    const shelf = shelfRef.current!;
+    const pick = (x: number, y: number) => {
+      if (touch) {
+        for (let i = cards.length - 1; i >= 0; i--) {
+          const r = rects[i];
+          if (r && x >= r.left && x <= r.right && y >= r.top && y <= r.bottom) return i;
+        }
+        return -1;
+      }
+      if (!shelfRect) return -1;
+      // bounds: the shelf box, with headroom above for the popped card
+      if (y < shelfRect.top - 80 || y > shelfRect.bottom + 16) return -1;
+      if (x < shelfRect.left - 20 || x > shelfRect.right + 20) return -1;
+      let best = -1;
+      let bestD = Infinity;
+      for (let i = 0; i < centers.length; i++) {
+        const c = centers[i];
+        if (c == null) continue;
+        const d = Math.abs(x - c);
+        if (d < bestD) {
+          bestD = d;
+          best = i;
+        }
+      }
+      return best;
+    };
+
     const setIdx = (idx: number) => {
       if (idx === current) return;
       current = idx;
@@ -71,21 +97,28 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
       setIdx(-1);
     };
     const onClick = (e: MouseEvent) => {
-      // desktop: the hovered card; touch (no prior mousemove): pick by tap point
       const idx = current >= 0 ? current : pick(e.clientX, e.clientY);
       const url = urlsRef.current[idx];
       if (idx >= 0 && url) window.open(url, '_blank', 'noopener,noreferrer');
+    };
+
+    // rAF-throttle the scroll re-measure so it can't thrash mid-interaction
+    let scrollRaf = 0;
+    const onScroll = () => {
+      if (scrollRaf) return;
+      scrollRaf = requestAnimationFrame(() => {
+        scrollRaf = 0;
+        measure();
+      });
     };
 
     shelf.addEventListener('mousemove', onMove);
     shelf.addEventListener('mouseleave', onLeave);
     shelf.addEventListener('click', onClick);
     window.addEventListener('resize', measure);
-    window.addEventListener('scroll', measure, { passive: true });
-    window.addEventListener('blur', onLeave); // a popped card can't get stuck on alt-tab
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('blur', onLeave); // don't leave a card stuck on alt-tab
 
-    // Robust measurement: after first paint (rAF), on font swap, on any layout
-    // shift of the shelf (ResizeObserver), and on full load — no magic timeout.
     let raf = requestAnimationFrame(() => {
       raf = requestAnimationFrame(measure);
     });
@@ -100,31 +133,40 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
       shelf.removeEventListener('mouseleave', onLeave);
       shelf.removeEventListener('click', onClick);
       window.removeEventListener('resize', measure);
-      window.removeEventListener('scroll', measure);
+      window.removeEventListener('scroll', onScroll);
       window.removeEventListener('blur', onLeave);
       window.removeEventListener('load', measure);
       cancelAnimationFrame(raf);
+      if (scrollRaf) cancelAnimationFrame(scrollRaf);
       ro?.disconnect();
     };
   }, []);
+
+  // Per-card transform: rest leaning, popped (active), or slid aside (neighbour).
+  // Driven by React state so it composes cleanly; CSS only owns the transition.
+  // Undefined => fall back to the CSS rest transform (and the touch override).
+  const transformFor = (i: number): string | undefined => {
+    if (active < 0) return undefined;
+    if (i === active) return `rotateY(0deg) translateY(-40px) translateZ(140px)`;
+    return `translateX(${i < active ? -SPREAD : SPREAD}px) rotateY(${TILT}deg)`;
+  };
 
   return (
     <div className="lc-root w-full flex flex-col items-center overflow-x-hidden">
       <style>{`
         .lc-stage { display:flex; justify-content:center; align-items:center; width:100%;
           perspective:2000px; padding:88px 40px 40px; min-height:460px; }
-        .lc-shelf { display:flex; align-items:center; transform-style:preserve-3d; transform:rotateX(8deg); }
+        .lc-shelf { position:relative; display:flex; align-items:center; transform-style:preserve-3d; transform:rotateX(8deg); }
         .lc-card {
           position:relative; flex:none; width:360px; aspect-ratio:16/10;
           border-radius:14px; overflow:hidden; border:1px solid #1e2940; background:#0d1422;
-          transform-origin:center bottom; transform:rotateY(${TILT}deg) translateZ(0);
+          transform-origin:center bottom; transform:rotateY(${TILT}deg);
           backface-visibility:hidden; will-change:transform;
-          transition:transform .55s cubic-bezier(.25,.8,.35,1), box-shadow .55s;
+          transition:transform .5s cubic-bezier(.22,.7,.3,1), box-shadow .5s cubic-bezier(.22,.7,.3,1);
           box-shadow:0 2px 6px rgba(15,23,42,.22), 26px 28px 50px -18px rgba(15,23,42,.50);
         }
         .lc-card:not(:last-child){ margin-right:${OVERLAP}px; }
         .lc-card.is-active{
-          transform:rotateY(0deg) translateY(-38px) translateZ(150px);
           box-shadow:0 12px 24px rgba(15,23,42,.28), 0 60px 110px -28px rgba(15,23,42,.55);
           z-index:50;
         }
@@ -132,7 +174,7 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
         .lc-card::after{ content:""; position:absolute; inset:0; pointer-events:none;
           background:linear-gradient(115deg, rgba(255,255,255,.10) 0%, transparent 38%); }
         .lc-card::before{ content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
-          background:rgba(4,9,18,.34); transition:opacity .55s; }
+          background:rgba(4,9,18,.34); transition:opacity .5s; }
         .lc-card.is-active::before{ opacity:0; }
         .lc-floor{ margin:-18px auto 0; width:min(720px,82%); height:50px;
           background:radial-gradient(ellipse at center, rgba(15,23,42,.26), transparent 70%); filter:blur(10px); }
@@ -161,6 +203,7 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
                 cardRefs.current[i] = el;
               }}
               className={`lc-card ${active === i ? 'is-active' : ''}`}
+              style={transformFor(i) ? { transform: transformFor(i) } : undefined}
             >
               {images[i] ? (
                 <img src={images[i]} alt={titles[i] ?? `Project ${i + 1}`} />
