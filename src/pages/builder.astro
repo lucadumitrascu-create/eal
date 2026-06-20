@@ -9,9 +9,9 @@ import BuilderApp from '../components/builder/BuilderApp.tsx';
   description="Build a mockup of your future website — pick a template, edit the text, swap images, preview it live, and send it to us. No account, no AI guessing."
 >
   <Navbar slot="navbar" />
-  <main id="builder-main" class="relative min-h-[100svh] overflow-hidden pt-28 pb-16 sm:pt-32">
-    <!-- Section glow orbs (consistent with other sections) -->
-    <div class="absolute inset-0 -z-10" aria-hidden="true">
+  <main id="builder-main" class="relative min-h-[100svh] pt-28 pb-16 sm:pt-32">
+    <!-- Section glow orbs (clipped here, NOT on <main>, so position:sticky keeps working) -->
+    <div class="absolute inset-0 -z-10 overflow-hidden" aria-hidden="true">
       <div class="absolute right-[5%] top-[10%] h-[40%] w-[40%] rounded-full bg-cyan-500 opacity-[0.05] blur-[120px]"></div>
       <div class="absolute bottom-[10%] left-[-5%] h-[35%] w-[35%] rounded-full bg-amber-500 opacity-[0.03] blur-[100px]"></div>
     </div>
