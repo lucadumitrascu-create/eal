@@ -7,7 +7,7 @@ const inputCls =
 
 type Tone = 'professional' | 'friendly' | 'bold';
 
-export default function IdeasHelper({ onApply, defaultCompany = '' }: { onApply: (slot: 'headline' | 'subhead' | 'cta', value: string) => void; defaultCompany?: string }) {
+export default function IdeasHelper({ onApply, onApplyAll, defaultCompany = '' }: { onApply: (slot: 'headline' | 'subhead' | 'cta', value: string) => void; onApplyAll: (idea: Idea, company: string) => void; defaultCompany?: string }) {
   const t = useT();
   const [company, setCompany] = useState(defaultCompany);
   const [industry, setIndustry] = useState('');
@@ -103,6 +103,24 @@ export default function IdeasHelper({ onApply, defaultCompany = '' }: { onApply:
           <Chip slot="headline" label={t('builder.ideas.headline')} value={idea.headline} />
           <Chip slot="subhead" label={t('builder.ideas.subhead')} value={idea.subhead} />
           <Chip slot="cta" label={t('builder.ideas.cta')} value={idea.cta} />
+          {idea.sections?.length > 0 && (
+            <div className="space-y-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-2.5">
+              <p className="text-[10px] font-semibold uppercase tracking-wide text-[var(--color-text-muted)]">{t('builder.ideas.sections', 'Sections')}</p>
+              {idea.sections.map((s, i) => (
+                <div key={i} className="text-xs leading-snug">
+                  <span className="font-semibold text-[var(--color-text)]">{s.title}</span>
+                  <span className="block text-[var(--color-text-muted)]">{s.body}</span>
+                </div>
+              ))}
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => onApplyAll(idea, company)}
+            className="w-full rounded-lg bg-[var(--color-accent)] px-3 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+          >
+            {t('builder.ideas.applyAll', 'Use all copy')}
+          </button>
         </div>
       )}
     </div>

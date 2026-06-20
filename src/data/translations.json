@@ -83,6 +83,8 @@
     "builder.font.modern": "Modern",
     "builder.font.editorial": "Editorial",
     "builder.font.mono": "Mono",
+    "builder.font.grotesk": "Grotesk",
+    "builder.font.humanist": "Humanist",
     "builder.anim.none": "None",
     "builder.anim.subtle": "Subtle",
     "builder.anim.lively": "Lively",

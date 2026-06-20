@@ -1,11 +1,33 @@
-import type { Template, DesignSpec, ColorTheme, FontPair, AnimationPreset } from '../../data/templates';
-import { templateById } from '../../data/templates';
+import type { Template, DesignSpec, ColorTheme, FontPair, AnimationPreset, SectionDisplay, HeroPos, HeroWidth, HeroVAlign, ButtonStyle, ImageRef, SectionDef } from '../../data/templates';
+import { templateById, universalBlocks } from '../../data/templates';
+import { defaultPresetId } from '../../data/imageLibrary';
+
+/** Build a fresh section-spec object from a section definition. */
+export function sectionFromDef(s: SectionDef): DesignSpec['sections'][number] {
+  return {
+    id: s.id,
+    enabled: s.enabledByDefault,
+    display: s.display,
+    text: Object.fromEntries(s.textSlots.map((sl) => [sl.id, sl.default])),
+    images: Object.fromEntries(s.imageSlots.map((sl) => [sl.id, { ...sl.default }])),
+  };
+}
+
+/** A section definition by id, from the template's own sections or the universal catalog. */
+export function defById(tpl: Template, id: string): SectionDef | undefined {
+  return tpl.sections.find((s) => s.id === id) ?? universalBlocks.find((s) => s.id === id);
+}
 
 export const SPEC_VERSION = 1 as const;
 
 const THEMES: ColorTheme[] = ['cyan', 'warm', 'indigo', 'mono', 'dark', 'vivid', 'rose', 'teal', 'sky'];
-const FONTS: FontPair[] = ['modern', 'editorial', 'mono'];
-const ANIMS: AnimationPreset[] = ['none', 'subtle', 'lively'];
+const FONTS: FontPair[] = ['modern', 'editorial', 'mono', 'grotesk', 'humanist'];
+const ANIMS: AnimationPreset[] = ['none', 'fade', 'rise', 'slide', 'sweep', 'zoom', 'blur', 'flip', 'pop'];
+const DISPLAYS: SectionDisplay[] = ['grid', 'carousel', 'marquee', 'masonry', 'list', 'rows', 'split', 'cards', 'numbered'];
+const POS: HeroPos[] = ['right', 'left', 'full', 'fullLeft', 'fullRight', 'top', 'bannerTop', 'frame', 'none'];
+const WIDTHS: HeroWidth[] = ['sm', 'md', 'lg', 'full'];
+const VALIGNS: HeroVAlign[] = ['top', 'mid', 'bottom'];
+const BTNS: ButtonStyle[] = ['solid', 'outline', 'pill', 'underline'];
 
 export function clampText(v: string, max: number): string {
   return v.length > max ? v.slice(0, max) : v;
@@ -19,12 +41,7 @@ export function defaultSpecFromTemplate(tpl: Template): DesignSpec {
     font: tpl.font,
     animation: tpl.animation,
     meta: { siteName: tpl.defaultSiteName, tagline: tpl.defaultTagline },
-    sections: tpl.sections.map((s) => ({
-      id: s.id,
-      enabled: s.enabledByDefault,
-      text: Object.fromEntries(s.textSlots.map((sl) => [sl.id, sl.default])),
-      images: Object.fromEntries(s.imageSlots.map((sl) => [sl.id, { ...sl.default }])),
-    })),
+    sections: tpl.sections.map(sectionFromDef),
   };
 }
 
@@ -39,35 +56,97 @@ export function validateSpec(input: unknown): DesignSpec | null {
   const theme = THEMES.includes(raw.theme as ColorTheme) ? (raw.theme as ColorTheme) : base.theme;
   const font = FONTS.includes(raw.font as FontPair) ? (raw.font as FontPair) : base.font;
   const animation = ANIMS.includes(raw.animation as AnimationPreset) ? (raw.animation as AnimationPreset) : base.animation;
+  const btn = BTNS.includes(raw.btn as ButtonStyle) ? (raw.btn as ButtonStyle) : undefined;
+  const nav = Array.isArray(raw.nav) ? raw.nav.filter((x): x is string => typeof x === 'string').slice(0, 6).map((x) => clampText(x, 24)) : undefined;
 
   const meta = raw.meta as Record<string, unknown> | undefined;
   const inSections = Array.isArray(raw.sections) ? (raw.sections as Record<string, unknown>[]) : [];
 
-  const sections = base.sections.map((bs) => {
-    const def = tpl.sections.find((s) => s.id === bs.id)!;
-    const inSec = inSections.find((x) => x?.id === bs.id);
-    const text = { ...bs.text };
-    const inText = (inSec?.text as Record<string, unknown>) || {};
-    for (const sl of def.textSlots) {
-      const v = inText[sl.id];
-      if (typeof v === 'string') text[sl.id] = clampText(v, sl.maxLen);
-    }
-    const images = { ...bs.images };
-    const inImg = (inSec?.images as Record<string, Record<string, unknown>>) || {};
-    for (const sl of def.imageSlots) {
-      const v = inImg[sl.id];
-      if (v && typeof v === 'object') {
-        images[sl.id] = {
-          presetId: typeof v.presetId === 'string' ? v.presetId : sl.default.presetId,
-          label: clampText(String(v.label ?? sl.default.label), 60),
-          alt: clampText(String(v.alt ?? sl.default.alt), 80),
+  // Drive by the incoming order/set (so reorder + deletes persist); fall back to template order.
+  const baseById = new Map(base.sections.map((b) => [b.id, b]));
+  const source: Record<string, unknown>[] = inSections.length ? inSections : (base.sections as unknown as Record<string, unknown>[]);
+  const seen = new Set<string>();
+  const sections = source
+    .map((inSec) => {
+      const id = String(inSec?.id ?? '');
+      const def = defById(tpl, id);
+      if (!def || seen.has(id)) return null;
+      const bs = baseById.get(id) ?? sectionFromDef(def);
+      seen.add(id);
+
+      const inText = (inSec.text as Record<string, unknown>) || {};
+      const text: Record<string, string> = {};
+      for (const [k, v] of Object.entries(inText)) {
+        if (typeof v !== 'string') continue;
+        const sl = def.textSlots.find((s) => s.id === k);
+        text[k] = clampText(v, sl?.maxLen ?? 200);
+      }
+      if (Object.keys(text).length === 0) Object.assign(text, bs.text);
+
+      const inImg = (inSec.images as Record<string, Record<string, unknown>>) || {};
+      const images: Record<string, ImageRef> = {};
+      for (const [k, v] of Object.entries(inImg)) {
+        if (!v || typeof v !== 'object') continue;
+        images[k] = {
+          presetId: typeof v.presetId === 'string' ? v.presetId : defaultPresetId,
+          label: clampText(String(v.label ?? ''), 60),
+          alt: clampText(String(v.alt ?? v.label ?? ''), 80),
         };
       }
-    }
-    const enabledIn = inSec?.enabled;
-    const enabled = typeof enabledIn === 'boolean' ? (def.toggleable ? enabledIn : true) : bs.enabled;
-    return { id: bs.id, enabled, text, images };
-  });
+      if (!('images' in inSec)) Object.assign(images, bs.images);
+
+      const inDisplay = inSec.display as SectionDisplay | undefined;
+      const display = DISPLAYS.includes(inDisplay as SectionDisplay) ? inDisplay : bs.display;
+      const inPos = inSec.pos as HeroPos | undefined;
+      const pos = POS.includes(inPos as HeroPos) ? inPos : bs.pos;
+      const inWidth = inSec.width as HeroWidth | undefined;
+      const width = WIDTHS.includes(inWidth as HeroWidth) ? inWidth : bs.width;
+      const inVAlign = inSec.valign as HeroVAlign | undefined;
+      const valign = VALIGNS.includes(inVAlign as HeroVAlign) ? inVAlign : bs.valign;
+
+      const inOff = inSec.offsets as Record<string, { x: unknown; y: unknown }> | undefined;
+      let offsets: Record<string, { x: number; y: number }> | undefined;
+      if (inOff && typeof inOff === 'object') {
+        const o: Record<string, { x: number; y: number }> = {};
+        const cl = (n: number) => Math.max(-800, Math.min(800, Math.round(n)));
+        for (const [k, v] of Object.entries(inOff)) {
+          if (!v || typeof v !== 'object') continue;
+          const x = Number(v.x), y = Number(v.y);
+          if (Number.isFinite(x) && Number.isFinite(y)) o[k] = { x: cl(x), y: cl(y) };
+        }
+        if (Object.keys(o).length) offsets = o;
+      }
+      offsets = offsets ?? bs.offsets;
+
+      const inW = inSec.widths as Record<string, unknown> | undefined;
+      let widths: Record<string, number> | undefined;
+      if (inW && typeof inW === 'object') {
+        const wm: Record<string, number> = {};
+        for (const [k, v] of Object.entries(inW)) {
+          const n = Number(v);
+          if (Number.isFinite(n) && n > 0) wm[k] = Math.max(60, Math.min(1600, Math.round(n)));
+        }
+        if (Object.keys(wm).length) widths = wm;
+      }
+      widths = widths ?? bs.widths;
+
+      const inColors = inSec.colors as Record<string, unknown> | undefined;
+      let colors: Record<string, string> | undefined;
+      if (inColors && typeof inColors === 'object') {
+        const cm: Record<string, string> = {};
+        for (const [k, v] of Object.entries(inColors)) {
+          if (typeof v === 'string' && /^(#[0-9a-fA-F]{3,8}|rgb)/.test(v)) cm[k] = v.slice(0, 30);
+        }
+        if (Object.keys(cm).length) colors = cm;
+      }
+      colors = colors ?? bs.colors;
+
+      const enabledIn = inSec.enabled;
+      const enabled = typeof enabledIn === 'boolean' ? (def.toggleable ? enabledIn : true) : bs.enabled;
+      return { id, enabled, display, pos, width, valign, offsets, widths, colors, text, images };
+    })
+    .filter(Boolean) as DesignSpec['sections'];
+  if (sections.length === 0) return base;
 
   return {
     v: SPEC_VERSION,
@@ -75,6 +154,8 @@ export function validateSpec(input: unknown): DesignSpec | null {
     theme,
     font,
     animation,
+    btn,
+    nav,
     meta: {
       siteName: clampText(String(meta?.siteName ?? base.meta.siteName), 60),
       tagline: clampText(String(meta?.tagline ?? base.meta.tagline), 120),
