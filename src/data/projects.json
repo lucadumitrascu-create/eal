@@ -27,12 +27,12 @@
     "featured": true
   },
   {
-    "id": "tutoring-platform",
-    "title": "Tutoring Platform",
-    "description": "Online platform for tutoring sessions and student management.",
-    "tech": ["Next.js", "Vercel"],
+    "id": "adricut",
+    "title": "Adricut",
+    "description": "Custom personalization studio — laser engraving, custom mugs & t-shirts, 3D printing, and vinyl.",
+    "tech": ["Next.js", "React"],
     "url": "https://adricut.com/",
-    "image": "/images/projects/tutoring-platform.webp",
+    "image": "/images/projects/adricut.webp",
     "featured": true
   }
 ]
