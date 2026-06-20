@@ -10,7 +10,7 @@ type Props = {
 
 const TILT = 70; // degrees the cards lean at rest
 const OVERLAP = -214; // px (negative = overlap) at rest
-const SPREAD = 156; // px neighbours slide aside when a card pops (must clear the rest overlap)
+const SPREAD = 128; // px neighbours slide aside when a card pops (must clear the rest overlap)
 const POP_Z = 96; // px the active card comes forward (kept modest so it doesn't grow over a neighbour)
 const POP_Y = -42; // px the active card lifts
 
@@ -161,9 +161,9 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
         .lc-shelf { position:relative; display:flex; align-items:center; transform-style:preserve-3d; transform:rotateX(8deg); }
         .lc-card {
           position:relative; flex:none; width:360px; aspect-ratio:16/10;
-          border-radius:14px; overflow:hidden; border:1px solid #1e2940; background:#0d1422;
+          border-radius:14px; overflow:hidden; background:#0d1422;
           transform-origin:center bottom; transform:rotateY(${TILT}deg);
-          backface-visibility:hidden; will-change:transform;
+          backface-visibility:hidden;
           transition:transform .5s cubic-bezier(.22,.7,.3,1), box-shadow .5s cubic-bezier(.22,.7,.3,1);
           box-shadow:0 2px 6px rgba(15,23,42,.22), 26px 28px 50px -18px rgba(15,23,42,.50);
         }
@@ -187,7 +187,7 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
           .lc-stage{ perspective:none; padding:8px 16px 0; min-height:0; }
           .lc-shelf{ transform:none; flex-wrap:wrap; gap:16px; justify-content:center; max-width:760px; }
           .lc-card{ transform:none !important; margin:0 !important; width:min(86vw,340px);
-            box-shadow:0 10px 24px -10px rgba(15,23,42,.45); }
+            border:1px solid #1e2940; box-shadow:0 10px 24px -10px rgba(15,23,42,.45); }
           .lc-card::before{ background:transparent; }
           .lc-floor{ display:none; }
         }
