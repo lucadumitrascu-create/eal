@@ -68,11 +68,10 @@ const layout = [
     overflow: hidden;
     background: #fff;
     border: 1px solid rgba(0, 0, 0, 0.06);
-    filter: drop-shadow(var(--shadow));
+    box-shadow: var(--shadow);
     transform-origin: center center;
     transform: translateY(0) translateZ(var(--tz)) rotateX(var(--rx)) rotateY(var(--ry)) rotate(var(--rz)) scale(1);
-    transition: transform 0.5s cubic-bezier(0, 0, 0.2, 1), filter 0.5s cubic-bezier(0, 0, 0.2, 1);
-    will-change: transform;
+    transition: transform 0.5s cubic-bezier(0, 0, 0.2, 1), box-shadow 0.5s cubic-bezier(0, 0, 0.2, 1);
     text-decoration: none;
   }
   .card3d img {
@@ -89,7 +88,7 @@ const layout = [
   @media (min-width: 1024px) {
     .card3d:hover {
       transform: translateY(-12px) translateZ(calc(var(--tz) + 60px)) rotateX(var(--rx)) rotateY(var(--ry)) rotate(var(--rz)) scale(1.03);
-      filter: drop-shadow(0 52px 76px rgba(10, 10, 14, 0.42));
+      box-shadow: 0 52px 76px rgba(10, 10, 14, 0.42);
       z-index: 60;
     }
   }
@@ -99,7 +98,7 @@ const layout = [
     .card3d { transition: none; }
     .card3d:hover {
       transform: translateY(0) translateZ(var(--tz)) rotateX(var(--rx)) rotateY(var(--ry)) rotate(var(--rz)) scale(1);
-      filter: drop-shadow(var(--shadow));
+      box-shadow: var(--shadow);
       z-index: var(--z);
     }
   }
