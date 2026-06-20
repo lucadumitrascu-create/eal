@@ -29,6 +29,9 @@ function applyTranslations(lang: Lang) {
 
   document.documentElement.lang = lang;
   localStorage.setItem('lang', lang);
+
+  // Let client islands (e.g. the /builder React app) react to language changes live.
+  window.dispatchEvent(new CustomEvent('eal:langchange', { detail: lang }));
 }
 
 export function initI18n() {
