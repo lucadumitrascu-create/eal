@@ -27,6 +27,13 @@ function applyTranslations(lang: Lang) {
     }
   });
 
+  document.querySelectorAll<HTMLElement>('[data-i18n-aria]').forEach((el) => {
+    const key = el.getAttribute('data-i18n-aria');
+    if (key && t[key as keyof typeof t]) {
+      el.setAttribute('aria-label', t[key as keyof typeof t]);
+    }
+  });
+
   document.documentElement.lang = lang;
   localStorage.setItem('lang', lang);
 

@@ -1,18 +1,39 @@
 ---
 import projects from '../data/projects.json';
-import ProjectsScene from './ProjectsScene.tsx';
+import LeaningCardsShowcase from './LeaningCardsShowcase.tsx';
 
 /**
- * Real WebGL 3D project cards (three.js / react-three-fiber): rounded boxes with
- * thickness, the site screenshot textured on the front face, soft lighting,
- * ambient float, hover tilt-toward-cursor + lift, click -> external link.
- * Renders client-only (WebGL has no SSR). Placement unchanged: above "Let's talk".
+ * Project showcase: four screenshots that lean against each other like cards on
+ * a shelf; hovering one pops it upright + forward (position-based, no CSS :hover
+ * flicker), clicking opens the live site. Heading lives here (data-i18n, 6 langs)
+ * so the global i18n handles it; the interactive cards are a React island.
+ * Placement unchanged: above "Let's talk".
  */
-const cards = projects.map((p) => ({ url: p.url, texture: p.image, title: p.title }));
+const images = projects.map((p) => p.image);
+const urls = projects.map((p) => p.url);
+const titles = projects.map((p) => p.title);
 ---
 
 <section id="projects-fan" class="relative overflow-hidden py-16 sm:py-24">
-  <div class="mx-auto max-w-6xl px-6">
-    <ProjectsScene client:only="react" cards={cards} />
+  <div class="mx-auto max-w-6xl px-6 text-center">
+    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--color-text)]">
+      <span data-i18n="showcase.title">Recent</span>
+      <span class="text-[var(--color-accent)]" data-i18n="showcase.accent">Work</span>
+    </h2>
+    <p class="mt-3 mx-auto max-w-xl text-[var(--color-text-muted)]" data-i18n="showcase.subtitle">
+      A few of the sites we've built - pick one to bring it to the front.
+    </p>
   </div>
+
+  <LeaningCardsShowcase client:visible images={images} urls={urls} titles={titles} />
+
+  {/* Keyboard / screen-reader accessible project links (the leaning cards are
+      pointer-driven). Static so the global data-i18n localizes them on load. */}
+  <nav aria-label="Projects" data-i18n-aria="showcase.aria" class="sr-only">
+    {projects.map((p) => (
+      <a href={p.url} target="_blank" rel="noopener noreferrer">
+        <span data-i18n="showcase.open">Open</span> {p.title}
+      </a>
+    ))}
+  </nav>
 </section>

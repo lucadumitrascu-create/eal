@@ -49,7 +49,7 @@
     "contact.info.title": "Contact information",
     "contact.info.email": "contact@ealenterprises.com",
     "contact.info.response": "We respond within 48 hours",
-    "footer.rights": "\u00a9 2026 EAL ENTERPRISES S.R.L. All rights reserved.",
+    "footer.rights": "© 2026 EAL ENTERPRISES S.R.L. All rights reserved.",
     "hero.label": "< Digital Agency />",
     "hero.scroll": "Scroll",
     "services.learnMore": "Learn more",
@@ -169,7 +169,12 @@
     "builder.tpl.realestate.name": "Real estate",
     "builder.tpl.realestate.tagline": "Clean, listing-led",
     "builder.tpl.medical.name": "Medical / Clinic",
-    "builder.tpl.medical.tagline": "Calm, trustworthy, clear"
+    "builder.tpl.medical.tagline": "Calm, trustworthy, clear",
+    "showcase.title": "Recent",
+    "showcase.accent": "Work",
+    "showcase.subtitle": "A few of the sites we've built - pick one to bring it to the front.",
+    "showcase.open": "Open",
+    "showcase.aria": "Projects"
   },
   "ro": {
     "hero.title1": "Construim software",
@@ -221,7 +226,7 @@
     "contact.info.title": "Informatii de contact",
     "contact.info.email": "contact@ealenterprises.com",
     "contact.info.response": "Raspundem in maximum 48 de ore",
-    "footer.rights": "\u00a9 2026 EAL ENTERPRISES S.R.L. Toate drepturile rezervate.",
+    "footer.rights": "© 2026 EAL ENTERPRISES S.R.L. Toate drepturile rezervate.",
     "hero.label": "< Agentie Digitala />",
     "hero.scroll": "Deruleaza",
     "services.learnMore": "Afla mai mult",
@@ -341,7 +346,12 @@
     "builder.tpl.realestate.name": "Imobiliare",
     "builder.tpl.realestate.tagline": "Curat, axat pe anunturi",
     "builder.tpl.medical.name": "Medical / Clinica",
-    "builder.tpl.medical.tagline": "Calm, de incredere, clar"
+    "builder.tpl.medical.tagline": "Calm, de incredere, clar",
+    "showcase.title": "Lucrari",
+    "showcase.accent": "recente",
+    "showcase.subtitle": "Cateva dintre site-urile pe care le-am construit - alege unul ca sa il aduci in fata.",
+    "showcase.open": "Deschide",
+    "showcase.aria": "Proiecte"
   },
   "de": {
     "hero.title1": "Wir entwickeln Software,",
@@ -393,7 +403,7 @@
     "contact.info.title": "Kontaktinformationen",
     "contact.info.email": "contact@ealenterprises.com",
     "contact.info.response": "Wir antworten innerhalb von 48 Stunden",
-    "footer.rights": "\u00a9 2026 EAL ENTERPRISES S.R.L. Alle Rechte vorbehalten.",
+    "footer.rights": "© 2026 EAL ENTERPRISES S.R.L. Alle Rechte vorbehalten.",
     "hero.label": "< Digitalagentur />",
     "hero.scroll": "Scrollen",
     "services.learnMore": "Mehr erfahren",
@@ -513,7 +523,12 @@
     "builder.tpl.realestate.name": "Immobilien",
     "builder.tpl.realestate.tagline": "Klar, angebotsorientiert",
     "builder.tpl.medical.name": "Medizin / Klinik",
-    "builder.tpl.medical.tagline": "Ruhig, vertrauenswuerdig, klar"
+    "builder.tpl.medical.tagline": "Ruhig, vertrauenswuerdig, klar",
+    "showcase.title": "Aktuelle",
+    "showcase.accent": "Projekte",
+    "showcase.subtitle": "Einige unserer gebauten Websites - wahle eine aus, um sie nach vorne zu holen.",
+    "showcase.open": "Offnen",
+    "showcase.aria": "Projekte"
   },
   "fr": {
     "hero.title1": "Nous creons des logiciels",
@@ -565,7 +580,7 @@
     "contact.info.title": "Coordonnees",
     "contact.info.email": "contact@ealenterprises.com",
     "contact.info.response": "Nous repondons sous 48 heures",
-    "footer.rights": "\u00a9 2026 EAL ENTERPRISES S.R.L. Tous droits reserves.",
+    "footer.rights": "© 2026 EAL ENTERPRISES S.R.L. Tous droits reserves.",
     "hero.label": "< Agence Digitale />",
     "hero.scroll": "Defiler",
     "services.learnMore": "En savoir plus",
@@ -685,7 +700,12 @@
     "builder.tpl.realestate.name": "Immobilier",
     "builder.tpl.realestate.tagline": "Epure, axe annonces",
     "builder.tpl.medical.name": "Medical / Clinique",
-    "builder.tpl.medical.tagline": "Calme, rassurant, clair"
+    "builder.tpl.medical.tagline": "Calme, rassurant, clair",
+    "showcase.title": "Travaux",
+    "showcase.accent": "recents",
+    "showcase.subtitle": "Quelques sites que nous avons crees - choisissez-en un pour le mettre en avant.",
+    "showcase.open": "Ouvrir",
+    "showcase.aria": "Projets"
   },
   "es": {
     "hero.title1": "Creamos software",
@@ -737,7 +757,7 @@
     "contact.info.title": "Informacion de contacto",
     "contact.info.email": "contact@ealenterprises.com",
     "contact.info.response": "Respondemos en un maximo de 48 horas",
-    "footer.rights": "\u00a9 2026 EAL ENTERPRISES S.R.L. Todos los derechos reservados.",
+    "footer.rights": "© 2026 EAL ENTERPRISES S.R.L. Todos los derechos reservados.",
     "hero.label": "< Agencia Digital />",
     "hero.scroll": "Desplazar",
     "services.learnMore": "Saber mas",
@@ -857,7 +877,12 @@
     "builder.tpl.realestate.name": "Inmobiliaria",
     "builder.tpl.realestate.tagline": "Limpio, centrado en anuncios",
     "builder.tpl.medical.name": "Medico / Clinica",
-    "builder.tpl.medical.tagline": "Sereno, confiable, claro"
+    "builder.tpl.medical.tagline": "Sereno, confiable, claro",
+    "showcase.title": "Trabajos",
+    "showcase.accent": "recientes",
+    "showcase.subtitle": "Algunos de los sitios que hemos creado - elige uno para traerlo al frente.",
+    "showcase.open": "Abrir",
+    "showcase.aria": "Proyectos"
   },
   "it": {
     "hero.title1": "Creiamo software",
@@ -909,7 +934,7 @@
     "contact.info.title": "Informazioni di contatto",
     "contact.info.email": "contact@ealenterprises.com",
     "contact.info.response": "Rispondiamo entro 48 ore",
-    "footer.rights": "\u00a9 2026 EAL ENTERPRISES S.R.L. Tutti i diritti riservati.",
+    "footer.rights": "© 2026 EAL ENTERPRISES S.R.L. Tutti i diritti riservati.",
     "hero.label": "< Agenzia Digitale />",
     "hero.scroll": "Scorri",
     "services.learnMore": "Scopri di piu",
@@ -1029,6 +1054,11 @@
     "builder.tpl.realestate.name": "Immobiliare",
     "builder.tpl.realestate.tagline": "Pulito, incentrato sugli annunci",
     "builder.tpl.medical.name": "Medico / Clinica",
-    "builder.tpl.medical.tagline": "Calmo, affidabile, chiaro"
+    "builder.tpl.medical.tagline": "Calmo, affidabile, chiaro",
+    "showcase.title": "Lavori",
+    "showcase.accent": "recenti",
+    "showcase.subtitle": "Alcuni dei siti che abbiamo realizzato - scegline uno per portarlo in primo piano.",
+    "showcase.open": "Apri",
+    "showcase.aria": "Progetti"
   }
 }
