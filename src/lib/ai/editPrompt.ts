@@ -20,6 +20,8 @@ export interface ModelPatch {
   reply: string;
 }
 
+export const LANG_NAMES: Record<string, string> = { en: 'English', ro: 'Romanian', de: 'German', fr: 'French', es: 'Spanish', it: 'Italian' };
+
 const PRESET_IDS = allPresets.map((p) => p.id);
 const q = (s: unknown) => JSON.stringify(String(s ?? '').slice(0, 140)); // bounded + quoted
 
@@ -73,11 +75,18 @@ const SYSTEM = [
   '- No markdown, no code fences, no text outside the JSON.',
 ].join('\n');
 
-export function buildEditMessages(spec: DesignSpec, message: string, history: ChatMessage[] = []): ChatMessage[] {
+export function buildEditMessages(spec: DesignSpec, message: string, history: ChatMessage[] = [], lang = 'en'): ChatMessage[] {
+  const name = LANG_NAMES[lang];
+  // Make the SITE language authoritative (not the language the request happens to be
+  // typed in): a terse/English instruction on a Romanian site must still yield Romanian.
+  const langRule =
+    name && lang !== 'en'
+      ? `\n\nLANGUAGE: the site is in ${name}. Write ALL new copy AND the reply in ${name} — matching the language of the existing copy above — using plain ASCII letters (no accents/diacritics), regardless of which language this request is written in, unless it explicitly asks to translate.`
+      : '';
   return [
     { role: 'system', content: SYSTEM },
     ...history,
-    { role: 'user', content: `${specSummary(spec)}\n\nUSER REQUEST: ${message}` },
+    { role: 'user', content: `${specSummary(spec)}\n\nUSER REQUEST: ${message}${langRule}` },
   ];
 }
 

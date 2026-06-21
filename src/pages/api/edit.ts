@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { validateSpec } from '../../lib/builder/spec';
 import { applyOps, type EditOp } from '../../lib/editOps';
-import { buildEditMessages, parseModelPatch, type ChatMessage } from '../../lib/ai/editPrompt';
+import { buildEditMessages, parseModelPatch, LANG_NAMES, type ChatMessage } from '../../lib/ai/editPrompt';
 
 // Make ONLY this route a Vercel serverless function; the rest of the site stays static.
 export const prerender = false;
@@ -148,15 +148,16 @@ export const POST: APIRoute = async ({ request }) => {
   const spec = validateSpec(body?.spec);
   if (!spec) return json({ error: 'invalid spec' }, 400);
   const history = parseHistory(body?.history);
+  const lang = body?.lang && LANG_NAMES[body.lang] ? (body.lang as string) : 'en';
 
   const key = getKey();
-  console.log(`[edit] keyPresent=${!!key} history=${history.length}`);
+  console.log(`[edit] keyPresent=${!!key} history=${history.length} lang=${lang}`);
   if (!key) {
     console.error('[edit] fallback: NVIDIA_API_KEY missing in runtime env');
     return json({ spec, applied: [], skipped: [], reply: "The AI editor isn't configured right now.", source: 'fallback', reason: 'unconfigured' });
   }
 
-  const messages = buildEditMessages(spec, message, history);
+  const messages = buildEditMessages(spec, message, history, lang);
   // Tier 1 — fast model.
   const fast = await callModel(key, messages, MODEL_FAST, FAST_MS, FAST_ATTEMPTS);
   if ('fail' in fast) {

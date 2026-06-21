@@ -59,6 +59,13 @@ async function run() {
     assert.equal(buildEditMessages(base(), 'hi').length, 2);
   });
 
+  await test('buildEditMessages makes the SITE language authoritative for non-English', () => {
+    const en = buildEditMessages(base(), 'shorter');
+    assert.ok(!en[en.length - 1].content.includes('LANGUAGE:'), 'EN should not force a language');
+    const ro = buildEditMessages(base(), 'shorter', [], 'ro');
+    assert.ok(ro[ro.length - 1].content.includes('Romanian'), 'RO directive missing');
+  });
+
   await test('specSummary exposes section ids, toggleable flags, slot maxLens + current values', () => {
     const s = specSummary(base());
     assert.ok(s.includes('template "restaurant"'));
@@ -273,6 +280,15 @@ async function run() {
     );
     assert.deepEqual(sentMessages.map((m) => m.role), ['system', 'user', 'assistant', 'user']);
     assert.ok(sentMessages[3].content.includes('USER REQUEST: all of them'));
+  });
+
+  await test('endpoint forwards the site language so the model writes in it', async () => {
+    let sent: any[] = [];
+    await withMock(
+      (_url: any, init: any) => { sent = JSON.parse(init.body).messages; return ok(JSON.stringify({ ops: [], reply: 'ok' })); },
+      async () => { await call({ message: 'make it shorter', spec: base(), lang: 'ro' }); },
+    );
+    assert.ok(sent.some((m) => typeof m.content === 'string' && m.content.includes('Romanian')), 'site language not conveyed to the model');
   });
 
   await test('NVIDIA non-200 -> graceful fallback, spec unchanged', async () => {

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { DesignSpec } from '../../data/templates';
-import { useT } from '../../lib/builder/i18n';
+import { useT, useLang } from '../../lib/builder/i18n';
 
 /** Response shape of POST /api/edit (the spec is already validated server-side). */
 interface EditResponse {
@@ -53,6 +53,7 @@ export default function AIEditPanel({
   onClose: () => void;
 }) {
   const t = useT();
+  const lang = useLang();
   const tn = (key: string, n: number) => t(key).replace('{n}', String(n));
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
@@ -101,7 +102,7 @@ export default function AIEditPanel({
       const res = await fetch('/api/edit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, spec: sent, history }),
+        body: JSON.stringify({ message, spec: sent, history, lang }),
       });
       const data = (await res.json().catch(() => null)) as EditResponse | null;
       if (!res.ok || !data || !data.spec) {
