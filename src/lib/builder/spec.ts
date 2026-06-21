@@ -179,22 +179,40 @@ export function validateSpec(input: unknown): DesignSpec | null {
 
 const ALL_LANGS: Lang[] = ['en', 'ro', 'de', 'fr', 'es', 'it'];
 
+// Placeholder copy injected by the add-section/add-image/add-button reducers, per
+// language (mirrors builder.add.* in translations.json). Kept here so relocalizeSpec
+// can recognise + re-localize user-ADDED repeated items without coupling spec.ts to
+// the React i18n module. The two lists must stay in sync.
+const ADD_DEFAULTS: Record<Lang, string>[] = [
+  { en: 'New product', ro: 'Produs nou', de: 'Neues Produkt', fr: 'Nouveau produit', es: 'Nuevo producto', it: 'Nuovo prodotto' },
+  { en: 'New image', ro: 'Imagine noua', de: 'Neues Bild', fr: 'Nouvelle image', es: 'Nueva imagen', it: 'Nuova immagine' },
+  { en: 'Learn more', ro: 'Afla mai multe', de: 'Mehr erfahren', fr: 'En savoir plus', es: 'Saber mas', it: 'Scopri di piu' },
+];
+
 /**
  * Re-localize a spec to `toLang` PER SLOT: each text slot, meta field and image
- * label whose current value is still the template default (in ANY of the 6
- * languages — i.e. the user hasn't touched it) is swapped to the `toLang` default;
- * anything the user actually edited is kept. So switching the site language updates
- * the untouched copy even after the user has edited some fields. Design choices
- * (theme/font/animation/layout) and user-added repeated items are left as-is.
+ * label (including user-ADDED repeated items) whose current value is still an
+ * untouched default is swapped to the `toLang` default; anything the user actually
+ * edited is kept. When `fromLang` is known (a deliberate language switch), only that
+ * language's default counts as "untouched" — this avoids clobbering a real edit that
+ * happens to equal a SHORT default in a different locale (e.g. "Rating", "Clienti").
+ * On mount (unknown source language) it falls back to matching any of the 6.
  */
-export function relocalizeSpec(spec: DesignSpec, toLang: Lang): DesignSpec {
+export function relocalizeSpec(spec: DesignSpec, toLang: Lang, fromLang?: Lang): DesignSpec {
   const tpl = templateById(spec.templateId);
   if (!tpl) return spec;
-  // A value is "untouched" if it equals the default in any language → re-localize it.
-  const reloc = (ownerId: string, path: string, source: string, current: string): string =>
-    ALL_LANGS.some((L) => localizedDefault(L, ownerId, path, source) === current)
-      ? localizedDefault(toLang, ownerId, path, source)
-      : current;
+  const langs = fromLang ? [fromLang] : ALL_LANGS;
+  const reloc = (ownerId: string, path: string, source: string, current: string): string => {
+    // 1) a template slot default in the source language(s)?
+    if (source && langs.some((L) => localizedDefault(L, ownerId, path, source) === current)) {
+      return localizedDefault(toLang, ownerId, path, source);
+    }
+    // 2) an added-item placeholder (New product / New image / Learn more)?
+    for (const ad of ADD_DEFAULTS) {
+      if (langs.some((L) => ad[L] === current)) return ad[toLang];
+    }
+    return current;
+  };
 
   const meta = {
     siteName: reloc(tpl.id, '__siteName', tpl.defaultSiteName, spec.meta.siteName),
@@ -204,16 +222,16 @@ export function relocalizeSpec(spec: DesignSpec, toLang: Lang): DesignSpec {
     const def = defById(tpl, sec.id);
     if (!def) return sec;
     const ownerId = tpl.sections.some((s) => s.id === sec.id) ? tpl.id : '__universal';
-    const text = { ...sec.text };
-    for (const sl of def.textSlots) {
-      if (sl.id in text) text[sl.id] = reloc(ownerId, `${sec.id}.${sl.id}`, sl.default, text[sl.id]);
+    const text: Record<string, string> = {};
+    for (const [k, v] of Object.entries(sec.text)) {
+      const sl = def.textSlots.find((s) => s.id === k); // added items have no def slot -> source '' -> add-default check
+      text[k] = reloc(ownerId, `${sec.id}.${k}`, sl?.default ?? '', v);
     }
     const images: Record<string, ImageRef> = {};
     for (const [k, ref] of Object.entries(sec.images)) {
       const sl = def.imageSlots.find((s) => s.id === k);
-      if (!sl) { images[k] = ref; continue; }
-      const label = reloc(ownerId, `${sec.id}.${k}.label`, sl.default.label, ref.label);
-      const alt = reloc(ownerId, `${sec.id}.${k}.label`, sl.default.label, ref.alt);
+      const label = reloc(ownerId, `${sec.id}.${k}.label`, sl?.default.label ?? '', ref.label);
+      const alt = reloc(ownerId, `${sec.id}.${k}.label`, sl?.default.label ?? '', ref.alt);
       images[k] = { ...ref, label, alt };
     }
     return { ...sec, text, images };

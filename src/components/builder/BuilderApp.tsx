@@ -165,17 +165,20 @@ function reducer(state: DesignSpec, a: Action): DesignSpec {
 }
 
 function initSpec(decoded: DesignSpec | null): DesignSpec {
-  if (decoded) return decoded;
+  if (decoded) return decoded; // shared ?d= design — frozen in the author's language
+  const lang = currentLang();
   try {
     const raw = localStorage.getItem(DRAFT_KEY);
     if (raw) {
       const v = validateSpec(JSON.parse(raw));
-      if (v) return v;
+      // Re-localize the (possibly stale-language) draft on the FIRST render — no flash,
+      // no immediate second relocalize from the effect.
+      if (v) return relocalizeSpec(v, lang);
     }
   } catch {
     /* ignore corrupt draft */
   }
-  return defaultSpecFromTemplate(templates[0], currentLang());
+  return defaultSpecFromTemplate(templates[0], lang);
 }
 
 export default function BuilderApp() {
@@ -315,8 +318,14 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
   // copy follows the language; fields the user actually edited are left untouched.
   const specRef = useRef(spec);
   specRef.current = spec;
+  const prevLang = useRef(lang);
   useEffect(() => {
-    const next = relocalizeSpec(specRef.current, lang);
+    const from = prevLang.current;
+    prevLang.current = lang;
+    if (decoded) return; // a shared ?d= design stays frozen in the author's language
+    // On a deliberate switch we know the source language (precise, collision-safe);
+    // on mount (from === lang) fall back to matching any language.
+    const next = relocalizeSpec(specRef.current, lang, from === lang ? undefined : from);
     if (JSON.stringify(next) !== JSON.stringify(specRef.current)) dispatch({ type: 'load', spec: next });
   }, [lang]);
 

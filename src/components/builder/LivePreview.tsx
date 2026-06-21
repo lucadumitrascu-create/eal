@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import type { DesignSpec, ImageRef, SectionDef, TextSlot, SectionDisplay, HeroPos, HeroWidth, HeroVAlign } from '../../data/templates';
 import { themes, fonts, templateById, universalBlocks } from '../../data/templates';
 import { allPresets, presetById } from '../../data/imageLibrary';
+import { useT } from '../../lib/builder/i18n';
 
 /** Direct-manipulation hooks: when present, the preview becomes click-to-edit. */
 export interface EditAPI {
@@ -168,6 +169,7 @@ const idxs = (sec: Sec, prefix: string): number[] => {
 };
 
 export default function LivePreview({ spec, edit }: { spec: DesignSpec; edit?: EditAPI }) {
+  const t = useT();
   const tpl = templateById(spec.templateId);
   const theme = themes[spec.theme].vars;
   const font = fonts[spec.font];
@@ -580,9 +582,9 @@ export default function LivePreview({ spec, edit }: { spec: DesignSpec; edit?: E
 
   function navBlock() {
     const tag = spec.meta.tagline;
-    const brand = <Ed as="span" className="pv-brand" metaField="siteName" value={editing ? spec.meta.siteName : spec.meta.siteName || 'Your Brand'} ph="Brand name" />;
+    const brand = <Ed as="span" className="pv-brand" metaField="siteName" value={editing ? spec.meta.siteName : spec.meta.siteName || t('builder.preview.brand', 'Your Brand')} ph="Brand name" />;
     if (L.nav === 'links') {
-      const links = spec.nav ?? ['Work', 'About', 'Contact'];
+      const links = spec.nav ?? [t('builder.nav.work', 'Work'), t('builder.nav.about', 'About'), t('builder.nav.contact', 'Contact')];
       return (
         <header className="pv-nav">
           {brand}
@@ -615,13 +617,13 @@ export default function LivePreview({ spec, edit }: { spec: DesignSpec; edit?: E
   }
 
   function footerBlock() {
-    const name = spec.meta.siteName || 'Your Brand';
+    const name = spec.meta.siteName || t('builder.preview.brand', 'Your Brand');
     const f = FOOTER[spec.templateId] ?? 'minimal';
     if (f === 'columns') {
       return (
         <footer className="pv-footer pv-footer-cols">
           <div className="pv-foot-brand"><span className="pv-brand">{name}</span><span className="pv-tagline">{spec.meta.tagline}</span></div>
-          <div className="pv-foot-links"><span>Explore</span><span>About</span><span>Services</span><span>Contact</span></div>
+          <div className="pv-foot-links"><span>{t('builder.footer.explore', 'Explore')}</span><span>{t('builder.footer.about', 'About')}</span><span>{t('builder.footer.services', 'Services')}</span><span>{t('builder.footer.contact', 'Contact')}</span></div>
           <div className="pv-foot-copy">© {name}</div>
         </footer>
       );
@@ -629,7 +631,7 @@ export default function LivePreview({ spec, edit }: { spec: DesignSpec; edit?: E
     if (f === 'cta') {
       return (
         <footer className="pv-footer pv-footer-cta">
-          <div className="pv-footcta"><span className="pv-footcta-h">Ready when you are</span><span className="pv-btn">Get in touch</span></div>
+          <div className="pv-footcta"><span className="pv-footcta-h">{t('builder.footer.ctaHeading', 'Ready when you are')}</span><span className="pv-btn">{t('builder.footer.ctaButton', 'Get in touch')}</span></div>
           <div className="pv-foot-copy">© {name}</div>
         </footer>
       );
@@ -691,7 +693,7 @@ export default function LivePreview({ spec, edit }: { spec: DesignSpec; edit?: E
             const seen = new Set<string>();
             return [...tpl.sections, ...universalBlocks]
               .filter((d) => !present.has(d.id) && !seen.has(d.id) && (seen.add(d.id), true))
-              .map((d) => ({ id: d.id, label: d.type === 'faq' ? 'FAQ' : d.type.charAt(0).toUpperCase() + d.type.slice(1) }));
+              .map((d) => ({ id: d.id, label: t(`builder.section.${d.type}`, d.type === 'faq' ? 'FAQ' : d.type.charAt(0).toUpperCase() + d.type.slice(1)) }));
           })()}
           onAdd={(id) => edit!.addSection(id)}
         />
