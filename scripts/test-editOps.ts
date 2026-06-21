@@ -260,7 +260,7 @@ test('rejects reorder of a section that exists in the spec but not the template'
   const ghost = { ...spec, sections: [...spec.sections, { id: 'ghost', enabled: true, text: {}, images: {} }] };
   const r = applyOps(ghost, [{ op: 'reorderSection', sectionId: 'ghost', toIndex: 0 }]);
   assert.equal(r.applied.length, 0);
-  assert.match(r.skipped[0].reason, /not in template/);
+  assert.match(r.skipped[0].reason, /unknown section/);
 });
 
 console.log('history — deeper invariants');

@@ -20,14 +20,16 @@
  * (`templateId`, `v`) is never changed by any op.
  */
 import { z } from 'zod';
-import { themes, fonts, templateById } from '../data/templates';
+import { templateById } from '../data/templates';
 import type { ColorTheme, FontPair, AnimationPreset, DesignSpec, ImageRef } from '../data/templates';
 import { presetById } from '../data/imageLibrary';
+import { THEMES, FONTS, ANIMS, defById } from './builder/spec';
 
-/* ── Closed value sets the renderer supports (runtime, for semantic checks) ── */
-export const THEME_VALUES = Object.keys(themes) as ColorTheme[];
-export const FONT_VALUES = Object.keys(fonts) as FontPair[];
-export const ANIMATION_VALUES: AnimationPreset[] = ['none', 'subtle', 'lively'];
+/* ── Closed value sets the renderer supports — re-used from validateSpec so the
+      two validators can never drift apart. ── */
+export const THEME_VALUES: ColorTheme[] = THEMES;
+export const FONT_VALUES: FontPair[] = FONTS;
+export const ANIMATION_VALUES: AnimationPreset[] = ANIMS;
 
 /** Lengths the spec serializer (lib/builder/spec.ts) clamps to — we reject over. */
 export const META_MAX = { siteName: 60, tagline: 120 } as const;
@@ -130,17 +132,21 @@ export function validateOp(spec: DesignSpec, op: EditOp): OpCheck {
   }
 }
 
-/** Resolve a section that exists in BOTH the spec and its template, or a reason string. */
+/** Resolve the SectionDef for a section that's present in the spec, or a reason
+    string. Uses defById so sections added from the universal-block catalog (not
+    just the template's own) are editable too. */
 function sectionDef(spec: DesignSpec, tplId: string, sectionId: string) {
   if (!spec.sections.some((s) => s.id === sectionId)) return `section "${sectionId}" not in spec`;
-  const def = templateById(tplId)!.sections.find((s) => s.id === sectionId);
-  if (!def) return `section "${sectionId}" not in template "${tplId}"`;
+  const tpl = templateById(tplId)!;
+  const def = defById(tpl, sectionId);
+  if (!def) return `unknown section "${sectionId}"`;
   return def;
 }
 
-/** The template default image ref for a slot — used only if the spec lacks one. */
+/** The catalog default image ref for a slot — used only if the spec lacks one. */
 function defaultImageRef(spec: DesignSpec, sectionId: string, slotId: string): ImageRef {
-  const slot = templateById(spec.templateId)?.sections.find((s) => s.id === sectionId)?.imageSlots.find((sl) => sl.id === slotId);
+  const tpl = templateById(spec.templateId);
+  const slot = tpl ? defById(tpl, sectionId)?.imageSlots.find((sl) => sl.id === slotId) : undefined;
   return slot ? { ...slot.default } : { presetId: '', label: '', alt: '' };
 }
 
@@ -246,15 +252,20 @@ export function applyOps(spec: DesignSpec, ops: readonly EditOp[]): ApplyResult 
   return { next, applied, skipped };
 }
 
+/** Loose envelope: it must be `{ ops: [...] }` (no extra keys); the elements are
+    validated LENIENTLY per-op by applyOps, so one bad op doesn't reject the batch. */
+const EnvelopeSchema = z.object({ ops: z.array(z.unknown()) }).strict();
+
 /**
- * Convenience entry point for untrusted input (e.g. the step-2 /api/edit body):
- * validates the `{ ops: [...] }` envelope once, then applies. On a malformed
- * envelope returns the spec unchanged with a single skipped entry.
+ * Convenience entry point for untrusted input (e.g. AI output / the step-2
+ * /api/edit body): validates only the `{ ops: [...] }` envelope, then applies
+ * each op leniently (invalid/no-op ops skipped+reported, valid ones applied).
+ * On a malformed envelope returns the spec unchanged with a single skipped entry.
  */
 export function applyOpsFromUnknown(spec: DesignSpec, raw: unknown): ApplyResult {
-  const parsed = EditOpsSchema.safeParse(raw);
+  const parsed = EnvelopeSchema.safeParse(raw);
   if (!parsed.success) {
     return { next: spec, applied: [], skipped: [{ op: raw, reason: `malformed ops payload: ${parsed.error.issues.map((i) => `${i.path.join('.') || '(root)'}: ${i.message}`).join('; ')}` }] };
   }
-  return applyOps(spec, parsed.data.ops as EditOp[]);
+  return applyOps(spec, parsed.data.ops as unknown as readonly EditOp[]);
 }

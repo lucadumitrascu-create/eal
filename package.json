@@ -8,7 +8,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "test:ops": "tsx scripts/test-editOps.ts"
+    "test:ops": "tsx scripts/test-editOps.ts",
+    "test:edit": "tsx scripts/test-editEndpoint.ts"
   },
   "dependencies": {
     "@astrojs/react": "^5.0.7",

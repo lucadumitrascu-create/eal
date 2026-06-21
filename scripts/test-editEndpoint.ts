@@ -1,0 +1,282 @@
+/**
+ * Tests for the /api/edit step-2 plumbing (no network).
+ * Run: npx tsx scripts/test-editEndpoint.ts
+ *
+ * The actual NVIDIA call is the only un-testable-here part; everything around it
+ * — prompt building, defensive output parsing, the untrusted-model -> applyOps
+ * boundary, and the endpoint's validation/fallback/guard paths — is covered.
+ */
+import assert from 'node:assert/strict';
+
+// Ensure the no-key fallback path (don't make a real network call from tests).
+delete process.env.NVIDIA_API_KEY;
+
+import { templateById } from '../src/data/templates';
+import { defaultSpecFromTemplate, validateSpec } from '../src/lib/builder/spec';
+import { buildEditMessages, specSummary, parseModelPatch } from '../src/lib/ai/editPrompt';
+import { applyOps, type EditOp } from '../src/lib/editOps';
+import { POST, GET } from '../src/pages/api/edit';
+
+let passed = 0;
+let failed = 0;
+function test(name: string, fn: () => void | Promise<void>) {
+  return Promise.resolve()
+    .then(fn)
+    .then(() => { passed++; console.log(`  ✓ ${name}`); })
+    .catch((e) => { failed++; console.log(`  ✗ ${name}\n      ${(e as Error).message.split('\n')[0]}`); });
+}
+
+const tpl = templateById('restaurant')!;
+const base = () => defaultSpecFromTemplate(tpl);
+
+async function run() {
+  console.log('prompt building');
+
+  await test('buildEditMessages embeds the closed vocabulary, enums, presets + the user message', () => {
+    const [sys, usr] = buildEditMessages(base(), 'make it blue and hide the gallery');
+    assert.equal(sys.role, 'system');
+    for (const op of ['setText', 'setTheme', 'toggleSection', 'reorderSection', 'setImagePreset', 'setImageDesc']) {
+      assert.ok(sys.content.includes(op), `system prompt missing ${op}`);
+    }
+    assert.ok(sys.content.includes('warm') && sys.content.includes('editorial') && sys.content.includes('terracotta'), 'missing enum/preset lists');
+    assert.equal(usr.role, 'user');
+    assert.ok(usr.content.includes('USER REQUEST: make it blue and hide the gallery'));
+  });
+
+  await test('specSummary exposes section ids, toggleable flags, slot maxLens + current values', () => {
+    const s = specSummary(base());
+    assert.ok(s.includes('template "restaurant"'));
+    assert.ok(s.includes('hero (hero, enabled, locked)')); // hero not toggleable
+    assert.ok(s.includes('features (features, enabled, toggleable)'));
+    assert.ok(s.includes('headline(<='), 'missing slot maxLen');
+    assert.ok(s.includes('"Taste the tradition"'), 'missing current value'); // default hero headline
+    assert.ok(s.includes('media: preset=ph-dish'), 'missing image slot'); // restaurant hero photo preset
+  });
+
+  console.log('defensive model-output parsing');
+
+  await test('parses plain JSON, code-fenced JSON, and prose-wrapped JSON', () => {
+    const want = { ops: [{ op: 'setTheme', value: 'mono' }], reply: 'ok' };
+    const plain = parseModelPatch(JSON.stringify(want));
+    const fenced = parseModelPatch('```json\n' + JSON.stringify(want) + '\n```');
+    const prose = parseModelPatch('Sure, here is the patch:\n' + JSON.stringify(want) + '\nHope that helps!');
+    [plain, fenced, prose].forEach((p) => {
+      assert.deepEqual(p!.ops, want.ops);
+      assert.equal(p!.reply, 'ok');
+    });
+  });
+
+  await test('parse tolerates missing/garbled output (ops defaults to [], non-JSON -> null)', () => {
+    assert.deepEqual(parseModelPatch('{"reply":"no ops here"}'), { ops: [], reply: 'no ops here' });
+    assert.equal(parseModelPatch('I cannot help with that.'), null);
+    assert.equal(parseModelPatch(''), null);
+  });
+
+  await test('parse recovers the real object when the model appends a second brace blob (no greedy over-capture)', () => {
+    const want = { ops: [{ op: 'setTheme', value: 'teal' }], reply: 'ok' };
+    const noisy = JSON.stringify(want) + '\n\nNote: {not: valid json}';
+    const p = parseModelPatch(noisy);
+    assert.deepEqual(p!.ops, want.ops);
+    assert.equal(p!.reply, 'ok');
+  });
+
+  console.log('untrusted model output -> applyOps boundary (the security property)');
+
+  await test('a well-formed model patch is applied', () => {
+    const out = JSON.stringify({
+      ops: [
+        { op: 'setText', sectionId: 'hero', slotId: 'headline', value: 'Buongiorno' },
+        { op: 'setTheme', value: 'mono' },
+        { op: 'toggleSection', sectionId: 'features', enabled: false },
+      ],
+      reply: 'Updated the hero, theme, and hid the features.',
+    });
+    const patch = parseModelPatch(out)!;
+    const r = applyOps(base(), patch.ops as unknown as EditOp[]);
+    assert.equal(r.applied.length, 3);
+    assert.equal(r.skipped.length, 0);
+    assert.equal(r.next.theme, 'mono');
+    assert.equal(r.next.sections.find((s) => s.id === 'hero')!.text.headline, 'Buongiorno');
+    assert.equal(r.next.sections.find((s) => s.id === 'features')!.enabled, false);
+  });
+
+  await test('a sloppy/malicious model patch cannot corrupt the spec — bad ops skipped, good ones applied', () => {
+    const out =
+      'Here you go:\n```json\n' +
+      JSON.stringify({
+        ops: [
+          { op: 'setText', sectionId: 'hero', slotId: 'headline', value: 'OK' }, // valid
+          { op: 'setText', sectionId: 'ghost', slotId: 'headline', value: 'x' }, // bad section
+          { op: 'setTheme', value: 'rainbow' }, // bad enum
+          { op: 'deleteEverything' }, // unknown op (malformed)
+          { op: 'setText', sectionId: 'hero', slotId: 'headline', value: '<script>alert(1)</script>' }, // valid TEXT (stored as a string, rendered as text)
+          { op: 'setTagline', value: 't'.repeat(200) }, // over maxLen
+        ],
+        reply: 'done',
+      }) +
+      '\n```';
+    const patch = parseModelPatch(out)!;
+    const before = base();
+    const r = applyOps(before, patch.ops as unknown as EditOp[]);
+    assert.equal(r.skipped.length, 4); // ghost, rainbow, deleteEverything, tagline-too-long
+    assert.equal(r.applied.length, 2); // the two hero headline sets
+    // headline ends as the literal string (NOT executed markup — it's plain spec text)
+    assert.equal(r.next.sections.find((s) => s.id === 'hero')!.text.headline, '<script>alert(1)</script>');
+    // structural identity untouched + input not mutated
+    assert.equal(r.next.templateId, before.templateId);
+    assert.equal(r.next.v, before.v);
+    assert.deepStrictEqual(before, base());
+  });
+
+  console.log('endpoint handler (validation / guard / fallback — no network)');
+
+  async function call(payload: unknown, headers: Record<string, string> = {}) {
+    const req = new Request('https://site.test/api/edit', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', ...headers },
+      body: typeof payload === 'string' ? payload : JSON.stringify(payload),
+    });
+    const res = await POST({ request: req } as any);
+    return { status: res.status, body: (await res.json()) as any };
+  }
+
+  await test('no key -> graceful fallback (spec echoed unchanged, source=fallback, never throws)', async () => {
+    const spec = base();
+    const { status, body } = await call({ message: 'make it mono', spec });
+    assert.equal(status, 200);
+    assert.equal(body.source, 'fallback');
+    assert.deepEqual(body.applied, []);
+    assert.deepEqual(body.skipped, []);
+    assert.equal(body.spec.templateId, 'restaurant');
+    // exact echo of the sanitized spec (JSON-normalized: the Response drops undefined-valued optional keys)
+    assert.deepStrictEqual(body.spec, JSON.parse(JSON.stringify(validateSpec(spec))));
+  });
+
+  await test('rejects invalid body / missing message / invalid spec', async () => {
+    assert.equal((await call('not json at all')).status, 400);
+    assert.equal((await call({ spec: base() })).status, 400); // no message
+    assert.equal((await call({ message: 'hi', spec: { templateId: 'does-not-exist' } })).status, 400);
+  });
+
+  await test('cross-origin request is blocked (403)', async () => {
+    const { status } = await call(
+      { message: 'hi', spec: base() },
+      { origin: 'https://evil.example', 'x-forwarded-host': 'site.test' },
+    );
+    assert.equal(status, 403);
+  });
+
+  await test('GET is 405', async () => {
+    const res = await GET({} as any);
+    assert.equal(res.status, 405);
+  });
+
+  console.log('AI branch (NVIDIA call mocked — exercises the real fetch path)');
+
+  // Stub a key so the endpoint takes the AI path, and mock global fetch so no
+  // network call happens. Restore both after each test.
+  const realFetch = globalThis.fetch;
+  async function withMock(
+    fetchImpl: (url: any, init: any) => Promise<any> | any,
+    fn: () => Promise<void>,
+  ) {
+    process.env.NVIDIA_API_KEY = 'test-key-not-real';
+    (globalThis as any).fetch = async (url: any, init: any) => fetchImpl(url, init);
+    try {
+      await fn();
+    } finally {
+      (globalThis as any).fetch = realFetch;
+      delete process.env.NVIDIA_API_KEY;
+    }
+  }
+  // Shape a minimal NVIDIA chat-completions Response.
+  const ok = (content: string) => ({
+    ok: true,
+    status: 200,
+    json: async () => ({ choices: [{ message: { content } }] }),
+    text: async () => '',
+  });
+
+  await test('AI success: valid patch is applied, source=ai, ops land', async () => {
+    await withMock(
+      () => ok(JSON.stringify({ ops: [{ op: 'setTheme', value: 'mono' }, { op: 'setText', sectionId: 'hero', slotId: 'headline', value: 'Ciao' }], reply: 'Updated.' })),
+      async () => {
+        const { status, body } = await call({ message: 'make it mono and greet in italian', spec: base() });
+        assert.equal(status, 200);
+        assert.equal(body.source, 'ai');
+        assert.equal(body.reply, 'Updated.');
+        assert.equal(body.applied.length, 2);
+        assert.equal(body.skipped.length, 0);
+        assert.equal(body.spec.theme, 'mono');
+        assert.equal(body.spec.sections.find((s: any) => s.id === 'hero').text.headline, 'Ciao');
+      },
+    );
+  });
+
+  await test('AI success with junk ops: bad ones skipped, good ones applied, never throws', async () => {
+    await withMock(
+      () => ok(JSON.stringify({ ops: [{ op: 'setTheme', value: 'rainbow' }, { op: 'setTagline', value: 'Fresh & local' }], reply: 'ok' })),
+      async () => {
+        const { status, body } = await call({ message: 'x', spec: base() });
+        assert.equal(status, 200);
+        assert.equal(body.source, 'ai');
+        assert.equal(body.applied.length, 1); // tagline applied
+        assert.equal(body.skipped.length, 1); // rainbow theme skipped
+        assert.equal(body.spec.meta.tagline, 'Fresh & local');
+      },
+    );
+  });
+
+  await test('AI returns empty reply -> defaults to "Done."', async () => {
+    await withMock(
+      () => ok(JSON.stringify({ ops: [{ op: 'setTheme', value: 'dark' }], reply: '' })),
+      async () => {
+        const { body } = await call({ message: 'dark mode', spec: base() });
+        assert.equal(body.source, 'ai');
+        assert.equal(body.reply, 'Done.');
+      },
+    );
+  });
+
+  await test('NVIDIA non-200 -> graceful fallback, spec unchanged', async () => {
+    await withMock(
+      () => ({ ok: false, status: 502, text: async () => 'upstream error', json: async () => ({}) }),
+      async () => {
+        const { status, body } = await call({ message: 'make it mono', spec: base() });
+        assert.equal(status, 200);
+        assert.equal(body.source, 'fallback');
+        assert.deepEqual(body.applied, []);
+        assert.equal(body.spec.theme, base().theme); // untouched
+      },
+    );
+  });
+
+  await test('fetch throws / aborts -> graceful fallback (never crashes the request)', async () => {
+    await withMock(
+      () => { throw new Error('aborted'); },
+      async () => {
+        const { status, body } = await call({ message: 'make it mono', spec: base() });
+        assert.equal(status, 200);
+        assert.equal(body.source, 'fallback');
+        assert.equal(body.spec.theme, base().theme);
+      },
+    );
+  });
+
+  await test('unparseable model output -> graceful fallback', async () => {
+    await withMock(
+      () => ok('I am terribly sorry but I cannot do that, no JSON here.'),
+      async () => {
+        const { status, body } = await call({ message: 'do something weird', spec: base() });
+        assert.equal(status, 200);
+        assert.equal(body.source, 'fallback');
+        assert.deepEqual(body.applied, []);
+      },
+    );
+  });
+
+  console.log(`\n${passed} passed, ${failed} failed`);
+  process.exit(failed === 0 ? 0 : 1);
+}
+
+run();

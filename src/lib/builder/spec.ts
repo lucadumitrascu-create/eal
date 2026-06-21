@@ -20,9 +20,11 @@ export function defById(tpl: Template, id: string): SectionDef | undefined {
 
 export const SPEC_VERSION = 1 as const;
 
-const THEMES: ColorTheme[] = ['cyan', 'warm', 'indigo', 'mono', 'dark', 'vivid', 'rose', 'teal', 'sky'];
-const FONTS: FontPair[] = ['modern', 'editorial', 'mono', 'grotesk', 'humanist'];
-const ANIMS: AnimationPreset[] = ['none', 'fade', 'rise', 'slide', 'sweep', 'zoom', 'blur', 'flip', 'pop'];
+// Exported so the edit-ops validator (lib/editOps.ts) shares the EXACT same
+// closed value sets as validateSpec — no drift between the two.
+export const THEMES: ColorTheme[] = ['cyan', 'warm', 'indigo', 'mono', 'dark', 'vivid', 'rose', 'teal', 'sky'];
+export const FONTS: FontPair[] = ['modern', 'editorial', 'mono', 'grotesk', 'humanist'];
+export const ANIMS: AnimationPreset[] = ['none', 'fade', 'rise', 'slide', 'sweep', 'zoom', 'blur', 'flip', 'pop'];
 const DISPLAYS: SectionDisplay[] = ['grid', 'carousel', 'marquee', 'masonry', 'list', 'rows', 'split', 'cards', 'numbered'];
 const POS: HeroPos[] = ['right', 'left', 'full', 'fullLeft', 'fullRight', 'top', 'bannerTop', 'frame', 'none'];
 const WIDTHS: HeroWidth[] = ['sm', 'md', 'lg', 'full'];
