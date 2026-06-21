@@ -1,227 +1,97 @@
 ---
+// Dev-studio hero: a ray-traced CUT glass ring (Blender, Cycles) loads in and
+// latches around the centred headline like a loading indicator snapping shut.
 ---
 
-<section id="hero" class="hero-bg relative min-h-[100svh] flex items-center justify-center overflow-hidden">
-
-  <!-- Content -->
-  <div class="relative z-10 mx-auto max-w-4xl w-full px-6 flex flex-col items-center text-center">
-    <h1 class="hero-fade-in font-['Outfit'] font-bold leading-[1.08]" style="font-size: clamp(2.4rem, 7vw, 4.5rem);">
-      <span class="block text-[#0c1a2a]" data-i18n="hero.title1">We build software</span>
-      <span class="block hero-gradient-text" data-i18n="hero.title2">that works.</span>
-    </h1>
-
-    <div class="hero-fade-in-delay flex flex-wrap gap-3 sm:gap-4 justify-center mt-8 sm:mt-10">
-      <a href="/projects" class="hero-btn-primary" data-i18n="hero.cta1">See projects</a>
-      <a href="/builder" class="hero-btn-secondary" data-i18n="hero.cta3">Build a mockup</a>
-      <a href="/#contact" class="hero-btn-secondary" data-i18n="hero.cta2">Contact us</a>
-    </div>
-
-    <!-- Scroll hint -->
-    <div class="hero-fade-in-delay-2 mt-10 sm:mt-14 flex flex-col items-center gap-2 opacity-60">
-      <div class="hero-scroll-line"></div>
-    </div>
+<section id="hero" class="hero relative min-h-[100svh] overflow-hidden flex items-center justify-center">
+  <!-- Cut glass ring, framing the centre; loads + catches on entry -->
+  <div class="hero-ring-wrap" aria-hidden="true">
+    <img class="hero-ring" src="/images/hero/hero-ring-v5.webp" alt="" width="2000" height="2000" fetchpriority="high" decoding="async" />
   </div>
+  <div class="hero-fade" aria-hidden="true"></div>
 
-  <!-- Animated SVG wave at bottom -->
-  <div class="absolute bottom-0 left-0 right-0 z-[1] pointer-events-none">
-    <svg class="hero-wave" viewBox="0 0 1440 200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <path class="hero-wave-back" d="M0,120 C240,180 480,60 720,120 C960,180 1200,60 1440,120 L1440,200 L0,200 Z" fill="rgba(240,253,250,0.5)" />
-      <path class="hero-wave-mid" d="M0,140 C320,80 560,180 840,130 C1120,80 1280,160 1440,140 L1440,200 L0,200 Z" fill="rgba(240,253,250,0.7)" />
-      <path class="hero-wave-front" d="M0,160 C360,130 600,190 900,150 C1200,110 1350,170 1440,160 L1440,200 L0,200 Z" fill="#f0fdfa" />
-    </svg>
+  <div class="relative z-10 mx-auto w-full max-w-2xl px-6 text-center">
+    <h1 class="hero-h1 font-['Outfit'] font-bold">
+      <span class="block text-[#0c1a2a]" data-i18n="hero.title1">We build software</span>
+      <span class="block text-[var(--color-accent)]" data-i18n="hero.title2">that works.</span>
+    </h1>
+    <div class="hero-cta-row">
+      <a href="/projects" class="hero-btn btn-amber-glass hero-magnetic" data-i18n="hero.cta1">See projects</a>
+      <a href="/builder" class="hero-btn btn-amber-glass hero-magnetic" data-i18n="hero.cta3">Build a mockup</a>
+    </div>
   </div>
 </section>
 
 <style>
-  /* ── Background ── */
-  .hero-bg {
-    background: linear-gradient(to bottom, #ffffff 0%, #ecfeff 10%, #67e8f9 25%, #22d3ee 40%, #22d3ee 60%, #67e8f9 75%, #ecfeff 90%, #f0fdfa 100%);
+  .hero {
+    background: #d3ecf5; /* uniform, single flat tone */
+    margin-top: -5rem;   /* pull up under the fixed nav, cancel the navbar spacer -> no seam */
+  }
+  .hero-ring-wrap {
+    position: absolute; z-index: 0; left: 50%; top: 49%;
+    width: min(1060px, 100vw); aspect-ratio: 1; transform: translate(-50%, -50%);
+    animation: ringFloat 9s ease-in-out infinite;
+    pointer-events: none;
+    will-change: transform;
+  }
+  .hero-ring {
+    width: 100%; height: 100%; display: block;
+    transform-origin: 50% 50%;
+    will-change: transform;
+    /* spin = continuous rotation (transform); fade = entrance (opacity) — no conflict */
+    animation: ringSpin 26s linear infinite, ringFadeIn 1.1s ease-out both;
+  }
+  @keyframes ringSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes ringFadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes ringFloat {
+    0%, 100% { transform: translate(-50%, -50%) translateY(0); }
+    50% { transform: translate(-50%, -50%) translateY(-12px); }
+  }
+  .hero-fade {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 18%; z-index: 1; pointer-events: none;
+    background: linear-gradient(180deg, rgba(240,253,250,0) 0%, #f0fdfa 100%);
   }
 
-  /* ── Wave ── */
-  .hero-wave {
-    display: block;
-    width: 100%;
-    height: 120px;
-  }
-  @media (min-width: 640px) {
-    .hero-wave { height: 160px; }
-  }
-  @media (min-width: 1024px) {
-    .hero-wave { height: 200px; }
-  }
+  .hero-h1 { font-size: clamp(2.5rem, 6vw, 4.6rem); line-height: 1.04; letter-spacing: -0.022em; }
+  .hero-cta-row { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 2rem; justify-content: center; }
 
-  .hero-wave-back {
-    animation: waveShift 8s ease-in-out infinite alternate;
+  .hero-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 0.82rem 1.7rem; font-weight: 600; font-size: 0.95rem;
+    border-radius: 0.8rem; text-decoration: none; letter-spacing: -0.01em;
+    position: relative; overflow: hidden;
   }
-  .hero-wave-mid {
-    animation: waveShift 6s ease-in-out infinite alternate-reverse;
-  }
-  .hero-wave-front {
-    animation: waveShift 10s ease-in-out infinite alternate;
-  }
+  .hero-btn:active { transform: scale(0.97); }
 
-  @keyframes waveShift {
-    0% { d: path("M0,120 C240,180 480,60 720,120 C960,180 1200,60 1440,120 L1440,200 L0,200 Z"); }
-    100% { d: path("M0,130 C300,60 540,180 780,110 C1020,50 1260,170 1440,130 L1440,200 L0,200 Z"); }
-  }
+  .hero .relative > * { animation: heroIn 0.8s cubic-bezier(0.16,1,0.3,1) both; }
+  .hero .relative > *:nth-child(1) { animation-delay: 0.25s; }
+  .hero .relative > *:nth-child(2) { animation-delay: 0.38s; }
+  @keyframes heroIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-  /* ── Text animations ── */
-  @keyframes heroFadeIn {
-    from { opacity: 0; transform: translateY(24px); filter: blur(6px); }
-    to { opacity: 1; transform: translateY(0); filter: blur(0); }
-  }
-
-  .hero-fade-in {
-    animation: heroFadeIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
-  }
-  .hero-fade-in-delay {
-    animation: heroFadeIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
-  }
-  .hero-fade-in-delay-2 {
-    animation: heroFadeIn 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.8s both;
-  }
-
-  /* ── Gradient text ── */
-  .hero-gradient-text {
-    background: linear-gradient(135deg, #0e7490 0%, #0891b2 50%, #06b6d4 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  /* ── Scroll line ── */
-  .hero-scroll-line {
-    width: 1px;
-    height: 40px;
-    background: linear-gradient(to bottom, rgba(14,116,144,0.5), transparent);
-    animation: scrollPulse 2s ease-in-out infinite;
-  }
-  @keyframes scrollPulse {
-    0%, 100% { opacity: 0.3; transform: scaleY(0.7); }
-    50% { opacity: 0.7; transform: scaleY(1); }
-  }
-
-  /* ── Buttons ── */
-  .hero-btn-primary {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.8rem 2rem;
-    background: var(--color-accent-secondary);
-    color: #0A0A0A;
-    font-weight: 600;
-    font-size: 0.95rem;
-    border-radius: 0.75rem;
-    text-decoration: none;
-    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
-    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-    position: relative;
-    overflow: hidden;
-  }
-  .hero-btn-primary::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
-    transform: translateX(-100%);
-    transition: transform 0.6s ease;
-  }
-  .hero-btn-primary:hover::after {
-    transform: translateX(100%);
-  }
-  .hero-btn-primary:hover {
-    background: var(--color-accent-secondary-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(245, 158, 11, 0.4), 0 0 50px rgba(245, 158, 11, 0.12);
-  }
-  .hero-btn-primary:active {
-    transform: translateY(0) scale(0.98);
-  }
-
-  .hero-btn-secondary {
-    display: inline-flex;
-    align-items: center;
-    padding: 0.8rem 2rem;
-    border: 1.5px solid rgba(14, 116, 144, 0.4);
-    color: #0e4f5c;
-    font-weight: 500;
-    font-size: 0.95rem;
-    border-radius: 0.75rem;
-    text-decoration: none;
-    background: rgba(255, 255, 255, 0.3);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-  .hero-btn-secondary:hover {
-    border-color: #0e7490;
-    color: #0c3d4a;
-    background: rgba(255, 255, 255, 0.5);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(14, 116, 144, 0.15);
-  }
-  .hero-btn-secondary:active {
-    transform: translateY(0) scale(0.98);
-  }
-
-  /* ── Mobile adjustments ── */
   @media (max-width: 640px) {
-    .hero-btn-primary,
-    .hero-btn-secondary {
-      padding: 0.75rem 1.5rem;
-      font-size: 0.9rem;
-      width: 100%;
-      justify-content: center;
-    }
+    .hero-ring-wrap { width: 92vw; top: 46%; }
+    .hero-cta-row .hero-btn { flex: 1 1 auto; }
   }
-
-  /* ── Reduced motion ── */
   @media (prefers-reduced-motion: reduce) {
-    .hero-wave-back,
-    .hero-wave-mid,
-    .hero-wave-front { animation: none; }
-    .hero-scroll-line { animation: none; opacity: 0.5; }
-    .hero-fade-in,
-    .hero-fade-in-delay,
-    .hero-fade-in-delay-2 {
-      animation: none;
-      opacity: 1;
-    }
+    .hero-ring-wrap { animation: none; }
+    .hero-ring { animation: none; opacity: 1; transform: none; }
+    .hero .relative > * { animation: none; opacity: 1; transform: none; }
   }
 </style>
 
 <script>
-  const hero = document.getElementById('hero');
-  if (hero) {
-    const content = hero.querySelector('.relative.z-10') as HTMLElement;
-    let ticking = false;
-
-    function onScroll() {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        const scrollY = window.scrollY;
-        const heroH = hero.offsetHeight;
-        const progress = Math.min(1, scrollY / heroH);
-
-        if (content) {
-          const opacity = 1 - Math.pow(progress, 0.6) * 1.5;
-          const translateY = progress * -50;
-          content.style.opacity = String(Math.max(0, opacity));
-          content.style.transform = `translateY(${translateY}px)`;
-        }
-
-        ticking = false;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine = window.matchMedia('(hover: hover)').matches;
+  if (!reduce && fine) {
+    document.querySelectorAll<HTMLElement>('.hero-magnetic').forEach((el) => {
+      const strength = 0.3, max = 6;
+      el.addEventListener('pointermove', (e) => {
+        const r = el.getBoundingClientRect();
+        const cx = Math.max(-max, Math.min(max, (e.clientX - (r.left + r.width / 2)) * strength));
+        const cy = Math.max(-max, Math.min(max, (e.clientY - (r.top + r.height / 2)) * strength));
+        el.style.transform = `translate(${cx}px, ${cy}px)`;
       });
-    }
-
-    window.addEventListener('scroll', onScroll, { passive: true });
-
-    // Reinitialize on bfcache restore (browser back/forward)
-    window.addEventListener('pageshow', (e) => {
-      if (e.persisted) {
-        onScroll();
-      }
+      el.addEventListener('pointerleave', () => { el.style.transform = ''; });
     });
   }
 </script>

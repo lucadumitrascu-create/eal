@@ -6,7 +6,6 @@ const navLinks = [
   { label: 'Projects', href: '/projects', i18nKey: 'nav.projects', section: '' },
   { label: 'Builder', href: '/builder', i18nKey: 'nav.builder', section: '' },
   { label: 'About', href: isHome ? '#despre' : '/#despre', i18nKey: 'nav.about', section: 'despre' },
-  { label: 'Contact', href: isHome ? '#contact' : '/#contact', i18nKey: 'nav.contact', section: 'contact' },
 ];
 
 const ctaHref = isHome ? '#contact' : '/#contact';
@@ -18,7 +17,7 @@ const ctaHref = isHome ? '#contact' : '/#contact';
 >
   <nav
     aria-label="Main navigation"
-    class="navbar-pill pointer-events-auto mx-3 sm:mx-4 mt-3 px-4 sm:px-6 flex items-center justify-between h-14 sm:h-15 w-full max-w-5xl rounded-2xl border border-transparent transition-all duration-500 ease-out"
+    class="navbar-pill pointer-events-auto mx-3 sm:mx-4 mt-3 px-4 sm:px-6 flex items-center justify-between h-14 sm:h-15 w-full max-w-5xl rounded-2xl transition-all duration-500 ease-out"
   >
     <!-- Logo -->
     <a href="/" aria-label="EAL ENTERPRISES — Home" class="flex items-baseline gap-1 text-lg sm:text-xl uppercase tracking-wider no-underline hover:no-underline shrink-0 min-w-0">
@@ -70,7 +69,7 @@ const ctaHref = isHome ? '#contact' : '/#contact';
       </div>
       <a
         href={ctaHref}
-        class="inline-flex items-center px-5 py-2 rounded-xl text-sm font-medium text-[#0A0A0A] bg-[var(--color-accent-secondary)] hover:bg-[var(--color-accent-secondary-hover)] no-underline hover:no-underline transition-all duration-300 hover:shadow-[0_0_24px_rgba(245,158,11,0.3)] hover:scale-[1.02]"
+        class="btn-amber-glass inline-flex items-center px-5 py-2 rounded-xl text-sm font-medium no-underline hover:no-underline hover:scale-[1.02]"
         data-i18n="nav.contactBtn"
       >
         Contact us
@@ -109,7 +108,7 @@ const ctaHref = isHome ? '#contact' : '/#contact';
     ))}
     <a
       href={ctaHref}
-      class="mobile-link mt-4 px-8 py-3 rounded-xl text-lg font-medium text-[#0A0A0A] bg-[var(--color-accent-secondary)] hover:bg-[var(--color-accent-secondary-hover)] no-underline hover:no-underline transition-all duration-200"
+      class="btn-amber-glass mobile-link mt-4 px-8 py-3 rounded-xl text-lg font-medium no-underline hover:no-underline"
       style={`opacity:0;transform:translateY(15px);transition:opacity 0.3s ease ${0.08 * 5}s,transform 0.3s ease ${0.08 * 5}s,background 0.2s ease;`}
       data-i18n="nav.contactBtn"
     >
@@ -121,6 +120,17 @@ const ctaHref = isHome ? '#contact' : '/#contact';
 <!-- Spacer -->
 <div class="h-20"></div>
 
+<style>
+  /* the frosted pill is the permanent navbar look (not only on scroll) */
+  .navbar-pill {
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 8px 30px rgba(8, 51, 68, 0.10);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+  }
+</style>
+
 <script>
   function initNavbar() {
     const navbar = document.getElementById('navbar');
@@ -128,29 +138,41 @@ const ctaHref = isHome ? '#contact' : '/#contact';
     const toggle = document.getElementById('menu-toggle');
     const menu = document.getElementById('mobile-menu');
     if (!navbar || !pill || !toggle || !menu) return;
+    if (navbar.dataset.navInit === '1') return; // guard against double init (immediate + astro:page-load)
+    navbar.dataset.navInit = '1';
 
     let scrolled = false;
     let menuOpen = false;
+    let lastY = window.scrollY;
+    let hidden = false;
+    navbar.style.transition = 'transform 0.45s cubic-bezier(0.16,1,0.3,1)';
+    navbar.style.willChange = 'transform';
 
-    // Scroll — glassmorphism on pill
+    // Scroll — frosted pill + compact when scrolled, auto-hide on scroll-down / reveal on scroll-up
     function onScroll() {
-      const isScrolled = window.scrollY > 30;
-      if (isScrolled === scrolled) return;
-      scrolled = isScrolled;
+      const y = window.scrollY;
 
-      if (scrolled) {
-        pill.style.background = 'rgba(255,255,255,0.75)';
-        pill.style.borderColor = 'rgba(0,0,0,0.06)';
-        pill.style.boxShadow = '0 4px 30px rgba(0,0,0,0.08)';
-        pill.style.backdropFilter = 'blur(20px)';
-        pill.style.webkitBackdropFilter = 'blur(20px)';
-      } else {
-        pill.style.background = 'transparent';
-        pill.style.borderColor = 'transparent';
-        pill.style.backdropFilter = 'none';
-        pill.style.webkitBackdropFilter = 'none';
-        pill.style.boxShadow = 'none';
+      // frosted pill is permanent (CSS); lift the shadow a touch once scrolled
+      const isScrolled = y > 30;
+      if (isScrolled !== scrolled) {
+        scrolled = isScrolled;
+        pill.style.boxShadow = scrolled
+          ? '0 12px 38px rgba(8,51,68,0.16)'
+          : '0 8px 30px rgba(8,51,68,0.10)';
       }
+
+      // direction-based hide/reveal (skip while the mobile menu is open)
+      if (!menuOpen) {
+        const goingDown = y > lastY;
+        if (goingDown && y > 140 && !hidden) {
+          hidden = true;
+          navbar.style.transform = 'translateY(-130%)';
+        } else if ((!goingDown || y <= 140) && hidden) {
+          hidden = false;
+          navbar.style.transform = 'translateY(0)';
+        }
+      }
+      lastY = y;
     }
 
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -199,6 +221,8 @@ const ctaHref = isHome ? '#contact' : '/#contact';
       toggle.setAttribute('aria-expanded', String(open));
 
       if (open) {
+        hidden = false;
+        navbar.style.transform = 'translateY(0)';
         menu.style.pointerEvents = 'auto';
         menu.style.opacity = '1';
         menu.style.transform = 'scale(1)';

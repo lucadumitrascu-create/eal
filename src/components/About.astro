@@ -58,18 +58,10 @@ const principles = [
 
             <div class="relative flex items-end justify-between">
               <div>
-                {'staticValue' in stat ? (
-                  <span
-                    class="text-5xl lg:text-6xl font-extrabold gradient-text-cyan"
-                    data-i18n={stat.i18nValue}
-                  >{stat.staticValue}</span>
-                ) : (
-                  <span
-                    class="counter-value text-5xl lg:text-6xl font-extrabold gradient-text-cyan"
-                    data-counter={String(stat.value)}
-                    data-counter-suffix={stat.suffix}
-                  >0</span>
-                )}
+                <span
+                  class="text-5xl lg:text-6xl font-extrabold gradient-text-cyan"
+                  data-i18n={stat.i18nValue}
+                >{stat.staticValue}</span>
                 <p class="mt-2 text-sm font-medium uppercase tracking-wider text-[var(--color-text-muted)]" data-i18n={stat.i18nLabel}>{stat.label}</p>
               </div>
               <!-- Progress bar -->
