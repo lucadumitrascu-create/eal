@@ -14,22 +14,44 @@ interface EditResponse {
 
 type Msg =
   | { id: number; role: 'user'; text: string }
-  | { id: number; role: 'assistant'; text: string; applied: number; skipped: number; before?: DesignSpec; undone?: boolean; offline?: boolean }
+  | {
+      id: number;
+      role: 'assistant';
+      text: string;
+      applied: number;
+      skipped: number;
+      before?: DesignSpec; // spec to restore on Undo
+      after?: DesignSpec; // spec to re-apply on Redo
+      live?: DesignSpec; // the exact spec object this turn made live (staleness anchor)
+      undone?: boolean;
+      offline?: boolean;
+    }
   | { id: number; role: 'error'; text: string };
 
 const MAX_MESSAGE = 600; // mirrors the endpoint's MAX_MESSAGE cap
 
 /**
  * Conversational editing panel. The user types a plain-language request; we POST
- * the current spec + message to /api/edit, which returns a NEW spec (the model is
- * untrusted — applyOps validated/skipped its ops server-side). We just swap the
- * editor state to the returned spec and report what landed / what was skipped.
- * Each applied turn carries a `before` snapshot so the last change can be undone.
+ * the current spec + recent turns to /api/edit, which returns a NEW spec (the model
+ * is untrusted — applyOps validated/skipped its ops server-side). We swap the editor
+ * state to the returned spec and report what landed / was skipped.
  *
- * The panel is kept MOUNTED while the builder is open (parent toggles `active`
- * visibility) so the conversation + undo snapshots survive closing/reopening it.
+ * Undo/Redo only act on the MOST RECENT AI change, and only while the live spec is
+ * still the one that change produced (`spec === turn.live`). If the user has edited
+ * the canvas, reset, or switched template since, the affordance hides and the
+ * handlers no-op, so a stale snapshot can never silently clobber newer work.
  */
-export default function AIEditPanel({ spec, active, onApply }: { spec: DesignSpec; active: boolean; onApply: (next: DesignSpec) => void }) {
+export default function AIEditPanel({
+  spec,
+  active,
+  onApply,
+  onClose,
+}: {
+  spec: DesignSpec;
+  active: boolean;
+  onApply: (next: DesignSpec) => DesignSpec | null; // returns the spec actually loaded
+  onClose: () => void;
+}) {
   const t = useT();
   const tn = (key: string, n: number) => t(key).replace('{n}', String(n));
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -40,18 +62,16 @@ export default function AIEditPanel({ spec, active, onApply }: { spec: DesignSpe
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
-  // Always points at the CURRENT spec, so a resolving request can tell whether the
-  // base it was computed from is still live (else the user undid/edited under it).
+  // Always points at the CURRENT spec, so a resolving request / an undo can tell
+  // whether the base it was computed from is still live.
   const specRef = useRef(spec);
   specRef.current = spec;
 
-  // Keep the latest turn in view.
   useEffect(() => {
     const el = scrollRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages, busy]);
 
-  // Move focus into the composer when the panel opens (keyboard / SR users).
   useEffect(() => {
     if (active) inputRef.current?.focus();
   }, [active]);
@@ -59,11 +79,11 @@ export default function AIEditPanel({ spec, active, onApply }: { spec: DesignSpe
   const run = async () => {
     const message = input.trim();
     if (!message || busy) return;
-    const sent = spec; // snapshot: the base we edit + the undo target for this turn
-    // Recent turns (not the message we're about to send) so the model can follow
-    // up on its own clarifying questions ("all of them", "the hero one", ...).
+    const sent = spec; // base we edit + the undo target for this turn
+    // Recent turns for multi-turn context — exclude reverted changes and offline
+    // chatter so the model isn't told about edits that are no longer in the spec.
     const history = messages
-      .filter((m) => m.role === 'user' || m.role === 'assistant')
+      .filter((m) => m.role === 'user' || (m.role === 'assistant' && !m.undone && !m.offline))
       .slice(-8)
       .map((m) => ({ role: m.role, content: m.text }));
     setMessages((m) => [...m, { id: nextId(), role: 'user', text: message }]);
@@ -82,15 +102,14 @@ export default function AIEditPanel({ spec, active, onApply }: { spec: DesignSpe
       }
       const appliedN = Array.isArray(data.applied) ? data.applied.length : 0;
       const skippedN = Array.isArray(data.skipped) ? data.skipped.length : 0;
-      // If the base changed while the request was in flight (the user undid a prior
-      // turn or edited the canvas after closing the panel), the returned spec is
-      // computed from a stale base — don't clobber the newer state.
+      // The base changed under us while the request was in flight (undo / canvas edit
+      // after closing the panel) — the returned spec is stale; don't clobber.
       if (appliedN > 0 && specRef.current !== sent) {
         setMessages((m) => [...m, { id: nextId(), role: 'assistant', text: t('builder.ai.stale'), applied: 0, skipped: 0 }]);
         return;
       }
-      if (appliedN > 0) onApply(data.spec);
-      // The endpoint's fallback replies are English-only and the model sometimes claims
+      const live = appliedN > 0 ? onApply(data.spec) ?? undefined : undefined;
+      // Endpoint fallback replies are English-only, and the model sometimes claims
       // success when nothing landed — pick honest, localized text in those cases.
       const text =
         data.source === 'fallback'
@@ -107,6 +126,8 @@ export default function AIEditPanel({ spec, active, onApply }: { spec: DesignSpe
           applied: appliedN,
           skipped: skippedN,
           before: appliedN > 0 ? sent : undefined,
+          after: appliedN > 0 ? data.spec : undefined,
+          live,
           offline: data.source === 'fallback',
         },
       ]);
@@ -118,24 +139,33 @@ export default function AIEditPanel({ spec, active, onApply }: { spec: DesignSpe
   };
 
   const undo = (m: Extract<Msg, { role: 'assistant' }>) => {
-    if (busy || !m.before) return; // never undo while a request is in flight
-    onApply(m.before);
-    setMessages((arr) => arr.map((x) => (x.id === m.id ? { ...x, undone: true } : x)));
+    if (busy || !m.before || specRef.current !== m.live) return; // stale -> never clobber newer work
+    const live = onApply(m.before) ?? undefined;
+    setMessages((arr) => arr.map((x) => (x.id === m.id ? { ...x, undone: true, live } : x)));
+  };
+  const redo = (m: Extract<Msg, { role: 'assistant' }>) => {
+    if (busy || !m.after || specRef.current !== m.live) return;
+    const live = onApply(m.after) ?? undefined;
+    setMessages((arr) => arr.map((x) => (x.id === m.id ? { ...x, undone: false, live } : x)));
   };
 
-  // Only the most recent still-applied turn can be undone (older snapshots are stale).
-  const lastUndoableId = (() => {
-    for (let i = messages.length - 1; i >= 0; i--) {
-      const m = messages[i];
-      if (m.role === 'assistant' && m.before && !m.undone) return m.id;
-    }
+  // Only the LAST assistant turn is reversible (and only if it actually changed the
+  // spec). A later no-op/clarifying turn retires an older turn's undo/redo.
+  const lastAssistant = (() => {
+    for (let i = messages.length - 1; i >= 0; i--) if (messages[i].role === 'assistant') return messages[i] as Extract<Msg, { role: 'assistant' }>;
     return null;
   })();
+  const changeId = lastAssistant && lastAssistant.before ? lastAssistant.id : null;
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       run();
+    } else if (e.key === 'Escape') {
+      // First Escape blurs the composer (so it doesn't surprise-close the panel
+      // mid-type); a second Escape, now outside the field, closes it via the window handler.
+      e.stopPropagation();
+      e.currentTarget.blur();
     }
   };
 
@@ -146,7 +176,12 @@ export default function AIEditPanel({ spec, active, onApply }: { spec: DesignSpe
         <svg className="h-4 w-4 text-[var(--color-accent)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
           <path strokeLinecap="round" strokeLinejoin="round" d="M5 3l1.2 3L9 7.2 6.2 8.4 5 11.4 3.8 8.4 1 7.2 3.8 6 5 3zM15 8l1.8 4.2L21 14l-4.2 1.8L15 20l-1.8-4.2L9 14l4.2-1.8L15 8z" />
         </svg>
-        <h3 className="text-sm font-semibold text-[var(--color-text)]">{t('builder.ai.title')}</h3>
+        <h3 id="ai-panel-title" className="flex-1 text-sm font-semibold text-[var(--color-text)]">{t('builder.ai.title')}</h3>
+        <button type="button" onClick={onClose} aria-label={t('builder.action.close', 'Close')} className="-mr-1 rounded-md p-1 text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text)]">
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" />
+          </svg>
+        </button>
       </div>
 
       {/* conversation */}
@@ -187,6 +222,7 @@ export default function AIEditPanel({ spec, active, onApply }: { spec: DesignSpe
               </p>
             );
           }
+          const isActive = m.id === changeId && specRef.current === m.live;
           return (
             <div key={m.id} className="flex flex-col items-start gap-1">
               <p className="max-w-[90%] whitespace-pre-wrap break-words rounded-2xl rounded-bl-sm bg-[var(--color-surface-neutral)] px-3 py-2 text-xs leading-snug text-[var(--color-text)]">{m.text}</p>
@@ -198,12 +234,13 @@ export default function AIEditPanel({ spec, active, onApply }: { spec: DesignSpe
                   <span className="text-[10px] text-[var(--color-text-muted)]">{tn('builder.ai.skipped', m.skipped)}</span>
                 )}
                 {m.offline && <span className="text-[10px] text-[var(--color-text-muted)]">{t('builder.ai.offline')}</span>}
-                {m.before && m.id === lastUndoableId && !busy && (
-                  <button type="button" onClick={() => undo(m)} className="text-[10px] font-semibold text-[var(--color-accent)] underline-offset-2 hover:underline">
-                    {t('builder.ai.undo')}
-                  </button>
+                {isActive && !busy && !m.undone && (
+                  <button type="button" onClick={() => undo(m)} className="text-[10px] font-semibold text-[var(--color-accent)] underline-offset-2 hover:underline">{t('builder.ai.undo')}</button>
                 )}
-                {m.undone && <span className="text-[10px] text-[var(--color-text-muted)]">{t('builder.ai.undone')}</span>}
+                {isActive && !busy && m.undone && (
+                  <button type="button" onClick={() => redo(m)} className="text-[10px] font-semibold text-[var(--color-accent)] underline-offset-2 hover:underline">{t('builder.ai.redo')}</button>
+                )}
+                {m.undone && !isActive && <span className="text-[10px] text-[var(--color-text-muted)]">{t('builder.ai.undone')}</span>}
               </div>
             </div>
           );

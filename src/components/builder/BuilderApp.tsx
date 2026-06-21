@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer, useState } from 'react';
+import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import type { DesignSpec, ColorTheme, FontPair, AnimationPreset, ImageRef, SectionDisplay, HeroPos, HeroWidth, HeroVAlign, ButtonStyle } from '../../data/templates';
 import { templates, templateById, themes, fonts } from '../../data/templates';
 import { defaultPresetId } from '../../data/imageLibrary';
@@ -231,7 +231,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
   );
 }
 
-function DesignPopover({ spec, dispatch, t }: { spec: DesignSpec; dispatch: (a: Action) => void; t: (k: string, f?: string) => string }) {
+function DesignPopover({ spec, dispatch, t, onClose }: { spec: DesignSpec; dispatch: (a: Action) => void; t: (k: string, f?: string) => string; onClose: () => void }) {
   const Group = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <div className="mb-4 last:mb-0">
       <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">{title}</h4>
@@ -239,7 +239,10 @@ function DesignPopover({ spec, dispatch, t }: { spec: DesignSpec; dispatch: (a: 
     </div>
   );
   return (
-    <div className="absolute left-0 top-full z-40 mt-2 max-h-[72vh] w-[330px] overflow-y-auto rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.20)]">
+    <div id="design-panel" role="dialog" aria-label={t('builder.action.design', 'Design')} className="absolute left-0 top-full z-40 mt-2 max-h-[72vh] w-[330px] max-w-[calc(100vw-2rem)] overflow-y-auto rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.20)]">
+        <button type="button" onClick={onClose} aria-label={t('builder.action.close', 'Close')} className="absolute right-2 top-2 rounded-md p-1 text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text)]">
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" /></svg>
+        </button>
         <Group title={t('builder.panel.template')}>
           <TemplatePicker current={spec.templateId} onSelect={(id) => dispatch({ type: 'template', id })} />
         </Group>
@@ -276,7 +279,7 @@ function DesignPopover({ spec, dispatch, t }: { spec: DesignSpec; dispatch: (a: 
         <Group title={t('builder.brand.buttons', 'Buttons')}>
           <div className="grid grid-cols-4 gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface-neutral)] p-1">
             {([['solid', 'Solid'], ['outline', 'Outline'], ['pill', 'Pill'], ['underline', 'Line']] as [ButtonStyle, string][]).map(([b, label]) => (
-              <Chip key={b} active={spec.btn === b} onClick={() => dispatch({ type: 'btn', value: b })}>{label}</Chip>
+              <Chip key={b} active={spec.btn === b} onClick={() => dispatch({ type: 'btn', value: b })}>{t(`builder.btn.${b}`, label)}</Chip>
             ))}
           </div>
         </Group>
@@ -301,10 +304,17 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
     return () => clearTimeout(id);
   }, [spec]);
 
-  // Escape closes any open toolbar popover (design / ideas / assistant).
+  // Escape closes any open toolbar popover (design / ideas / assistant) and returns
+  // focus to the trigger that opened it (keyboard / screen-reader users).
+  const triggers = useRef<Record<string, HTMLButtonElement | null>>({});
   useEffect(() => {
     if (!panel) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setPanel(null); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      const trigger = triggers.current[panel];
+      setPanel(null);
+      trigger?.focus();
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [panel]);
@@ -353,8 +363,11 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
         <div className="relative flex items-center gap-2">
           <button
             type="button"
+            ref={(el) => { triggers.current.design = el; }}
             onClick={() => setPanel((p) => (p === 'design' ? null : 'design'))}
             aria-expanded={panel === 'design'}
+            aria-haspopup="dialog"
+            aria-controls="design-panel"
             className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3.5 py-2 text-sm font-semibold text-[var(--color-text)] transition-colors hover:border-[var(--color-border-hover)]"
           >
             <svg className="h-4 w-4 text-[var(--color-text-muted)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -367,8 +380,11 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
           </button>
           <button
             type="button"
+            ref={(el) => { triggers.current.ideas = el; }}
             onClick={() => setPanel((p) => (p === 'ideas' ? null : 'ideas'))}
             aria-expanded={panel === 'ideas'}
+            aria-haspopup="dialog"
+            aria-controls="ideas-panel"
             className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm font-medium text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text)]"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
@@ -378,8 +394,11 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
           </button>
           <button
             type="button"
+            ref={(el) => { triggers.current.ai = el; }}
             onClick={() => setPanel((p) => (p === 'ai' ? null : 'ai'))}
             aria-expanded={panel === 'ai'}
+            aria-haspopup="dialog"
+            aria-controls="ai-panel"
             className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm font-medium text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text)]"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
@@ -387,9 +406,12 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
             </svg>
             {t('builder.action.ai', 'Assistant')}
           </button>
-          {panel === 'design' && <DesignPopover spec={spec} dispatch={dispatch} t={t} />}
+          {panel === 'design' && <DesignPopover spec={spec} dispatch={dispatch} t={t} onClose={() => setPanel(null)} />}
           {panel === 'ideas' && (
-            <div className="absolute left-0 top-full z-40 mt-2 w-[330px] rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.20)]">
+            <div id="ideas-panel" role="dialog" aria-label={t('builder.action.ideas', 'Ideas')} className="absolute left-0 top-full z-40 mt-2 w-[330px] max-w-[calc(100vw-2rem)] rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.20)]">
+                <button type="button" onClick={() => setPanel(null)} aria-label={t('builder.action.close', 'Close')} className="absolute right-2 top-2 rounded-md p-1 text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text)]">
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" /></svg>
+                </button>
                 <IdeasHelper
                   onApply={(slot, value) => dispatch({ type: 'text', sid: 'hero', slot, value })}
                   onApplyAll={(idea, company) => {
@@ -410,13 +432,15 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
           {/* Non-modal: kept mounted (visibility toggled) so the conversation + undo
               snapshots survive closing/reopening — and so you can scroll/edit the
               canvas while it's open. Close via the toggle button or Escape. */}
-          <div className={`absolute left-0 top-full z-40 mt-2 w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] shadow-[0_24px_70px_rgba(0,0,0,0.20)] ${panel === 'ai' ? '' : 'hidden'}`}>
+          <div id="ai-panel" role="dialog" aria-labelledby="ai-panel-title" className={`absolute left-0 top-full z-40 mt-2 w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] shadow-[0_24px_70px_rgba(0,0,0,0.20)] ${panel === 'ai' ? '' : 'hidden'}`}>
             <AIEditPanel
               spec={spec}
               active={panel === 'ai'}
+              onClose={() => setPanel(null)}
               onApply={(next) => {
                 const v = validateSpec(next);
                 if (v) dispatch({ type: 'load', spec: v });
+                return v; // the spec actually loaded (panel uses it as the staleness anchor)
               }}
             />
           </div>

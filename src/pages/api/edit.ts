@@ -90,10 +90,11 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ spec, applied: [], skipped: [], reply: "The AI editor isn't configured right now.", source: 'fallback', reason: 'unconfigured' });
   }
 
-  // 9s < Vercel's 10s serverless wall (matches /api/ideas): a slow model is
-  // aborted and falls back gracefully instead of the platform 504-ing the request.
+  // 25s, well under the function's 60s maxDuration: the 70B model on NVIDIA's free
+  // tier has high, variable cold-start latency, so a 9s wall timed out even trivial
+  // edits. A slow model is still aborted and falls back gracefully (never 504s).
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 9000);
+  const timer = setTimeout(() => ctrl.abort(), 25000);
   try {
     const res = await fetch(NVIDIA_URL, {
       method: 'POST',
@@ -107,14 +108,21 @@ export const POST: APIRoute = async ({ request }) => {
       }),
       signal: ctrl.signal,
     });
-    clearTimeout(timer);
+    // NB: keep `timer` armed across the body read (cleared in finally). fetch resolves
+    // on headers; a stalled body would otherwise hang to the 60s wall with no fallback.
     if (!res.ok) {
       const errBody = await res.text().catch(() => '');
       console.error(`[edit] fallback: nvidia status ${res.status} ${errBody.slice(0, 200)}`);
       return json({ spec, applied: [], skipped: [], reply: "Sorry, I couldn't reach the AI just now.", source: 'fallback', reason: 'upstream' });
     }
 
-    const data = await res.json();
+    let data: any;
+    try {
+      data = await res.json();
+    } catch {
+      console.error('[edit] fallback: upstream 200 with non-JSON body');
+      return json({ spec, applied: [], skipped: [], reply: "Sorry, I couldn't reach the AI just now.", source: 'fallback', reason: 'parse' });
+    }
     const content: string = data?.choices?.[0]?.message?.content ?? '';
     const patch = parseModelPatch(content);
     if (!patch) {
@@ -132,7 +140,6 @@ export const POST: APIRoute = async ({ request }) => {
       source: 'ai',
     });
   } catch (e) {
-    clearTimeout(timer);
     const aborted = e instanceof Error && e.name === 'AbortError';
     console.error(`[edit] fallback: ${aborted ? 'timeout' : 'exception'} ${String(e)}`);
     return json({
@@ -140,6 +147,8 @@ export const POST: APIRoute = async ({ request }) => {
       reply: aborted ? 'The assistant took too long.' : 'Something went wrong applying that.',
       source: 'fallback', reason: aborted ? 'timeout' : 'error',
     });
+  } finally {
+    clearTimeout(timer);
   }
 };
 

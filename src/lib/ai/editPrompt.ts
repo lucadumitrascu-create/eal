@@ -48,6 +48,8 @@ const SYSTEM = [
   'Reply with ONLY valid JSON of the shape {"ops":[...],"reply":STRING}.',
   '',
   'RULES — follow them strictly:',
+  '- The user may write in ANY language (English, Romanian, French, German, Spanish, Italian, ...).',
+  '  Understand the request in that language, and write any new copy AND the "reply" in the SAME language.',
   '- The earlier messages are the conversation so far. The latest user message may be ANSWERING your',
   '  previous clarifying question (e.g. "all of them", "the hero one", "yes") — interpret it in that',
   '  context, then act; do not ask the same question again.',
