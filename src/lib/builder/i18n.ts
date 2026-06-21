@@ -17,9 +17,9 @@ export function translate(lang: Lang, key: string, fallback?: string): string {
 
 /** Tracks the active language and re-renders on change (navbar switch or other tab). */
 export function useLang(): Lang {
-  const [lang, setLang] = useState<Lang>('en');
+  const [lang, setLang] = useState<Lang>(() => currentLang());
   useEffect(() => {
-    setLang(currentLang());
+    setLang(currentLang()); // re-sync in case it changed between init and mount
     const onChange = () => setLang(currentLang());
     window.addEventListener('eal:langchange', onChange as EventListener);
     window.addEventListener('storage', onChange);

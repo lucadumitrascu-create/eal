@@ -2,9 +2,9 @@ import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import type { DesignSpec, ColorTheme, FontPair, AnimationPreset, ImageRef, SectionDisplay, HeroPos, HeroWidth, HeroVAlign, ButtonStyle } from '../../data/templates';
 import { templates, templateById, themes, fonts } from '../../data/templates';
 import { defaultPresetId } from '../../data/imageLibrary';
-import { defaultSpecFromTemplate, validateSpec, defById, sectionFromDef } from '../../lib/builder/spec';
+import { defaultSpecFromTemplate, validateSpec, defById, sectionFromDef, isPristineDefault } from '../../lib/builder/spec';
 import { decodeSpec, encodeSpec } from '../../lib/builder/encode';
-import { useT, currentLang } from '../../lib/builder/i18n';
+import { useT, useLang, currentLang } from '../../lib/builder/i18n';
 import LivePreview, { type EditAPI } from './LivePreview';
 import TemplatePicker from './TemplatePicker';
 import IdeasHelper from './IdeasHelper';
@@ -291,6 +291,7 @@ function DesignPopover({ spec, dispatch, t, onClose }: { spec: DesignSpec; dispa
 
 function Editor({ decoded }: { decoded: DesignSpec | null }) {
   const t = useT();
+  const lang = useLang();
   const [spec, dispatch] = useReducer(reducer, decoded, initSpec);
   const [showSubmit, setShowSubmit] = useState(false);
   const [panel, setPanel] = useState<null | 'design' | 'ideas' | 'ai'>(null);
@@ -305,6 +306,22 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
     }, 400);
     return () => clearTimeout(id);
   }, [spec]);
+
+  // Keep the (un-edited) template content in the site's language: re-localize when
+  // the language changes or on mount if a stale draft is in another language. Only
+  // touches pristine defaults — the user's own edits are never overwritten.
+  const specRef = useRef(spec);
+  specRef.current = spec;
+  useEffect(() => {
+    const cur = specRef.current;
+    const tpl = templateById(cur.templateId);
+    if (!tpl || !isPristineDefault(cur)) return;
+    const target = defaultSpecFromTemplate(tpl, lang);
+    // Already in the current language? (compare canonically — shapes may differ.)
+    if (JSON.stringify(validateSpec(cur)) !== JSON.stringify(validateSpec(target))) {
+      dispatch({ type: 'load', spec: target });
+    }
+  }, [lang]);
 
   // Escape closes any open toolbar popover (design / ideas / assistant) and returns
   // focus to the trigger that opened it (keyboard / screen-reader users).

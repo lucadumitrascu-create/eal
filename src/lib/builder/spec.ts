@@ -176,3 +176,16 @@ export function validateSpec(input: unknown): DesignSpec | null {
     sections,
   };
 }
+
+const ALL_LANGS: Lang[] = ['en', 'ro', 'de', 'fr', 'es', 'it'];
+const canon = (s: DesignSpec | null) => JSON.stringify(validateSpec(s));
+
+/** True if `spec` is still an UNEDITED template default (in any of the 6 languages).
+    Used to decide whether it's safe to re-localize on a site-language change —
+    edited content is never matched, so the user's work is never clobbered. */
+export function isPristineDefault(spec: DesignSpec): boolean {
+  const tpl = templateById(spec.templateId);
+  if (!tpl) return false;
+  const cur = canon(spec);
+  return ALL_LANGS.some((l) => canon(defaultSpecFromTemplate(tpl, l)) === cur);
+}
