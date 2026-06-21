@@ -1,13 +1,14 @@
 import type { APIRoute } from 'astro';
-import { fallbackIdeas } from '../../lib/ai/fallbackIdeas';
+import { fallbackIdeas, type Idea } from '../../lib/ai/fallbackIdeas';
 
 // Make ONLY this route a Vercel serverless function; the rest of the site stays static.
 export const prerender = false;
 
-// Ideas is a one-shot, user-initiated suggestion (not the interactive editor), so it
-// can afford the larger, much more fluent model — the 8B wrote clumsy, ungrammatical
-// non-English copy. On a timeout it falls back to the hand-written localized bank.
-const MODEL = 'meta/llama-3.3-70b-instruct';
+// Quality-first cascade: try the big, fluent model (best grammar); if it's slow or
+// throttled on the free tier, fall to the fast 8B (still business-SPECIFIC copy);
+// only then the hand-written static bank. So the user rarely sees generic offline copy.
+const MODEL_SMART = 'meta/llama-3.3-70b-instruct';
+const MODEL_FAST = 'meta/llama-3.1-8b-instruct';
 const NVIDIA_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
 const LANG_NAMES: Record<string, string> = { en: 'English', ro: 'Romanian', de: 'German', fr: 'French', es: 'Spanish', it: 'Italian' };
 
@@ -26,6 +27,35 @@ function extractJson(text: string): any | null {
     return JSON.parse(m[0]);
   } catch {
     return null;
+  }
+}
+
+/** One model attempt: returns a clamped Idea, or null on slow/throttle/parse failure. */
+async function tryIdeas(key: string, model: string, sys: string, usr: string, timeoutMs: number): Promise<Idea | null> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(NVIDIA_URL, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, messages: [{ role: 'system', content: sys }, { role: 'user', content: usr }], temperature: 0.7, max_tokens: 500 }),
+      signal: ctrl.signal,
+    });
+    if (!res.ok) { console.error(`[ideas] ${model} status ${res.status} ${(await res.text().catch(() => '')).slice(0, 120)}`); return null; }
+    const data = await res.json().catch(() => null);
+    const parsed = extractJson(data?.choices?.[0]?.message?.content ?? '');
+    if (!parsed || !parsed.headline) return null;
+    return {
+      headline: clamp(parsed.headline, 60),
+      subhead: clamp(parsed.subhead, 160),
+      sections: Array.isArray(parsed.sections) ? parsed.sections.slice(0, 3).map((s: any) => ({ title: clamp(s?.title, 40), body: clamp(s?.body, 140) })) : [],
+      cta: clamp(parsed.cta, 24),
+    };
+  } catch (e) {
+    console.error(`[ideas] ${model} ${e instanceof Error && e.name === 'AbortError' ? 'timeout' : 'exception'}`);
+    return null;
+  } finally {
+    clearTimeout(timer);
   }
 }
 
@@ -91,52 +121,11 @@ export const POST: APIRoute = async ({ request }) => {
     'No markdown, no commentary, JSON only.';
   const usr = `Business name: ${company}. Industry / what they do: ${industry || 'general small business'}. Write homepage copy.`;
 
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 25000); // under the 60s function wall; 70B needs more headroom
-  try {
-    const res = await fetch(NVIDIA_URL, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: [
-          { role: 'system', content: sys },
-          { role: 'user', content: usr },
-        ],
-        temperature: 0.7,
-        max_tokens: 500,
-      }),
-      signal: ctrl.signal,
-    });
-    clearTimeout(timer);
-    if (!res.ok) {
-      const errBody = await res.text().catch(() => '');
-      console.error(`[ideas] fallback: nvidia status ${res.status} ${errBody.slice(0, 200)}`);
-      return json({ ...fallbackIdeas(industry, company, lang), source: 'fallback' });
-    }
-
-    const data = await res.json();
-    const content: string = data?.choices?.[0]?.message?.content ?? '';
-    const parsed = extractJson(content);
-    if (!parsed) {
-      console.error(`[ideas] fallback: unparseable model output: ${content.slice(0, 200)}`);
-      return json({ ...fallbackIdeas(industry, company, lang), source: 'fallback' });
-    }
-
-    return json({
-      headline: clamp(parsed.headline, 60),
-      subhead: clamp(parsed.subhead, 160),
-      sections: Array.isArray(parsed.sections)
-        ? parsed.sections.slice(0, 3).map((s: any) => ({ title: clamp(s?.title, 40), body: clamp(s?.body, 140) }))
-        : [],
-      cta: clamp(parsed.cta, 24),
-      source: 'ai',
-    });
-  } catch (e) {
-    clearTimeout(timer);
-    console.error(`[ideas] fallback: exception ${String(e)}`);
-    return json({ ...fallbackIdeas(industry, company, lang), source: 'fallback' });
-  }
+  // 70B (best grammar, ~20s) -> 8B (fast, still specific, ~10s) -> static bank.
+  const ai = (await tryIdeas(key, MODEL_SMART, sys, usr, 20000)) ?? (await tryIdeas(key, MODEL_FAST, sys, usr, 10000));
+  if (ai) return json({ ...ai, source: 'ai' });
+  console.error('[ideas] fallback: both models failed (slow/throttled)');
+  return json({ ...fallbackIdeas(industry, company, lang), source: 'fallback' });
 };
 
 // Reject non-POST verbs cleanly.
