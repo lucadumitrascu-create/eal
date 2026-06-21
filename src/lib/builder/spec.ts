@@ -178,14 +178,45 @@ export function validateSpec(input: unknown): DesignSpec | null {
 }
 
 const ALL_LANGS: Lang[] = ['en', 'ro', 'de', 'fr', 'es', 'it'];
-const canon = (s: DesignSpec | null) => JSON.stringify(validateSpec(s));
 
-/** True if `spec` is still an UNEDITED template default (in any of the 6 languages).
-    Used to decide whether it's safe to re-localize on a site-language change —
-    edited content is never matched, so the user's work is never clobbered. */
-export function isPristineDefault(spec: DesignSpec): boolean {
+/**
+ * Re-localize a spec to `toLang` PER SLOT: each text slot, meta field and image
+ * label whose current value is still the template default (in ANY of the 6
+ * languages — i.e. the user hasn't touched it) is swapped to the `toLang` default;
+ * anything the user actually edited is kept. So switching the site language updates
+ * the untouched copy even after the user has edited some fields. Design choices
+ * (theme/font/animation/layout) and user-added repeated items are left as-is.
+ */
+export function relocalizeSpec(spec: DesignSpec, toLang: Lang): DesignSpec {
   const tpl = templateById(spec.templateId);
-  if (!tpl) return false;
-  const cur = canon(spec);
-  return ALL_LANGS.some((l) => canon(defaultSpecFromTemplate(tpl, l)) === cur);
+  if (!tpl) return spec;
+  // A value is "untouched" if it equals the default in any language → re-localize it.
+  const reloc = (ownerId: string, path: string, source: string, current: string): string =>
+    ALL_LANGS.some((L) => localizedDefault(L, ownerId, path, source) === current)
+      ? localizedDefault(toLang, ownerId, path, source)
+      : current;
+
+  const meta = {
+    siteName: reloc(tpl.id, '__siteName', tpl.defaultSiteName, spec.meta.siteName),
+    tagline: reloc(tpl.id, '__tagline', tpl.defaultTagline, spec.meta.tagline),
+  };
+  const sections = spec.sections.map((sec) => {
+    const def = defById(tpl, sec.id);
+    if (!def) return sec;
+    const ownerId = tpl.sections.some((s) => s.id === sec.id) ? tpl.id : '__universal';
+    const text = { ...sec.text };
+    for (const sl of def.textSlots) {
+      if (sl.id in text) text[sl.id] = reloc(ownerId, `${sec.id}.${sl.id}`, sl.default, text[sl.id]);
+    }
+    const images: Record<string, ImageRef> = {};
+    for (const [k, ref] of Object.entries(sec.images)) {
+      const sl = def.imageSlots.find((s) => s.id === k);
+      if (!sl) { images[k] = ref; continue; }
+      const label = reloc(ownerId, `${sec.id}.${k}.label`, sl.default.label, ref.label);
+      const alt = reloc(ownerId, `${sec.id}.${k}.label`, sl.default.label, ref.alt);
+      images[k] = { ...ref, label, alt };
+    }
+    return { ...sec, text, images };
+  });
+  return { ...spec, meta, sections };
 }

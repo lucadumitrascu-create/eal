@@ -2,7 +2,7 @@ import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import type { DesignSpec, ColorTheme, FontPair, AnimationPreset, ImageRef, SectionDisplay, HeroPos, HeroWidth, HeroVAlign, ButtonStyle } from '../../data/templates';
 import { templates, templateById, themes, fonts } from '../../data/templates';
 import { defaultPresetId } from '../../data/imageLibrary';
-import { defaultSpecFromTemplate, validateSpec, defById, sectionFromDef, isPristineDefault } from '../../lib/builder/spec';
+import { defaultSpecFromTemplate, validateSpec, defById, sectionFromDef, relocalizeSpec } from '../../lib/builder/spec';
 import { decodeSpec, encodeSpec } from '../../lib/builder/encode';
 import { useT, useLang, currentLang } from '../../lib/builder/i18n';
 import LivePreview, { type EditAPI } from './LivePreview';
@@ -307,20 +307,14 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
     return () => clearTimeout(id);
   }, [spec]);
 
-  // Keep the (un-edited) template content in the site's language: re-localize when
-  // the language changes or on mount if a stale draft is in another language. Only
-  // touches pristine defaults — the user's own edits are never overwritten.
+  // Keep the template content in the site's language: when the language changes (or
+  // on mount with a stale-language draft), re-localize PER SLOT — untouched default
+  // copy follows the language; fields the user actually edited are left untouched.
   const specRef = useRef(spec);
   specRef.current = spec;
   useEffect(() => {
-    const cur = specRef.current;
-    const tpl = templateById(cur.templateId);
-    if (!tpl || !isPristineDefault(cur)) return;
-    const target = defaultSpecFromTemplate(tpl, lang);
-    // Already in the current language? (compare canonically — shapes may differ.)
-    if (JSON.stringify(validateSpec(cur)) !== JSON.stringify(validateSpec(target))) {
-      dispatch({ type: 'load', spec: target });
-    }
+    const next = relocalizeSpec(specRef.current, lang);
+    if (JSON.stringify(next) !== JSON.stringify(specRef.current)) dispatch({ type: 'load', spec: next });
   }, [lang]);
 
   // Escape closes any open toolbar popover (design / ideas / assistant) and returns
