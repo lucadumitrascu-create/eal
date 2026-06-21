@@ -4,11 +4,10 @@ import { fallbackIdeas, type Idea } from '../../lib/ai/fallbackIdeas';
 // Make ONLY this route a Vercel serverless function; the rest of the site stays static.
 export const prerender = false;
 
-// Quality-first cascade: try the big, fluent model (best grammar); if it's slow or
-// throttled on the free tier, fall to the fast 8B (still business-SPECIFIC copy);
-// only then the hand-written static bank. So the user rarely sees generic offline copy.
-const MODEL_SMART = 'meta/llama-3.3-70b-instruct';
-const MODEL_FAST = 'meta/llama-3.1-8b-instruct';
+// Llama-4-Maverick is both FAST (~3-5s) and fluent — it replaces the old slow 70B
+// cascade. Fall to the 8B only if Maverick blips, then the hand-written static bank.
+const MODEL_PRIMARY = 'meta/llama-4-maverick-17b-128e-instruct';
+const MODEL_FALLBACK = 'meta/llama-3.1-8b-instruct';
 const NVIDIA_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
 const LANG_NAMES: Record<string, string> = { en: 'English', ro: 'Romanian', de: 'German', fr: 'French', es: 'Spanish', it: 'Italian' };
 
@@ -50,7 +49,7 @@ async function tryIdeas(key: string, model: string, sys: string, usr: string, ti
     const res = await fetch(NVIDIA_URL, {
       method: 'POST',
       headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, messages: [{ role: 'system', content: sys }, { role: 'user', content: usr }], temperature: 0.7, max_tokens: 500 }),
+      body: JSON.stringify({ model, messages: [{ role: 'system', content: sys }, { role: 'user', content: usr }], temperature: 0.7, max_tokens: 500, response_format: { type: 'json_object' } }),
       signal: ctrl.signal,
     });
     if (!res.ok) { console.error(`[ideas] ${model} status ${res.status} ${(await res.text().catch(() => '')).slice(0, 120)}`); return null; }
@@ -136,8 +135,8 @@ export const POST: APIRoute = async ({ request }) => {
     'No markdown, no commentary, JSON only.';
   const usr = `Business name: ${company}. Industry / what they do: ${industry || 'general small business'}. Write homepage copy.`;
 
-  // 70B (best grammar + respects limits, up to 30s) -> 8B (fast fallback, 9s) -> static bank.
-  const ai = (await tryIdeas(key, MODEL_SMART, sys, usr, 30000)) ?? (await tryIdeas(key, MODEL_FAST, sys, usr, 9000));
+  // Maverick (fast + fluent, ~3-5s) -> 8B (fast fallback) -> static bank.
+  const ai = (await tryIdeas(key, MODEL_PRIMARY, sys, usr, 18000)) ?? (await tryIdeas(key, MODEL_FALLBACK, sys, usr, 9000));
   if (ai) return json({ ...ai, source: 'ai' });
   console.error('[ideas] fallback: both models failed (slow/throttled)');
   return json({ ...fallbackIdeas(industry, company, lang), source: 'fallback' });

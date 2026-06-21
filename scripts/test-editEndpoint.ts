@@ -323,7 +323,7 @@ async function run() {
     assert.equal(calls, 2); // 1 fast (fail) + 1 smart (ok)
   });
 
-  await test('all attempts fail (fast + both smart) -> graceful fallback', async () => {
+  await test('all attempts fail (fast + smart) -> graceful fallback', async () => {
     let calls = 0;
     await withMock(
       () => { calls++; return { ok: false, status: 500, text: async () => 'err', json: async () => ({}) }; },
@@ -333,7 +333,7 @@ async function run() {
         assert.equal(body.reason, 'upstream');
       },
     );
-    assert.equal(calls, 3); // 1 fast + 2 smart attempts, then gives up
+    assert.equal(calls, 2); // 1 fast + 1 smart escalation, then gives up
   });
 
   await test('escalates to the smart model only when the fast one emits all-invalid ops', async () => {

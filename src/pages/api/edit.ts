@@ -11,14 +11,17 @@ export const prerender = false;
 // latency and timed out constantly). We escalate to the SMART model ONLY when the
 // fast one fumbled — i.e. it emitted ops but every one was invalid — so simple
 // requests stay fast and only the hard ones the 8B botches pay for a smarter retry.
-const MODEL_FAST = 'meta/llama-3.1-8b-instruct';
+// Llama-4-Maverick (17B-MoE): as fast as the 8B (~1s) but far better at producing
+// COMPLETE, valid ops — benchmarked at sub-1s with 2/2 valid ops vs the 8B's flaky
+// run-to-run output. The 70B stays as the rare-miss escalation.
+const MODEL_FAST = 'meta/llama-4-maverick-17b-128e-instruct';
 const MODEL_SMART = 'meta/llama-3.3-70b-instruct';
 const NVIDIA_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
-const FAST_MS = 13000; // one fast attempt
-const FAST_ATTEMPTS = 1; // the 8B is fast; a blip/garbage just escalates to the smart model
-const SMART_MS = 20000; // per smart attempt
-const SMART_ATTEMPTS = 2; // the 8B is run-to-run unreliable (garbage ids), so give the 70B TWO shots
-// Budget: 1x13s fast + 2x20s smart = 53s < the 60s function maxDuration.
+const FAST_MS = 18000; // Maverick answers simple edits in ~1s; a broad rewrite takes ~10-14s, so give it room
+const FAST_ATTEMPTS = 1;
+const SMART_MS = 26000; // the 70B needs ~24s; this is a RARE escalation (Maverick is reliable)
+const SMART_ATTEMPTS = 1;
+// Budget: 18s fast + 26s smart = 44s < the 60s function maxDuration.
 const MAX_BODY = 24576; // the body includes the whole DesignSpec + recent chat turns
 const MAX_MESSAGE = 600;
 const MAX_HISTORY = 8; // recent turns kept for multi-turn context
