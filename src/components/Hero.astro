@@ -69,7 +69,11 @@
   @keyframes heroIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
   @media (max-width: 640px) {
-    .hero-ring-wrap { width: 92vw; top: 46%; }
+    /* portrait: size the ring to the headline block so it FRAMES it (like the wide
+       desktop layout) instead of shrinking to a small disc behind the text */
+    .hero-ring-wrap { width: 128vw; top: 47%; }
+    .hero-h1 { font-size: clamp(2.2rem, 11vw, 3rem); }
+    .hero-cta-row { margin-top: 1.6rem; }
     .hero-cta-row .hero-btn { flex: 1 1 auto; }
   }
   @media (prefers-reduced-motion: reduce) {
