@@ -499,9 +499,9 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
           <button
             type="button"
             onClick={() => setShowSubmit(true)}
-            className="rounded-lg bg-[var(--color-accent-secondary)] px-4 py-2 text-xs font-semibold text-[#0A0A0A] shadow-sm transition-colors hover:bg-[var(--color-accent-secondary-hover)]"
+            className="btn-amber-glass inline-flex items-center rounded-lg px-4 py-2 text-xs font-semibold"
           >
-            {t('builder.action.submit')}
+            <span className="relative z-[1]">{t('builder.action.submit')}</span>
           </button>
         </div>
       </div>
