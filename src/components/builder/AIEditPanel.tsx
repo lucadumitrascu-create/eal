@@ -260,7 +260,7 @@ export default function AIEditPanel({
       {/* composer */}
       <div className="border-t border-[var(--color-border)] p-3">
         {messages.length > 0 && (
-          <div className="-mt-0.5 mb-2 flex gap-1.5 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="mb-2 flex flex-wrap gap-1.5">
             {EXAMPLES.map((ex) => (
               <button key={ex} type="button" onClick={() => fillExample(ex)} className={CHIP_CLS}>{t(ex)}</button>
             ))}
@@ -278,7 +278,7 @@ export default function AIEditPanel({
           className="w-full resize-none rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm text-[var(--color-text)] outline-none transition-colors focus:border-[var(--color-accent)]"
         />
         <div className="mt-2 flex items-center justify-between">
-          <span className="text-[10px] text-[var(--color-text-muted)]">{input.length > MAX_MESSAGE - 80 ? `${input.length}/${MAX_MESSAGE}` : t('builder.ai.hint')}</span>
+          <span className="text-[10px] text-[var(--color-text-muted)]">{input.length > MAX_MESSAGE - 80 ? `${input.length}/${MAX_MESSAGE}` : ''}</span>
           <button
             type="button"
             onClick={run}
