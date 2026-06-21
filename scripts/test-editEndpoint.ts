@@ -319,6 +319,39 @@ async function run() {
     assert.equal(calls, 2); // one retry, then gives up
   });
 
+  await test('escalates to the smart model only when the fast one emits all-invalid ops', async () => {
+    let fastCalls = 0, smartCalls = 0;
+    await withMock(
+      (_url: any, init: any) => {
+        const model = JSON.parse(init.body).model as string;
+        if (model.includes('70b')) { smartCalls++; return ok(JSON.stringify({ ops: [{ op: 'setTheme', value: 'mono' }], reply: 'fixed' })); }
+        fastCalls++; return ok(JSON.stringify({ ops: [{ op: 'setTheme', value: 'rainbow' }], reply: 'done' })); // invalid -> skipped
+      },
+      async () => {
+        const { body } = await call({ message: 'x', spec: base() });
+        assert.equal(body.source, 'ai');
+        assert.equal(body.spec.theme, 'mono'); // the smart model's valid op landed
+        assert.ok(body.applied.length >= 1);
+      },
+    );
+    assert.ok(fastCalls >= 1 && smartCalls === 1);
+  });
+
+  await test('does NOT escalate when the fast model succeeds (no smart call)', async () => {
+    let smartCalls = 0;
+    await withMock(
+      (_url: any, init: any) => {
+        if ((JSON.parse(init.body).model as string).includes('70b')) smartCalls++;
+        return ok(JSON.stringify({ ops: [{ op: 'setTheme', value: 'mono' }], reply: 'ok' }));
+      },
+      async () => {
+        const { body } = await call({ message: 'x', spec: base() });
+        assert.equal(body.spec.theme, 'mono');
+      },
+    );
+    assert.equal(smartCalls, 0); // fast succeeded -> stayed fast
+  });
+
   await test('fetch throws / aborts -> graceful fallback (never crashes the request)', async () => {
     await withMock(
       () => { throw new Error('aborted'); },
