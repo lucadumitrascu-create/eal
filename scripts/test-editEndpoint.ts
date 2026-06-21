@@ -133,7 +133,7 @@ async function run() {
           { op: 'setTheme', value: 'rainbow' }, // bad enum
           { op: 'deleteEverything' }, // unknown op (malformed)
           { op: 'setText', sectionId: 'hero', slotId: 'headline', value: '<script>alert(1)</script>' }, // valid TEXT (stored as a string, rendered as text)
-          { op: 'setTagline', value: 't'.repeat(200) }, // over maxLen
+          { op: 'setTagline', value: 'word '.repeat(60).trim() }, // over maxLen -> CLAMPED, not skipped
         ],
         reply: 'done',
       }) +
@@ -141,8 +141,9 @@ async function run() {
     const patch = parseModelPatch(out)!;
     const before = base();
     const r = applyOps(before, patch.ops as unknown as EditOp[]);
-    assert.equal(r.skipped.length, 4); // ghost, rainbow, deleteEverything, tagline-too-long
-    assert.equal(r.applied.length, 2); // the two hero headline sets
+    assert.equal(r.skipped.length, 3); // ghost, rainbow, deleteEverything (bad ids/enums still rejected)
+    assert.equal(r.applied.length, 3); // two hero headline sets + the clamped tagline
+    assert.ok(r.next.meta.tagline.length <= 120, 'over-length tagline is clamped, not dropped');
     // headline ends as the literal string (NOT executed markup — it's plain spec text)
     assert.equal(r.next.sections.find((s) => s.id === 'hero')!.text.headline, '<script>alert(1)</script>');
     // structural identity untouched + input not mutated

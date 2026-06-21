@@ -11,7 +11,8 @@
  *  1. `EditOpSchema` (zod) — SHAPE only: the `op` tag + field presence/types,
  *     and `.strict()` so unknown fields are rejected (closed vocabulary).
  *  2. `validateOp(spec, op)` — SEMANTIC, spec-aware: section/slot existence,
- *     slot kind, maxLen, enum membership, toggleable, index range, preset id.
+ *     slot existence, enum membership, toggleable, index range, preset id.
+ *     (Over-length text is NOT rejected here — applyOps clamps it word-aware.)
  *
  * Invalid ops are SKIPPED (never fatal) and reported. Valid-but-no-effect ops
  * (e.g. "move hero first" when it already is) are ALSO skipped with a "no
@@ -86,17 +87,16 @@ export function validateOp(spec: DesignSpec, op: EditOp): OpCheck {
       return FONT_VALUES.includes(op.value) ? OK : fail(`invalid font "${op.value}"`);
     case 'setAnimation':
       return ANIMATION_VALUES.includes(op.value) ? OK : fail(`invalid animation "${op.value}"`);
+    // Over-length text is CLAMPED on apply (word-aware), not rejected — so a model
+    // rewrite that runs a few chars long still lands instead of silently vanishing.
     case 'setSiteName':
-      return op.value.length <= META_MAX.siteName ? OK : fail(`siteName length ${op.value.length} exceeds ${META_MAX.siteName}`);
     case 'setTagline':
-      return op.value.length <= META_MAX.tagline ? OK : fail(`tagline length ${op.value.length} exceeds ${META_MAX.tagline}`);
+      return OK;
 
     case 'setText': {
       const def = sectionDef(spec, tpl.id, op.sectionId);
       if (typeof def === 'string') return fail(def);
-      const slot = def.textSlots.find((sl) => sl.id === op.slotId);
-      if (!slot) return fail(`"${op.slotId}" is not a text slot of section "${op.sectionId}"`);
-      if (op.value.length > slot.maxLen) return fail(`value length ${op.value.length} exceeds slot "${op.slotId}" maxLen ${slot.maxLen}`);
+      if (!def.textSlots.some((sl) => sl.id === op.slotId)) return fail(`"${op.slotId}" is not a text slot of section "${op.sectionId}"`);
       return OK;
     }
 
@@ -112,8 +112,7 @@ export function validateOp(spec: DesignSpec, op: EditOp): OpCheck {
       const def = sectionDef(spec, tpl.id, op.sectionId);
       if (typeof def === 'string') return fail(def);
       if (!def.imageSlots.some((sl) => sl.id === op.slotId)) return fail(`"${op.slotId}" is not an image slot of section "${op.sectionId}"`);
-      if (op.label.length > IMAGE_LABEL_MAX) return fail(`image label length ${op.label.length} exceeds ${IMAGE_LABEL_MAX}`);
-      return OK;
+      return OK; // label is clamped on apply, not rejected
     }
 
     case 'toggleSection': {
@@ -150,6 +149,23 @@ function defaultImageRef(spec: DesignSpec, sectionId: string, slotId: string): I
   return slot ? { ...slot.default } : { presetId: '', label: '', alt: '' };
 }
 
+/** The maxLen of a text slot, via the template/universal catalog. */
+function textSlotMax(spec: DesignSpec, sectionId: string, slotId: string): number | undefined {
+  const tpl = templateById(spec.templateId);
+  return tpl ? defById(tpl, sectionId)?.textSlots.find((sl) => sl.id === slotId)?.maxLen : undefined;
+}
+
+/** Cap to `max` WITHOUT cutting mid-word: prefer the last sentence end, else the
+    last word boundary, then tidy trailing punctuation. */
+function clampWords(s: string, max: number): string {
+  if (s.length <= max) return s;
+  const head = s.slice(0, max);
+  const sentence = Math.max(head.lastIndexOf('. '), head.lastIndexOf('! '), head.lastIndexOf('? '));
+  if (sentence > max * 0.5) return head.slice(0, sentence + 1).trimEnd();
+  const word = head.lastIndexOf(' ');
+  return (word > max * 0.5 ? head.slice(0, word) : head).replace(/[\s,;:.–—-]+$/, '');
+}
+
 /* ── Pure, immutable application of a single (already-validated) op.
       Returns the SAME spec reference when the op changes nothing (no-op), so
       callers can drop it from `applied` and avoid empty history steps. ── */
@@ -161,15 +177,22 @@ function applyOne(spec: DesignSpec, op: EditOp): DesignSpec {
       return spec.font === op.value ? spec : { ...spec, font: op.value };
     case 'setAnimation':
       return spec.animation === op.value ? spec : { ...spec, animation: op.value };
-    case 'setSiteName':
-      return spec.meta.siteName === op.value ? spec : { ...spec, meta: { ...spec.meta, siteName: op.value } };
-    case 'setTagline':
-      return spec.meta.tagline === op.value ? spec : { ...spec, meta: { ...spec.meta, tagline: op.value } };
+    case 'setSiteName': {
+      const v = clampWords(op.value, META_MAX.siteName);
+      return spec.meta.siteName === v ? spec : { ...spec, meta: { ...spec.meta, siteName: v } };
+    }
+    case 'setTagline': {
+      const v = clampWords(op.value, META_MAX.tagline);
+      return spec.meta.tagline === v ? spec : { ...spec, meta: { ...spec.meta, tagline: v } };
+    }
 
     case 'setText': {
       const sec = spec.sections.find((s) => s.id === op.sectionId);
-      if (!sec || sec.text[op.slotId] === op.value) return spec;
-      return { ...spec, sections: spec.sections.map((s) => (s.id === op.sectionId ? { ...s, text: { ...s.text, [op.slotId]: op.value } } : s)) };
+      if (!sec) return spec;
+      const max = textSlotMax(spec, op.sectionId, op.slotId);
+      const v = max != null ? clampWords(op.value, max) : op.value;
+      if (sec.text[op.slotId] === v) return spec;
+      return { ...spec, sections: spec.sections.map((s) => (s.id === op.sectionId ? { ...s, text: { ...s.text, [op.slotId]: v } } : s)) };
     }
 
     case 'setImagePreset': {
@@ -183,9 +206,10 @@ function applyOne(spec: DesignSpec, op: EditOp): DesignSpec {
     case 'setImageDesc': {
       const sec = spec.sections.find((s) => s.id === op.sectionId);
       if (!sec) return spec;
+      const v = clampWords(op.label, IMAGE_LABEL_MAX);
       const cur = sec.images[op.slotId] ?? defaultImageRef(spec, op.sectionId, op.slotId);
-      if (cur.label === op.label && cur.alt === op.label && sec.images[op.slotId]) return spec;
-      return { ...spec, sections: spec.sections.map((s) => (s.id === op.sectionId ? { ...s, images: { ...s.images, [op.slotId]: { ...cur, label: op.label, alt: op.label } } } : s)) };
+      if (cur.label === v && cur.alt === v && sec.images[op.slotId]) return spec;
+      return { ...spec, sections: spec.sections.map((s) => (s.id === op.sectionId ? { ...s, images: { ...s.images, [op.slotId]: { ...cur, label: v, alt: v } } } : s)) };
     }
 
     case 'toggleSection': {

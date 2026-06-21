@@ -90,11 +90,15 @@ test('rejects setText to a nonexistent slot', () => {
   assert.match(r.skipped[0].reason, /not a text slot/);
 });
 
-test('rejects setText over slot maxLen', () => {
-  const tooLong = 'x'.repeat(200); // hero.headline maxLen is 64
-  const r = applyOps(base(), [{ op: 'setText', sectionId: 'hero', slotId: 'headline', value: tooLong }]);
-  assert.equal(r.applied.length, 0);
-  assert.match(r.skipped[0].reason, /exceeds slot/);
+test('clamps setText over slot maxLen (applies, word-aware, not rejected)', () => {
+  const words = 'alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike november'; // >64, no punctuation
+  const r = applyOps(base(), [{ op: 'setText', sectionId: 'hero', slotId: 'headline', value: words }]);
+  assert.equal(r.applied.length, 1);
+  assert.equal(r.skipped.length, 0);
+  const v = r.next.sections.find((s) => s.id === 'hero')!.text.headline;
+  assert.ok(v.length > 0 && v.length <= 64, `length ${v.length} should be in (0, 64]`);
+  assert.ok(words.startsWith(v), 'clamped value is a prefix of the original');
+  assert.equal(words[v.length], ' '); // cut at a word boundary, never mid-word
 });
 
 test('rejects setTheme to an invalid enum', () => {
@@ -233,26 +237,28 @@ test('applies a valid setImageDesc (sets label + alt)', () => {
   assert.equal(media.alt, 'A bowl of fresh tagliatelle');
 });
 
-test('rejects setImageDesc over the label max + on a non-image slot', () => {
+test('clamps setImageDesc over the label max; still rejects a non-image slot', () => {
   const r = applyOps(base(), [
-    { op: 'setImageDesc', sectionId: 'hero', slotId: 'media', label: 'x'.repeat(80) },
+    { op: 'setImageDesc', sectionId: 'hero', slotId: 'media', label: 'long words one two three four five six seven eight nine ten eleven twelve' },
     { op: 'setImageDesc', sectionId: 'features', slotId: 'title', label: 'nope' },
   ]);
-  assert.equal(r.applied.length, 0);
-  assert.match(r.skipped[0].reason, /exceeds/);
-  assert.match(r.skipped[1].reason, /not an image slot/);
+  assert.equal(r.applied.length, 1); // hero label clamped + applied
+  assert.equal(r.next.sections.find((s) => s.id === 'hero')!.images.media.label.length <= 60, true);
+  assert.equal(r.skipped.length, 1);
+  assert.match(r.skipped[0].reason, /not an image slot/);
 });
 
-console.log('meta length rejection + ghost-section guard');
+console.log('meta length clamping + ghost-section guard');
 
-test('rejects setSiteName > 60 and setTagline > 120', () => {
+test('clamps setSiteName > 60 and setTagline > 120 (applies, not rejected)', () => {
   const r = applyOps(base(), [
-    { op: 'setSiteName', value: 'n'.repeat(61) },
-    { op: 'setTagline', value: 't'.repeat(121) },
+    { op: 'setSiteName', value: 'alpha bravo charlie delta echo foxtrot golf hotel india juliet kilo lima mike' },
+    { op: 'setTagline', value: 'one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty twentyone' },
   ]);
-  assert.equal(r.applied.length, 0);
-  assert.match(r.skipped[0].reason, /siteName length/);
-  assert.match(r.skipped[1].reason, /tagline length/);
+  assert.equal(r.applied.length, 2);
+  assert.equal(r.skipped.length, 0);
+  assert.ok(r.next.meta.siteName.length <= 60, `siteName ${r.next.meta.siteName.length}`);
+  assert.ok(r.next.meta.tagline.length <= 120, `tagline ${r.next.meta.tagline.length}`);
 });
 
 test('rejects reorder of a section that exists in the spec but not the template', () => {
