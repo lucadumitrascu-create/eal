@@ -185,8 +185,8 @@ const ALL_LANGS: Lang[] = ['en', 'ro', 'de', 'fr', 'es', 'it'];
 // the React i18n module. The two lists must stay in sync.
 const ADD_DEFAULTS: Record<Lang, string>[] = [
   { en: 'New product', ro: 'Produs nou', de: 'Neues Produkt', fr: 'Nouveau produit', es: 'Nuevo producto', it: 'Nuovo prodotto' },
-  { en: 'New image', ro: 'Imagine noua', de: 'Neues Bild', fr: 'Nouvelle image', es: 'Nueva imagen', it: 'Nuova immagine' },
-  { en: 'Learn more', ro: 'Afla mai multe', de: 'Mehr erfahren', fr: 'En savoir plus', es: 'Saber mas', it: 'Scopri di piu' },
+  { en: 'New image', ro: 'Imagine nouă', de: 'Neues Bild', fr: 'Nouvelle image', es: 'Nueva imagen', it: 'Nuova immagine' },
+  { en: 'Learn more', ro: 'Află mai multe', de: 'Mehr erfahren', fr: 'En savoir plus', es: 'Saber más', it: 'Scopri di più' },
 ];
 
 /**

@@ -51,8 +51,8 @@ const SYSTEM = [
   '',
   'RULES — follow them strictly:',
   '- The user may write in ANY language (English, Romanian, French, German, Spanish, Italian, ...).',
-  '  Understand the request in that language, and write any new copy AND the "reply" in the SAME language,',
-  '  using plain ASCII letters (no accents/diacritics) to stay consistent with the rest of the site.',
+  '  Understand the request in that language, and write any new copy AND the "reply" in the SAME language —',
+  '  natural, fluent and grammatically correct, WITH proper diacritics (like a native, not a literal translation).',
   '- The earlier messages are the conversation so far. The latest user message may be ANSWERING your',
   '  previous clarifying question (e.g. "all of them", "the hero one", "yes") — interpret it in that',
   '  context, then act; do not ask the same question again.',
@@ -81,7 +81,7 @@ export function buildEditMessages(spec: DesignSpec, message: string, history: Ch
   // typed in): a terse/English instruction on a Romanian site must still yield Romanian.
   const langRule =
     name && lang !== 'en'
-      ? `\n\nLANGUAGE: the site is in ${name}. Write ALL new copy AND the reply in ${name} — matching the language of the existing copy above — using plain ASCII letters (no accents/diacritics), regardless of which language this request is written in, unless it explicitly asks to translate.`
+      ? `\n\nLANGUAGE: the site is in ${name}. Write ALL new copy AND the reply in natural, grammatically-correct ${name} WITH proper diacritics — matching the language of the existing copy above — regardless of which language this request is written in, unless it explicitly asks to translate.`
       : '';
   return [
     { role: 'system', content: SYSTEM },

@@ -4,7 +4,10 @@ import { fallbackIdeas } from '../../lib/ai/fallbackIdeas';
 // Make ONLY this route a Vercel serverless function; the rest of the site stays static.
 export const prerender = false;
 
-const MODEL = 'meta/llama-3.1-8b-instruct';
+// Ideas is a one-shot, user-initiated suggestion (not the interactive editor), so it
+// can afford the larger, much more fluent model — the 8B wrote clumsy, ungrammatical
+// non-English copy. On a timeout it falls back to the hand-written localized bank.
+const MODEL = 'meta/llama-3.3-70b-instruct';
 const NVIDIA_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
 const LANG_NAMES: Record<string, string> = { en: 'English', ro: 'Romanian', de: 'German', fr: 'French', es: 'Spanish', it: 'Italian' };
 
@@ -84,12 +87,12 @@ export const POST: APIRoute = async ({ request }) => {
     '{"headline":string,"subhead":string,"sections":[{"title":string,"body":string}],"cta":string}. ' +
     'Limits: headline <= 60 chars, subhead <= 160, exactly 3 sections (title <= 40, body <= 140), cta <= 24. ' +
     `Tone: ${tone}. ` +
-    (lang === 'en' ? '' : `Write ALL copy in ${LANG_NAMES[lang]}, using plain ASCII letters only (no accents/diacritics). `) +
+    (lang === 'en' ? '' : `Write ALL copy in natural, fluent, grammatically-correct ${LANG_NAMES[lang]} with proper diacritics — like a native marketing copywriter, not a literal translation. `) +
     'No markdown, no commentary, JSON only.';
   const usr = `Business name: ${company}. Industry / what they do: ${industry || 'general small business'}. Write homepage copy.`;
 
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 9000);
+  const timer = setTimeout(() => ctrl.abort(), 25000); // under the 60s function wall; 70B needs more headroom
   try {
     const res = await fetch(NVIDIA_URL, {
       method: 'POST',
