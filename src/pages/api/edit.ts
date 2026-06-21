@@ -22,7 +22,14 @@ const json = (obj: unknown, status = 200) =>
 const clamp = (v: unknown, n: number) => String(v ?? '').slice(0, n);
 
 function getKey(): string | undefined {
-  const fromImport = (import.meta as any)?.env?.NVIDIA_API_KEY;
+  let fromImport: string | undefined;
+  try {
+    // STATIC member access so Vite can inline it at build/dev time. A dynamic form
+    // like (import.meta as any).env.X is rejected by Vite's dev module runner.
+    fromImport = import.meta.env.NVIDIA_API_KEY as string | undefined;
+  } catch {
+    fromImport = undefined; // e.g. the tsx test harness, where import.meta.env is absent
+  }
   const fromProcess = typeof process !== 'undefined' ? process.env?.NVIDIA_API_KEY : undefined;
   return fromImport || fromProcess;
 }

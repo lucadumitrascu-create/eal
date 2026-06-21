@@ -8,6 +8,7 @@ import { useT } from '../../lib/builder/i18n';
 import LivePreview, { type EditAPI } from './LivePreview';
 import TemplatePicker from './TemplatePicker';
 import IdeasHelper from './IdeasHelper';
+import AIEditPanel from './AIEditPanel';
 import SubmitDialog from './SubmitDialog';
 
 const THEME_ORDER: ColorTheme[] = ['cyan', 'warm', 'indigo', 'mono', 'dark', 'vivid', 'rose', 'teal', 'sky'];
@@ -290,7 +291,7 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
   const t = useT();
   const [spec, dispatch] = useReducer(reducer, decoded, initSpec);
   const [showSubmit, setShowSubmit] = useState(false);
-  const [panel, setPanel] = useState<null | 'design' | 'ideas'>(null);
+  const [panel, setPanel] = useState<null | 'design' | 'ideas' | 'ai'>(null);
 
   useEffect(() => {
     const id = setTimeout(() => {
@@ -302,6 +303,14 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
     }, 400);
     return () => clearTimeout(id);
   }, [spec]);
+
+  // Escape closes any open toolbar popover (design / ideas / assistant).
+  useEffect(() => {
+    if (!panel) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setPanel(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [panel]);
 
   const tpl = templateById(spec.templateId);
   const edit: EditAPI = {
@@ -370,6 +379,17 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
             </svg>
             {t('builder.action.ideas', 'Ideas')}
           </button>
+          <button
+            type="button"
+            onClick={() => setPanel((p) => (p === 'ai' ? null : 'ai'))}
+            aria-expanded={panel === 'ai'}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm font-medium text-[var(--color-text-muted)] transition-colors hover:text-[var(--color-text)]"
+          >
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 3l1.2 3L9 7.2 6.2 8.4 5 11.4 3.8 8.4 1 7.2 3.8 6 5 3zM15 8l1.8 4.2L21 14l-4.2 1.8L15 20l-1.8-4.2L9 14l4.2-1.8L15 8z" />
+            </svg>
+            {t('builder.action.ai', 'Assistant')}
+          </button>
           {panel === 'design' && <DesignPopover spec={spec} dispatch={dispatch} t={t} onClose={() => setPanel(null)} />}
           {panel === 'ideas' && (
             <>
@@ -393,6 +413,19 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
               </div>
             </>
           )}
+          {/* Kept mounted (visibility toggled) so the conversation + undo snapshots
+              survive closing/reopening the panel and editing on the canvas. */}
+          {panel === 'ai' && <div className="fixed inset-0 z-30" onClick={() => setPanel(null)} aria-hidden="true" />}
+          <div className={`absolute left-0 top-full z-40 mt-2 w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] shadow-[0_24px_70px_rgba(0,0,0,0.20)] ${panel === 'ai' ? '' : 'hidden'}`}>
+            <AIEditPanel
+              spec={spec}
+              active={panel === 'ai'}
+              onApply={(next) => {
+                const v = validateSpec(next);
+                if (v) dispatch({ type: 'load', spec: v });
+              }}
+            />
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <a
