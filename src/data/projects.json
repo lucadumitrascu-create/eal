@@ -1,9 +1,61 @@
 [
   {
+    "id": "il-rione",
+    "title": "Il Rione",
+    "description": "Authentic Neapolitan pizzeria in Vienna — founder story, menu, and gallery.",
+    "tech": [
+      "Next.js",
+      "Tailwind CSS"
+    ],
+    "url": "https://rione-demo.ealenterprises.com",
+    "image": "/images/projects/il-rione.webp",
+    "featured": true
+  },
+  {
+    "id": "baumgartner-holzbau",
+    "title": "Baumgartner Holzbau",
+    "description": "Editorial site for an Austrian timber-construction firm, established 1978.",
+    "tech": [
+      "Next.js",
+      "Tailwind CSS"
+    ],
+    "url": "https://bg-demo.ealenterprises.com",
+    "image": "/images/projects/baumgartner-holzbau.webp",
+    "featured": true
+  },
+  {
+    "id": "elektro-schweitzer",
+    "title": "Elektro Schweitzer",
+    "description": "Master electrician in Burgenland — three generations since 1974.",
+    "tech": [
+      "Next.js",
+      "Tailwind CSS"
+    ],
+    "url": "https://elektro-demo.ealenterprises.com",
+    "image": "/images/projects/elektro-schweitzer.webp",
+    "featured": true
+  },
+  {
+    "id": "independent-plumbing",
+    "title": "Independent Plumbing",
+    "description": "Bold one-page site for an independent plumber in Phoenix, Arizona.",
+    "tech": [
+      "Next.js",
+      "Tailwind CSS"
+    ],
+    "url": "https://caleb-demo.ealenterprises.com",
+    "image": "/images/projects/independent-plumbing.webp",
+    "featured": true
+  },
+  {
     "id": "solbotpro",
     "title": "SOLbot Pro",
     "description": "Trading toolkit for the Solana blockchain.",
-    "tech": ["React", "Web3", "Solana"],
+    "tech": [
+      "React",
+      "Web3",
+      "Solana"
+    ],
     "url": "https://solbotpro.com",
     "image": "/images/projects/solbotpro.webp",
     "featured": true
@@ -12,8 +64,12 @@
     "id": "georgio-portfolio",
     "title": "Georgio Portfolio",
     "description": "Personal portfolio with modern design and fluid animations.",
-    "tech": ["HTML", "CSS", "JavaScript"],
-    "url": "https://georgio-portofoglio.vercel.app",
+    "tech": [
+      "HTML",
+      "CSS",
+      "JavaScript"
+    ],
+    "url": "https://georgio-demo.ealenterprises.com",
     "image": "/images/projects/georgio-portfolio.webp",
     "featured": true
   },
@@ -21,7 +77,10 @@
     "id": "transport-services",
     "title": "Transport Services",
     "description": "Presentation website for a transport company in Austria.",
-    "tech": ["Astro", "Tailwind CSS"],
+    "tech": [
+      "Astro",
+      "Tailwind CSS"
+    ],
     "url": "https://transportservices.at/",
     "image": "/images/projects/transport-services.webp",
     "featured": true
@@ -30,7 +89,10 @@
     "id": "adricut",
     "title": "Adricut",
     "description": "Custom personalization studio — laser engraving, custom mugs & t-shirts, 3D printing, and vinyl.",
-    "tech": ["Next.js", "React"],
+    "tech": [
+      "Next.js",
+      "React"
+    ],
     "url": "https://adricut.com",
     "image": "/images/projects/adricut.webp",
     "featured": true
