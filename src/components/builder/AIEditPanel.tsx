@@ -83,12 +83,18 @@ export default function AIEditPanel({ spec, active, onApply }: { spec: DesignSpe
         return;
       }
       if (appliedN > 0) onApply(data.spec);
+      // Don't trust the model's reply when nothing landed — it tends to claim success
+      // ("Your site now says X") even though every op it emitted was invalid/skipped.
+      const text =
+        appliedN === 0 && skippedN > 0
+          ? t('builder.ai.failed')
+          : data.reply || (appliedN > 0 ? t('builder.ai.done') : t('builder.ai.nochange'));
       setMessages((m) => [
         ...m,
         {
           id: nextId(),
           role: 'assistant',
-          text: data.reply || (appliedN > 0 ? t('builder.ai.done') : t('builder.ai.nochange')),
+          text,
           applied: appliedN,
           skipped: skippedN,
           before: appliedN > 0 ? sent : undefined,
@@ -179,7 +185,7 @@ export default function AIEditPanel({ spec, active, onApply }: { spec: DesignSpe
                 {m.applied > 0 && (
                   <span className="rounded bg-[var(--color-accent-light)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-accent)]">{tn('builder.ai.applied', m.applied)}</span>
                 )}
-                {m.skipped > 0 && (
+                {m.skipped > 0 && m.applied > 0 && (
                   <span className="text-[10px] text-[var(--color-text-muted)]">{tn('builder.ai.skipped', m.skipped)}</span>
                 )}
                 {m.offline && <span className="text-[10px] text-[var(--color-text-muted)]">{t('builder.ai.offline')}</span>}

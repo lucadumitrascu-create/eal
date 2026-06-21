@@ -6,9 +6,11 @@ import { buildEditMessages, parseModelPatch } from '../../lib/ai/editPrompt';
 // Make ONLY this route a Vercel serverless function; the rest of the site stays static.
 export const prerender = false;
 
-// Op-generation accuracy improves a lot with a larger model (e.g.
-// meta/llama-3.3-70b-instruct or nvidia/llama-3.1-nemotron-70b-instruct) — one-line swap.
-const MODEL = 'meta/llama-3.1-8b-instruct';
+// A larger model is far more accurate at picking valid section/slot ids and at
+// declining ambiguous requests (the 8B sprayed dozens of invalid ops). 70B fits
+// the 9s Vercel budget; 405B is more accurate but risks timing out. Alternatives:
+// nvidia/llama-3.1-nemotron-70b-instruct, meta/llama-3.1-8b-instruct (fast/cheap).
+const MODEL = 'meta/llama-3.3-70b-instruct';
 const NVIDIA_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
 const MAX_BODY = 16384; // the body includes the whole DesignSpec
 const MAX_MESSAGE = 600;
