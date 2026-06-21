@@ -91,12 +91,11 @@ const ctaHref = isHome ? '#contact' : '/#contact';
   </nav>
 </header>
 
-<!-- Mobile menu — scale from center.
-     MUST live OUTSIDE <header>: the navbar script applies `transform` +
-     `will-change: transform` to #navbar for the scroll hide/reveal, and a
-     transformed ancestor becomes the containing block for any position:fixed
-     descendant. Inside the header this overlay would size to the header box
-     (small, top) instead of the viewport, letting the hero show through. -->
+<!-- Mobile menu — MUST live OUTSIDE <header>: the navbar sets transform + will-change
+     (for its hide/reveal-on-scroll animation), which makes it the containing block for
+     any position:fixed descendant. Nested here, this overlay was sized to the 68px
+     navbar instead of the viewport, so the links overflowed off-screen. As a sibling it
+     is fixed to the viewport. -->
 <div
   id="mobile-menu"
   class="fixed inset-0 bg-white/95 backdrop-blur-xl z-40 flex flex-col items-center justify-center gap-8 pointer-events-auto md:hidden"

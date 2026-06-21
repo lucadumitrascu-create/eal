@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { DesignSpec } from '../../data/templates';
-import { useT } from '../../lib/builder/i18n';
+import { useT, useLang } from '../../lib/builder/i18n';
 
 /** Response shape of POST /api/edit (the spec is already validated server-side). */
 interface EditResponse {
@@ -29,6 +29,8 @@ type Msg =
   | { id: number; role: 'error'; text: string };
 
 const MAX_MESSAGE = 600; // mirrors the endpoint's MAX_MESSAGE cap
+const EXAMPLES = ['builder.ai.ex1', 'builder.ai.ex2', 'builder.ai.ex3', 'builder.ai.ex4', 'builder.ai.ex5', 'builder.ai.ex6', 'builder.ai.ex7', 'builder.ai.ex8'];
+const CHIP_CLS = 'shrink-0 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-neutral)] px-2.5 py-1 text-[11px] text-[var(--color-text-muted)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text)]';
 
 /**
  * Conversational editing panel. The user types a plain-language request; we POST
@@ -53,6 +55,7 @@ export default function AIEditPanel({
   onClose: () => void;
 }) {
   const t = useT();
+  const lang = useLang();
   const tn = (key: string, n: number) => t(key).replace('{n}', String(n));
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
@@ -101,7 +104,7 @@ export default function AIEditPanel({
       const res = await fetch('/api/edit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, spec: sent, history }),
+        body: JSON.stringify({ message, spec: sent, history, lang }),
       });
       const data = (await res.json().catch(() => null)) as EditResponse | null;
       if (!res.ok || !data || !data.spec) {
@@ -124,7 +127,9 @@ export default function AIEditPanel({
           ? t(data.reason === 'timeout' ? 'builder.ai.timeout' : 'builder.ai.error')
           : appliedN === 0 && skippedN > 0
             ? t('builder.ai.failed')
-            : data.reply || (appliedN > 0 ? t('builder.ai.done') : t('builder.ai.nochange'));
+            : appliedN > 0
+              ? t('builder.ai.done') // localized + clean — the small model's own reply can be garbled
+              : data.reply || t('builder.ai.nochange'); // a clarifying question keeps the model's words
       setMessages((m) => [
         ...m,
         {
@@ -165,6 +170,8 @@ export default function AIEditPanel({
   })();
   const changeId = lastAssistant && lastAssistant.before ? lastAssistant.id : null;
 
+  const fillExample = (key: string) => { setInput(t(key)); inputRef.current?.focus(); };
+
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -198,15 +205,8 @@ export default function AIEditPanel({
           <div className="space-y-2.5">
             <p className="text-xs leading-relaxed text-[var(--color-text-muted)]">{t('builder.ai.desc')}</p>
             <div className="flex flex-wrap gap-1.5">
-              {['builder.ai.ex1', 'builder.ai.ex2', 'builder.ai.ex3'].map((ex) => (
-                <button
-                  key={ex}
-                  type="button"
-                  onClick={() => { setInput(t(ex)); inputRef.current?.focus(); }}
-                  className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface-neutral)] px-2.5 py-1 text-[11px] text-[var(--color-text-muted)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text)]"
-                >
-                  {t(ex)}
-                </button>
+              {EXAMPLES.map((ex) => (
+                <button key={ex} type="button" onClick={() => fillExample(ex)} className={CHIP_CLS}>{t(ex)}</button>
               ))}
             </div>
           </div>
@@ -238,9 +238,6 @@ export default function AIEditPanel({
                 {m.applied > 0 && (
                   <span className="rounded bg-[var(--color-accent-light)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-accent)]">{tn('builder.ai.applied', m.applied)}</span>
                 )}
-                {m.skipped > 0 && m.applied > 0 && (
-                  <span className="text-[10px] text-[var(--color-text-muted)]">{tn('builder.ai.skipped', m.skipped)}</span>
-                )}
                 {m.offline && <span className="text-[10px] text-[var(--color-text-muted)]">{t('builder.ai.offline')}</span>}
                 {isActive && !busy && !m.undone && (
                   <button type="button" onClick={() => undo(m)} className="text-[10px] font-semibold text-[var(--color-accent)] underline-offset-2 hover:underline">{t('builder.ai.undo')}</button>
@@ -261,6 +258,13 @@ export default function AIEditPanel({
 
       {/* composer */}
       <div className="border-t border-[var(--color-border)] p-3">
+        {messages.length > 0 && (
+          <div className="mb-2 flex flex-wrap gap-1.5">
+            {EXAMPLES.map((ex) => (
+              <button key={ex} type="button" onClick={() => fillExample(ex)} className={CHIP_CLS}>{t(ex)}</button>
+            ))}
+          </div>
+        )}
         <textarea
           ref={inputRef}
           value={input}
@@ -273,7 +277,7 @@ export default function AIEditPanel({
           className="w-full resize-none rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-2 text-sm text-[var(--color-text)] outline-none transition-colors focus:border-[var(--color-accent)]"
         />
         <div className="mt-2 flex items-center justify-between">
-          <span className="text-[10px] text-[var(--color-text-muted)]">{input.length > MAX_MESSAGE - 80 ? `${input.length}/${MAX_MESSAGE}` : t('builder.ai.hint')}</span>
+          <span className="text-[10px] text-[var(--color-text-muted)]">{input.length > MAX_MESSAGE - 80 ? `${input.length}/${MAX_MESSAGE}` : ''}</span>
           <button
             type="button"
             onClick={run}

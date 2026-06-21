@@ -59,6 +59,13 @@ async function run() {
     assert.equal(buildEditMessages(base(), 'hi').length, 2);
   });
 
+  await test('buildEditMessages makes the SITE language authoritative for non-English', () => {
+    const en = buildEditMessages(base(), 'shorter');
+    assert.ok(!en[en.length - 1].content.includes('LANGUAGE:'), 'EN should not force a language');
+    const ro = buildEditMessages(base(), 'shorter', [], 'ro');
+    assert.ok(ro[ro.length - 1].content.includes('Romanian'), 'RO directive missing');
+  });
+
   await test('specSummary exposes section ids, toggleable flags, slot maxLens + current values', () => {
     const s = specSummary(base());
     assert.ok(s.includes('template "restaurant"'));
@@ -126,7 +133,7 @@ async function run() {
           { op: 'setTheme', value: 'rainbow' }, // bad enum
           { op: 'deleteEverything' }, // unknown op (malformed)
           { op: 'setText', sectionId: 'hero', slotId: 'headline', value: '<script>alert(1)</script>' }, // valid TEXT (stored as a string, rendered as text)
-          { op: 'setTagline', value: 't'.repeat(200) }, // over maxLen
+          { op: 'setTagline', value: 'word '.repeat(60).trim() }, // over maxLen -> CLAMPED, not skipped
         ],
         reply: 'done',
       }) +
@@ -134,8 +141,9 @@ async function run() {
     const patch = parseModelPatch(out)!;
     const before = base();
     const r = applyOps(before, patch.ops as unknown as EditOp[]);
-    assert.equal(r.skipped.length, 4); // ghost, rainbow, deleteEverything, tagline-too-long
-    assert.equal(r.applied.length, 2); // the two hero headline sets
+    assert.equal(r.skipped.length, 3); // ghost, rainbow, deleteEverything (bad ids/enums still rejected)
+    assert.equal(r.applied.length, 3); // two hero headline sets + the clamped tagline
+    assert.ok(r.next.meta.tagline.length <= 120, 'over-length tagline is clamped, not dropped');
     // headline ends as the literal string (NOT executed markup — it's plain spec text)
     assert.equal(r.next.sections.find((s) => s.id === 'hero')!.text.headline, '<script>alert(1)</script>');
     // structural identity untouched + input not mutated
@@ -275,6 +283,15 @@ async function run() {
     assert.ok(sentMessages[3].content.includes('USER REQUEST: all of them'));
   });
 
+  await test('endpoint forwards the site language so the model writes in it', async () => {
+    let sent: any[] = [];
+    await withMock(
+      (_url: any, init: any) => { sent = JSON.parse(init.body).messages; return ok(JSON.stringify({ ops: [], reply: 'ok' })); },
+      async () => { await call({ message: 'make it shorter', spec: base(), lang: 'ro' }); },
+    );
+    assert.ok(sent.some((m) => typeof m.content === 'string' && m.content.includes('Romanian')), 'site language not conveyed to the model');
+  });
+
   await test('NVIDIA non-200 -> graceful fallback, spec unchanged', async () => {
     await withMock(
       () => ({ ok: false, status: 502, text: async () => 'upstream error', json: async () => ({}) }),
@@ -288,25 +305,25 @@ async function run() {
     );
   });
 
-  await test('retries once and recovers when the first attempt 5xxs (free-tier queue blip)', async () => {
+  await test('fast model 5xx -> escalates to the smart model and recovers', async () => {
     let calls = 0;
     await withMock(
       () => {
         calls++;
         return calls === 1
-          ? { ok: false, status: 503, text: async () => 'overloaded', json: async () => ({}) }
-          : ok(JSON.stringify({ ops: [{ op: 'setTheme', value: 'mono' }], reply: 'ok' }));
+          ? { ok: false, status: 503, text: async () => 'overloaded', json: async () => ({}) } // fast fails
+          : ok(JSON.stringify({ ops: [{ op: 'setTheme', value: 'mono' }], reply: 'ok' })); // smart recovers
       },
       async () => {
         const { body } = await call({ message: 'make it mono', spec: base() });
-        assert.equal(body.source, 'ai'); // the retry recovered
+        assert.equal(body.source, 'ai'); // smart model recovered
         assert.equal(body.spec.theme, 'mono');
       },
     );
-    assert.equal(calls, 2); // proves it retried exactly once
+    assert.equal(calls, 2); // 1 fast (fail) + 1 smart (ok)
   });
 
-  await test('gives up after the retry when both attempts fail -> graceful fallback', async () => {
+  await test('all attempts fail (fast + smart) -> graceful fallback', async () => {
     let calls = 0;
     await withMock(
       () => { calls++; return { ok: false, status: 500, text: async () => 'err', json: async () => ({}) }; },
@@ -316,7 +333,7 @@ async function run() {
         assert.equal(body.reason, 'upstream');
       },
     );
-    assert.equal(calls, 2); // one retry, then gives up
+    assert.equal(calls, 2); // 1 fast + 1 smart escalation, then gives up
   });
 
   await test('escalates to the smart model only when the fast one emits all-invalid ops', async () => {
@@ -350,6 +367,48 @@ async function run() {
       },
     );
     assert.equal(smartCalls, 0); // fast succeeded -> stayed fast
+  });
+
+  console.log('every Assistant suggestion chip applies through the REAL endpoint + applyOps');
+
+  const suggestions: { name: string; ops: any[]; check: (s: any) => boolean }[] = [
+    { name: 'Make it dark', ops: [{ op: 'setTheme', value: 'dark' }], check: (s) => s.theme === 'dark' },
+    { name: 'Warmer colors', ops: [{ op: 'setTheme', value: 'rose' }], check: (s) => s.theme === 'rose' }, // restaurant default is already 'warm', so a real warm change = rose
+    { name: 'Use a modern font', ops: [{ op: 'setFont', value: 'modern' }], check: (s) => s.font === 'modern' },
+    { name: 'Add gentle animations', ops: [{ op: 'setAnimation', value: 'fade' }], check: (s) => s.animation === 'fade' },
+    { name: 'Punchier headline', ops: [{ op: 'setText', sectionId: 'hero', slotId: 'headline', value: 'Bold new taste' }], check: (s) => s.sections.find((x: any) => x.id === 'hero').text.headline === 'Bold new taste' },
+    { name: 'Shorten the intro', ops: [{ op: 'setText', sectionId: 'hero', slotId: 'subhead', value: 'Fresh. Daily.' }], check: (s) => s.sections.find((x: any) => x.id === 'hero').text.subhead === 'Fresh. Daily.' },
+    { name: 'Hide the gallery', ops: [{ op: 'toggleSection', sectionId: 'gallery', enabled: false }], check: (s) => s.sections.find((x: any) => x.id === 'gallery').enabled === false },
+  ];
+  for (const c of suggestions) {
+    await test(`suggestion "${c.name}" applies + changes the spec`, async () => {
+      await withMock(() => ok(JSON.stringify({ ops: c.ops, reply: 'done' })), async () => {
+        const { body } = await call({ message: c.name, spec: base() });
+        assert.equal(body.source, 'ai');
+        assert.ok(body.applied.length >= 1, 'nothing applied');
+        assert.equal(body.skipped.length, 0);
+        assert.ok(c.check(body.spec), 'spec not changed as expected');
+      });
+    });
+  }
+
+  await test('suggestion "Friendlier tone" (broad, over-length rewrite) clamps + applies every slot', async () => {
+    const long = 'A really warm and friendly welcome to every single guest who walks through our cosy little door each and every single day of the week here'; // ~140+
+    const ops = [
+      { op: 'setText', sectionId: 'hero', slotId: 'headline', value: 'Come on in, friends — always welcome at our place' },
+      { op: 'setText', sectionId: 'hero', slotId: 'subhead', value: long },
+      { op: 'setText', sectionId: 'features', slotId: 'item1.body', value: long }, // > 140 -> clamp, NOT skip
+      { op: 'setText', sectionId: 'about', slotId: 'body', value: long },
+    ];
+    await withMock(() => ok(JSON.stringify({ ops, reply: 'Made it friendlier.' })), async () => {
+      const { body } = await call({ message: 'Friendlier tone', spec: base() });
+      assert.equal(body.source, 'ai');
+      assert.equal(body.applied.length, 4, 'all 4 slots should apply (clamped), none skipped');
+      assert.equal(body.skipped.length, 0);
+      const feat = body.spec.sections.find((x: any) => x.id === 'features');
+      assert.ok(feat.text['item1.body'].length <= 140, 'over-length body clamped to slot max');
+      assert.ok(feat.text['item1.body'].length > 0);
+    });
   });
 
   await test('fetch throws / aborts -> graceful fallback (never crashes the request)', async () => {

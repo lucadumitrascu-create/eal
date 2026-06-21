@@ -1,10 +1,13 @@
 import type { APIRoute } from 'astro';
-import { fallbackIdeas } from '../../lib/ai/fallbackIdeas';
+import { fallbackIdeas, type Idea } from '../../lib/ai/fallbackIdeas';
 
 // Make ONLY this route a Vercel serverless function; the rest of the site stays static.
 export const prerender = false;
 
-const MODEL = 'meta/llama-3.1-8b-instruct';
+// Llama-4-Maverick is both FAST (~3-5s) and fluent — it replaces the old slow 70B
+// cascade. Fall to the 8B only if Maverick blips, then the hand-written static bank.
+const MODEL_PRIMARY = 'meta/llama-4-maverick-17b-128e-instruct';
+const MODEL_FALLBACK = 'meta/llama-3.1-8b-instruct';
 const NVIDIA_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
 const LANG_NAMES: Record<string, string> = { en: 'English', ro: 'Romanian', de: 'German', fr: 'French', es: 'Spanish', it: 'Italian' };
 
@@ -16,6 +19,18 @@ const json = (obj: unknown, status = 200) =>
 
 const clamp = (v: unknown, n: number) => String(v ?? '').slice(0, n);
 
+/** Length-cap WITHOUT cutting mid-word: prefer the last sentence end within the
+    limit, else the last word boundary, then tidy trailing punctuation. */
+function clampSmart(v: unknown, max: number): string {
+  const s = String(v ?? '').replace(/\s+/g, ' ').trim();
+  if (s.length <= max) return s;
+  const head = s.slice(0, max);
+  const sentence = Math.max(head.lastIndexOf('. '), head.lastIndexOf('! '), head.lastIndexOf('? '));
+  if (sentence > max * 0.5) return head.slice(0, sentence + 1).trim();
+  const word = head.lastIndexOf(' ');
+  return (word > max * 0.5 ? head.slice(0, word) : head).trim().replace(/[\s,;:.–—-]+$/, '');
+}
+
 function extractJson(text: string): any | null {
   const m = text.match(/\{[\s\S]*\}/);
   if (!m) return null;
@@ -23,6 +38,35 @@ function extractJson(text: string): any | null {
     return JSON.parse(m[0]);
   } catch {
     return null;
+  }
+}
+
+/** One model attempt: returns a clamped Idea, or null on slow/throttle/parse failure. */
+async function tryIdeas(key: string, model: string, sys: string, usr: string, timeoutMs: number): Promise<Idea | null> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(NVIDIA_URL, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, messages: [{ role: 'system', content: sys }, { role: 'user', content: usr }], temperature: 0.7, max_tokens: 500, response_format: { type: 'json_object' } }),
+      signal: ctrl.signal,
+    });
+    if (!res.ok) { console.error(`[ideas] ${model} status ${res.status} ${(await res.text().catch(() => '')).slice(0, 120)}`); return null; }
+    const data = await res.json().catch(() => null);
+    const parsed = extractJson(data?.choices?.[0]?.message?.content ?? '');
+    if (!parsed || !parsed.headline) return null;
+    return {
+      headline: clampSmart(parsed.headline, 60),
+      subhead: clampSmart(parsed.subhead, 160),
+      sections: Array.isArray(parsed.sections) ? parsed.sections.slice(0, 3).map((s: any) => ({ title: clampSmart(s?.title, 40), body: clampSmart(s?.body, 140) })) : [],
+      cta: clampSmart(parsed.cta, 24),
+    };
+  } catch (e) {
+    console.error(`[ideas] ${model} ${e instanceof Error && e.name === 'AbortError' ? 'timeout' : 'exception'}`);
+    return null;
+  } finally {
+    clearTimeout(timer);
   }
 }
 
@@ -82,58 +126,20 @@ export const POST: APIRoute = async ({ request }) => {
   const sys =
     'You are a website copywriter for small businesses. Reply with ONLY valid JSON of the shape ' +
     '{"headline":string,"subhead":string,"sections":[{"title":string,"body":string}],"cta":string}. ' +
-    'Limits: headline <= 60 chars, subhead <= 160, exactly 3 sections (title <= 40, body <= 140), cta <= 24. ' +
+    'Keep everything SHORT and COMPLETE — count characters, never exceed (anything over is cut off mid-thought): ' +
+    'headline <= 55 chars; subhead = one line <= 150; exactly 3 sections where the title is a 2-4 WORD LABEL (<= 28 chars, NOT a sentence) ' +
+    'and the body is ONE short COMPLETE sentence that ENDS WITH A PERIOD (<= 120 chars); cta = a short button label <= 22. ' +
+    'If something will not fit, write a shorter version. ' +
     `Tone: ${tone}. ` +
-    (lang === 'en' ? '' : `Write ALL copy in ${LANG_NAMES[lang]}, using plain ASCII letters only (no accents/diacritics). `) +
+    (lang === 'en' ? '' : `Write ALL copy in natural, fluent, grammatically-correct ${LANG_NAMES[lang]} with proper diacritics — like a native marketing copywriter, not a literal translation. `) +
     'No markdown, no commentary, JSON only.';
   const usr = `Business name: ${company}. Industry / what they do: ${industry || 'general small business'}. Write homepage copy.`;
 
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 9000);
-  try {
-    const res = await fetch(NVIDIA_URL, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: [
-          { role: 'system', content: sys },
-          { role: 'user', content: usr },
-        ],
-        temperature: 0.7,
-        max_tokens: 500,
-      }),
-      signal: ctrl.signal,
-    });
-    clearTimeout(timer);
-    if (!res.ok) {
-      const errBody = await res.text().catch(() => '');
-      console.error(`[ideas] fallback: nvidia status ${res.status} ${errBody.slice(0, 200)}`);
-      return json({ ...fallbackIdeas(industry, company, lang), source: 'fallback' });
-    }
-
-    const data = await res.json();
-    const content: string = data?.choices?.[0]?.message?.content ?? '';
-    const parsed = extractJson(content);
-    if (!parsed) {
-      console.error(`[ideas] fallback: unparseable model output: ${content.slice(0, 200)}`);
-      return json({ ...fallbackIdeas(industry, company, lang), source: 'fallback' });
-    }
-
-    return json({
-      headline: clamp(parsed.headline, 60),
-      subhead: clamp(parsed.subhead, 160),
-      sections: Array.isArray(parsed.sections)
-        ? parsed.sections.slice(0, 3).map((s: any) => ({ title: clamp(s?.title, 40), body: clamp(s?.body, 140) }))
-        : [],
-      cta: clamp(parsed.cta, 24),
-      source: 'ai',
-    });
-  } catch (e) {
-    clearTimeout(timer);
-    console.error(`[ideas] fallback: exception ${String(e)}`);
-    return json({ ...fallbackIdeas(industry, company, lang), source: 'fallback' });
-  }
+  // Maverick (fast + fluent, ~3-5s) -> 8B (fast fallback) -> static bank.
+  const ai = (await tryIdeas(key, MODEL_PRIMARY, sys, usr, 18000)) ?? (await tryIdeas(key, MODEL_FALLBACK, sys, usr, 9000));
+  if (ai) return json({ ...ai, source: 'ai' });
+  console.error('[ideas] fallback: both models failed (slow/throttled)');
+  return json({ ...fallbackIdeas(industry, company, lang), source: 'fallback' });
 };
 
 // Reject non-POST verbs cleanly.

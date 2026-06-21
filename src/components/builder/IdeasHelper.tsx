@@ -35,7 +35,7 @@ export default function IdeasHelper({ onApply, onApplyAll, defaultCompany = '' }
       const data = await res.json().catch(() => null);
       if (!res.ok || !data || !data.headline) {
         const { fallbackIdeas } = await import('../../lib/ai/fallbackIdeas');
-        setIdea(fallbackIdeas(industry, company));
+        setIdea(fallbackIdeas(industry, company, lang));
         setOffline(true);
       } else {
         setIdea(data);
@@ -43,7 +43,7 @@ export default function IdeasHelper({ onApply, onApplyAll, defaultCompany = '' }
       }
     } catch {
       const { fallbackIdeas } = await import('../../lib/ai/fallbackIdeas');
-      setIdea(fallbackIdeas(industry, company));
+      setIdea(fallbackIdeas(industry, company, lang));
       setOffline(true);
     } finally {
       setLoading(false);

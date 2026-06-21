@@ -4,7 +4,7 @@ import { templates, templateById, themes, fonts } from '../../data/templates';
 import { defaultPresetId } from '../../data/imageLibrary';
 import { defaultSpecFromTemplate, validateSpec, defById, sectionFromDef, relocalizeSpec } from '../../lib/builder/spec';
 import { decodeSpec, encodeSpec } from '../../lib/builder/encode';
-import { useT, useLang, currentLang } from '../../lib/builder/i18n';
+import { useT, useLang, currentLang, translate } from '../../lib/builder/i18n';
 import LivePreview, { type EditAPI } from './LivePreview';
 import TemplatePicker from './TemplatePicker';
 import IdeasHelper from './IdeasHelper';
@@ -89,6 +89,9 @@ function reducer(state: DesignSpec, a: Action): DesignSpec {
     case 'addImage': {
       const def = templateById(state.templateId)?.sections.find((s) => s.id === a.sid);
       if (!def) return state;
+      const L = currentLang();
+      const product = translate(L, 'builder.add.product', 'New product');
+      const image = translate(L, 'builder.add.image', 'New image');
       return {
         ...state,
         sections: state.sections.map((s) => {
@@ -98,12 +101,12 @@ function reducer(state: DesignSpec, a: Action): DesignSpec {
             const n = maxIndex(Object.keys(s.images), /^prod(\d+)\.img$/) + 1;
             return {
               ...s,
-              images: { ...s.images, [`prod${n}.img`]: { presetId: preset, label: 'New product', alt: 'New product' } },
-              text: { ...s.text, [`prod${n}.name`]: 'New product', [`prod${n}.price`]: '€0' },
+              images: { ...s.images, [`prod${n}.img`]: { presetId: preset, label: product, alt: product } },
+              text: { ...s.text, [`prod${n}.name`]: product, [`prod${n}.price`]: '€0' },
             };
           }
           const n = maxIndex(Object.keys(s.images), /^img(\d+)$/) + 1;
-          return { ...s, images: { ...s.images, [`img${n}`]: { presetId: preset, label: 'New image', alt: 'New image' } } };
+          return { ...s, images: { ...s.images, [`img${n}`]: { presetId: preset, label: image, alt: image } } };
         }),
       };
     }
@@ -124,7 +127,7 @@ function reducer(state: DesignSpec, a: Action): DesignSpec {
       const def = templateById(state.templateId)?.sections.find((s) => s.id === a.sid);
       const slot = def?.type === 'hero' ? 'cta2' : def?.type === 'cta' ? 'button2' : null;
       if (!slot) return state;
-      return { ...state, sections: state.sections.map((s) => (s.id === a.sid && !(slot in s.text) ? { ...s, text: { ...s.text, [slot]: 'Learn more' } } : s)) };
+      return { ...state, sections: state.sections.map((s) => (s.id === a.sid && !(slot in s.text) ? { ...s, text: { ...s.text, [slot]: translate(currentLang(), 'builder.add.button', 'Learn more') } } : s)) };
     }
     case 'removeButton':
       return {
@@ -162,17 +165,20 @@ function reducer(state: DesignSpec, a: Action): DesignSpec {
 }
 
 function initSpec(decoded: DesignSpec | null): DesignSpec {
-  if (decoded) return decoded;
+  if (decoded) return decoded; // shared ?d= design — frozen in the author's language
+  const lang = currentLang();
   try {
     const raw = localStorage.getItem(DRAFT_KEY);
     if (raw) {
       const v = validateSpec(JSON.parse(raw));
-      if (v) return v;
+      // Re-localize the (possibly stale-language) draft on the FIRST render — no flash,
+      // no immediate second relocalize from the effect.
+      if (v) return relocalizeSpec(v, lang);
     }
   } catch {
     /* ignore corrupt draft */
   }
-  return defaultSpecFromTemplate(templates[0], currentLang());
+  return defaultSpecFromTemplate(templates[0], lang);
 }
 
 export default function BuilderApp() {
@@ -312,8 +318,14 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
   // copy follows the language; fields the user actually edited are left untouched.
   const specRef = useRef(spec);
   specRef.current = spec;
+  const prevLang = useRef(lang);
   useEffect(() => {
-    const next = relocalizeSpec(specRef.current, lang);
+    const from = prevLang.current;
+    prevLang.current = lang;
+    if (decoded) return; // a shared ?d= design stays frozen in the author's language
+    // On a deliberate switch we know the source language (precise, collision-safe);
+    // on mount (from === lang) fall back to matching any language.
+    const next = relocalizeSpec(specRef.current, lang, from === lang ? undefined : from);
     if (JSON.stringify(next) !== JSON.stringify(specRef.current)) dispatch({ type: 'load', spec: next });
   }, [lang]);
 
@@ -371,8 +383,9 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-      {/* Top toolbar — the only chrome; everything else is edited on the canvas */}
-      <div className="mb-3 flex items-center justify-between gap-2">
+      {/* Top toolbar — the only chrome; everything else is edited on the canvas.
+          Wraps to two rows on narrow phones so nothing overflows off-screen. */}
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-x-2 gap-y-2">
         <div className="relative flex items-center gap-2">
           <button
             type="button"
@@ -426,16 +439,22 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
                   <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M6 6l12 12M18 6L6 18" /></svg>
                 </button>
                 <IdeasHelper
-                  onApply={(slot, value) => dispatch({ type: 'text', sid: 'hero', slot, value })}
+                  onApply={(slot, value) => {
+                    const hero = tpl && spec.sections.find((s) => defById(tpl, s.id)?.type === 'hero');
+                    if (hero) dispatch({ type: 'text', sid: hero.id, slot, value });
+                  }}
                   onApplyAll={(idea, company) => {
                     if (company) dispatch({ type: 'meta', field: 'siteName', value: company });
-                    dispatch({ type: 'text', sid: 'hero', slot: 'headline', value: idea.headline });
-                    dispatch({ type: 'text', sid: 'hero', slot: 'subhead', value: idea.subhead });
-                    dispatch({ type: 'text', sid: 'hero', slot: 'cta', value: idea.cta });
-                    idea.sections?.forEach((s, i) => {
-                      dispatch({ type: 'text', sid: 'features', slot: `item${i + 1}.title`, value: s.title });
-                      dispatch({ type: 'text', sid: 'features', slot: `item${i + 1}.body`, value: s.body });
-                    });
+                    // Resolve targets by section TYPE (ids vary; some templates lack features)
+                    // and only set slots that actually exist, so copy lands predictably.
+                    const setText = (sid: string, slot: string, value: string) => {
+                      const def = tpl ? defById(tpl, sid) : undefined;
+                      if (def?.textSlots.some((sl) => sl.id === slot)) dispatch({ type: 'text', sid, slot, value });
+                    };
+                    const hero = tpl && spec.sections.find((s) => defById(tpl, s.id)?.type === 'hero');
+                    if (hero) { setText(hero.id, 'headline', idea.headline); setText(hero.id, 'subhead', idea.subhead); setText(hero.id, 'cta', idea.cta); }
+                    const feat = tpl && spec.sections.find((s) => defById(tpl, s.id)?.type === 'features');
+                    if (feat) idea.sections?.forEach((s, i) => { setText(feat.id, `item${i + 1}.title`, s.title); setText(feat.id, `item${i + 1}.body`, s.body); });
                     setPanel(null);
                   }}
                   defaultCompany={spec.meta.siteName}

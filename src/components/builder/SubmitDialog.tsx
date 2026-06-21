@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { DesignSpec } from '../../data/templates';
 import { encodeSpec } from '../../lib/builder/encode';
-import { useT } from '../../lib/builder/i18n';
+import { useT, useLang } from '../../lib/builder/i18n';
 
 const FORMSPREE = 'https://formspree.io/f/xnjgbnnr';
 
@@ -12,6 +12,7 @@ type Status = 'idle' | 'sending' | 'ok' | 'err';
 
 export default function SubmitDialog({ spec, onClose, onSubmitted }: { spec: DesignSpec; onClose: () => void; onSubmitted: () => void }) {
   const t = useT();
+  const lang = useLang();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [company, setCompany] = useState(spec.meta.siteName || '');
@@ -62,6 +63,7 @@ export default function SubmitDialog({ spec, onClose, onSubmitted }: { spec: Des
     fd.append('company', company.trim());
     fd.append('note', note.trim());
     fd.append('template', spec.templateId);
+    fd.append('language', lang);
     fd.append('previewLink', previewLink);
     fd.append('brief', JSON.stringify(spec, null, 2));
     fd.append('_subject', `Website mockup from ${company.trim() || name.trim()}`);

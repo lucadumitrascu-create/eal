@@ -69,17 +69,17 @@ const BANK: Record<string, Idea> = {
   },
 };
 
-function pickKey(industry: string): keyof typeof BANK {
-  const s = industry.toLowerCase();
-  if (/food|restaurant|cafe|café|bar|bakery|pizz|bistro|kitchen|coffee/.test(s)) return 'restaurant';
-  if (/agency|software|saas|studio|tech|startup|develop|consult|digital/.test(s)) return 'agency';
-  if (/portfolio|design|photo|artist|freelanc|creative|illustrat/.test(s)) return 'portfolio';
-  if (/shop|store|ecommerce|e-commerce|retail|boutique|brand|product/.test(s)) return 'shop';
+function pickKey(text: string): keyof typeof BANK {
+  const s = text.toLowerCase();
+  if (/food|restaurant|cafe|café|bar|bakery|pizz|bistro|kitchen|coffee|trattoria|ristorante|osteria|brasserie|italian|grill|pub|diner|eatery|cucina|tavern/.test(s)) return 'restaurant';
+  if (/agency|software|saas|studio|tech|startup|develop|consult|digital|marketing/.test(s)) return 'agency';
+  if (/portfolio|design|photo|artist|freelanc|creative|illustrat|architect|writer/.test(s)) return 'portfolio';
+  if (/shop|store|ecommerce|e-commerce|retail|boutique|brand|product|maker/.test(s)) return 'shop';
   return 'default';
 }
 
-export function fallbackIdeas(industry = '', _company = '', lang = 'en'): Idea {
-  const key = pickKey(industry);
+export function fallbackIdeas(industry = '', company = '', lang = 'en'): Idea {
+  const key = pickKey(`${industry} ${company}`); // match on both, so "Trattoria Sole" -> restaurant
   const base = LOCALIZED[lang]?.[key] || BANK[key] || BANK.default;
   // Return a copy so callers can't mutate the bank.
   return { ...base, sections: base.sections.map((s) => ({ ...s })) };

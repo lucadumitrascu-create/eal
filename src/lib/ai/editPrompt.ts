@@ -20,6 +20,8 @@ export interface ModelPatch {
   reply: string;
 }
 
+export const LANG_NAMES: Record<string, string> = { en: 'English', ro: 'Romanian', de: 'German', fr: 'French', es: 'Spanish', it: 'Italian' };
+
 const PRESET_IDS = allPresets.map((p) => p.id);
 const q = (s: unknown) => JSON.stringify(String(s ?? '').slice(0, 140)); // bounded + quoted
 
@@ -49,8 +51,8 @@ const SYSTEM = [
   '',
   'RULES — follow them strictly:',
   '- The user may write in ANY language (English, Romanian, French, German, Spanish, Italian, ...).',
-  '  Understand the request in that language, and write any new copy AND the "reply" in the SAME language,',
-  '  using plain ASCII letters (no accents/diacritics) to stay consistent with the rest of the site.',
+  '  Understand the request in that language, and write any new copy AND the "reply" in the SAME language —',
+  '  natural, fluent and grammatically correct, WITH proper diacritics (like a native, not a literal translation).',
   '- The earlier messages are the conversation so far. The latest user message may be ANSWERING your',
   '  previous clarifying question (e.g. "all of them", "the hero one", "yes") — interpret it in that',
   '  context, then act; do not ask the same question again.',
@@ -58,6 +60,9 @@ const SYSTEM = [
   '  If you are not certain an op is valid, OMIT it. Never invent or guess an id.',
   '- Make the SMALLEST set of ops that satisfies the request. Touch ONLY fields the user asked about;',
   '  never change unrelated fields, and never write the SAME value into several slots.',
+  '  Scope examples: "make it dark" / "warmer colors" = ONE setTheme op, nothing else. "modern font" = ONE',
+  '  setFont. "punchier headline" = ONE setText on the hero headline. Do NOT also change the font, animation,',
+  '  or other sections unless the user explicitly asked for them.',
   '- A clear instruction to restyle or rewrite ALL or MANY text fields in a stated tone (e.g. "make all',
   '  the copy more playful", "rewrite everything in an Italian-mafia tone") is NOT ambiguous: emit one',
   '  setText per text slot you are changing, each with NEW distinct copy in that tone within its maxLen.',
@@ -73,11 +78,18 @@ const SYSTEM = [
   '- No markdown, no code fences, no text outside the JSON.',
 ].join('\n');
 
-export function buildEditMessages(spec: DesignSpec, message: string, history: ChatMessage[] = []): ChatMessage[] {
+export function buildEditMessages(spec: DesignSpec, message: string, history: ChatMessage[] = [], lang = 'en'): ChatMessage[] {
+  const name = LANG_NAMES[lang];
+  // Make the SITE language authoritative (not the language the request happens to be
+  // typed in): a terse/English instruction on a Romanian site must still yield Romanian.
+  const langRule =
+    name && lang !== 'en'
+      ? `\n\nLANGUAGE: the site is in ${name}. Write ALL new copy AND the reply in natural, grammatically-correct ${name} WITH proper diacritics — matching the language of the existing copy above — regardless of which language this request is written in, unless it explicitly asks to translate.`
+      : '';
   return [
     { role: 'system', content: SYSTEM },
     ...history,
-    { role: 'user', content: `${specSummary(spec)}\n\nUSER REQUEST: ${message}` },
+    { role: 'user', content: `${specSummary(spec)}\n\nUSER REQUEST: ${message}${langRule}` },
   ];
 }
 

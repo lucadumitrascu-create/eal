@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { validateSpec } from '../../lib/builder/spec';
 import { applyOps, type EditOp } from '../../lib/editOps';
-import { buildEditMessages, parseModelPatch, type ChatMessage } from '../../lib/ai/editPrompt';
+import { buildEditMessages, parseModelPatch, LANG_NAMES, type ChatMessage } from '../../lib/ai/editPrompt';
 
 // Make ONLY this route a Vercel serverless function; the rest of the site stays static.
 export const prerender = false;
@@ -11,13 +11,17 @@ export const prerender = false;
 // latency and timed out constantly). We escalate to the SMART model ONLY when the
 // fast one fumbled — i.e. it emitted ops but every one was invalid — so simple
 // requests stay fast and only the hard ones the 8B botches pay for a smarter retry.
-const MODEL_FAST = 'meta/llama-3.1-8b-instruct';
+// Llama-4-Maverick (17B-MoE): as fast as the 8B (~1s) but far better at producing
+// COMPLETE, valid ops — benchmarked at sub-1s with 2/2 valid ops vs the 8B's flaky
+// run-to-run output. The 70B stays as the rare-miss escalation.
+const MODEL_FAST = 'meta/llama-4-maverick-17b-128e-instruct';
 const MODEL_SMART = 'meta/llama-3.3-70b-instruct';
 const NVIDIA_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
-const FAST_MS = 14000; // per fast attempt
-const SMART_MS = 26000; // single smart escalation attempt
-const FAST_ATTEMPTS = 2; // one automatic retry on the fast model — absorbs a queue blip
-// Budget: 2x14s fast + 26s smart = 54s < the 60s function maxDuration.
+const FAST_MS = 18000; // Maverick answers simple edits in ~1s; a broad rewrite takes ~10-14s, so give it room
+const FAST_ATTEMPTS = 1;
+const SMART_MS = 26000; // the 70B needs ~24s; this is a RARE escalation (Maverick is reliable)
+const SMART_ATTEMPTS = 1;
+// Budget: 18s fast + 26s smart = 44s < the 60s function maxDuration.
 const MAX_BODY = 24576; // the body includes the whole DesignSpec + recent chat turns
 const MAX_MESSAGE = 600;
 const MAX_HISTORY = 8; // recent turns kept for multi-turn context
@@ -148,38 +152,44 @@ export const POST: APIRoute = async ({ request }) => {
   const spec = validateSpec(body?.spec);
   if (!spec) return json({ error: 'invalid spec' }, 400);
   const history = parseHistory(body?.history);
+  const lang = body?.lang && LANG_NAMES[body.lang] ? (body.lang as string) : 'en';
 
   const key = getKey();
-  console.log(`[edit] keyPresent=${!!key} history=${history.length}`);
+  console.log(`[edit] keyPresent=${!!key} history=${history.length} lang=${lang}`);
   if (!key) {
     console.error('[edit] fallback: NVIDIA_API_KEY missing in runtime env');
     return json({ spec, applied: [], skipped: [], reply: "The AI editor isn't configured right now.", source: 'fallback', reason: 'unconfigured' });
   }
 
-  const messages = buildEditMessages(spec, message, history);
-  // Tier 1 — fast model.
-  const fast = await callModel(key, messages, MODEL_FAST, FAST_MS, FAST_ATTEMPTS);
-  if ('fail' in fast) {
-    const reply = fast.fail === 'timeout' ? 'The assistant took too long.' : fast.fail === 'error' ? 'Something went wrong applying that.' : "Sorry, I couldn't reach the AI just now.";
-    return json({ spec, applied: [], skipped: [], reply, source: 'fallback', reason: fast.fail });
-  }
-  let outcome = applyContent(spec, fast.content);
-  if (!outcome) {
-    console.error(`[edit] fallback: unparseable model output: ${fast.content.slice(0, 200)}`);
-    return json({ spec, applied: [], skipped: [], reply: "I couldn't understand that — try rephrasing?", source: 'fallback', reason: 'parse' });
-  }
+  const messages = buildEditMessages(spec, message, history, lang);
+  let outcome: ReturnType<typeof applyContent> = null;
+  let lastFail: ModelFail = 'error';
 
-  // Tier 2 — escalate to the smart model ONLY when the fast one fumbled (emitted
-  // ops but every one was invalid). Keep the fast result if the smart one fails.
-  if (outcome.result.applied.length === 0 && outcome.result.skipped.length > 0) {
-    console.log('[edit] escalating to smart model (fast produced only invalid ops)');
-    const smart = await callModel(key, messages, MODEL_SMART, SMART_MS, 1);
-    if (!('fail' in smart)) {
+  // Tier 1 — fast model (handles most simple edits in ~1-5s).
+  const fast = await callModel(key, messages, MODEL_FAST, FAST_MS, FAST_ATTEMPTS);
+  if ('fail' in fast) lastFail = fast.fail;
+  else outcome = applyContent(spec, fast.content); // null if unparseable
+
+  // Tier 2 — escalate to the reliable smart model whenever the fast one failed, was
+  // unparseable, or emitted ONLY invalid ops (garbage ids the repair couldn't save).
+  // The 8B is run-to-run unreliable, so give the 70B two shots. Don't escalate a
+  // genuine clarifying question (applied 0, skipped 0).
+  const needSmart = !outcome || (outcome.result.applied.length === 0 && outcome.result.skipped.length > 0);
+  if (needSmart) {
+    console.log('[edit] escalating to smart model');
+    const smart = await callModel(key, messages, MODEL_SMART, SMART_MS, SMART_ATTEMPTS);
+    if ('fail' in smart) lastFail = smart.fail;
+    else {
       const better = applyContent(spec, smart.content);
-      if (better && better.result.applied.length > 0) outcome = better;
+      if (better && (!outcome || better.result.applied.length > 0)) outcome = better;
+      else if (!outcome) lastFail = 'parse';
     }
   }
 
+  if (!outcome) {
+    const reply = lastFail === 'timeout' ? 'The assistant took too long.' : lastFail === 'error' ? 'Something went wrong applying that.' : "Sorry, I couldn't reach the AI just now.";
+    return json({ spec, applied: [], skipped: [], reply, source: 'fallback', reason: lastFail });
+  }
   const { patch, result } = outcome;
   return json({
     spec: result.next,
