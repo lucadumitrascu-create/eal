@@ -369,6 +369,48 @@ async function run() {
     assert.equal(smartCalls, 0); // fast succeeded -> stayed fast
   });
 
+  console.log('every Assistant suggestion chip applies through the REAL endpoint + applyOps');
+
+  const suggestions: { name: string; ops: any[]; check: (s: any) => boolean }[] = [
+    { name: 'Make it dark', ops: [{ op: 'setTheme', value: 'dark' }], check: (s) => s.theme === 'dark' },
+    { name: 'Warmer colors', ops: [{ op: 'setTheme', value: 'rose' }], check: (s) => s.theme === 'rose' }, // restaurant default is already 'warm', so a real warm change = rose
+    { name: 'Use a modern font', ops: [{ op: 'setFont', value: 'modern' }], check: (s) => s.font === 'modern' },
+    { name: 'Add gentle animations', ops: [{ op: 'setAnimation', value: 'fade' }], check: (s) => s.animation === 'fade' },
+    { name: 'Punchier headline', ops: [{ op: 'setText', sectionId: 'hero', slotId: 'headline', value: 'Bold new taste' }], check: (s) => s.sections.find((x: any) => x.id === 'hero').text.headline === 'Bold new taste' },
+    { name: 'Shorten the intro', ops: [{ op: 'setText', sectionId: 'hero', slotId: 'subhead', value: 'Fresh. Daily.' }], check: (s) => s.sections.find((x: any) => x.id === 'hero').text.subhead === 'Fresh. Daily.' },
+    { name: 'Hide the gallery', ops: [{ op: 'toggleSection', sectionId: 'gallery', enabled: false }], check: (s) => s.sections.find((x: any) => x.id === 'gallery').enabled === false },
+  ];
+  for (const c of suggestions) {
+    await test(`suggestion "${c.name}" applies + changes the spec`, async () => {
+      await withMock(() => ok(JSON.stringify({ ops: c.ops, reply: 'done' })), async () => {
+        const { body } = await call({ message: c.name, spec: base() });
+        assert.equal(body.source, 'ai');
+        assert.ok(body.applied.length >= 1, 'nothing applied');
+        assert.equal(body.skipped.length, 0);
+        assert.ok(c.check(body.spec), 'spec not changed as expected');
+      });
+    });
+  }
+
+  await test('suggestion "Friendlier tone" (broad, over-length rewrite) clamps + applies every slot', async () => {
+    const long = 'A really warm and friendly welcome to every single guest who walks through our cosy little door each and every single day of the week here'; // ~140+
+    const ops = [
+      { op: 'setText', sectionId: 'hero', slotId: 'headline', value: 'Come on in, friends — always welcome at our place' },
+      { op: 'setText', sectionId: 'hero', slotId: 'subhead', value: long },
+      { op: 'setText', sectionId: 'features', slotId: 'item1.body', value: long }, // > 140 -> clamp, NOT skip
+      { op: 'setText', sectionId: 'about', slotId: 'body', value: long },
+    ];
+    await withMock(() => ok(JSON.stringify({ ops, reply: 'Made it friendlier.' })), async () => {
+      const { body } = await call({ message: 'Friendlier tone', spec: base() });
+      assert.equal(body.source, 'ai');
+      assert.equal(body.applied.length, 4, 'all 4 slots should apply (clamped), none skipped');
+      assert.equal(body.skipped.length, 0);
+      const feat = body.spec.sections.find((x: any) => x.id === 'features');
+      assert.ok(feat.text['item1.body'].length <= 140, 'over-length body clamped to slot max');
+      assert.ok(feat.text['item1.body'].length > 0);
+    });
+  });
+
   await test('fetch throws / aborts -> graceful fallback (never crashes the request)', async () => {
     await withMock(
       () => { throw new Error('aborted'); },

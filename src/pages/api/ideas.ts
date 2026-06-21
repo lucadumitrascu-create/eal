@@ -127,15 +127,17 @@ export const POST: APIRoute = async ({ request }) => {
   const sys =
     'You are a website copywriter for small businesses. Reply with ONLY valid JSON of the shape ' +
     '{"headline":string,"subhead":string,"sections":[{"title":string,"body":string}],"cta":string}. ' +
-    'STRICT length limits — count characters and write COMPLETE sentences that FIT (never exceed, so nothing is cut off): ' +
-    'headline <= 55, subhead <= 150, exactly 3 sections (title <= 36, body = ONE short complete sentence <= 130), cta <= 22. ' +
+    'Keep everything SHORT and COMPLETE — count characters, never exceed (anything over is cut off mid-thought): ' +
+    'headline <= 55 chars; subhead = one line <= 150; exactly 3 sections where the title is a 2-4 WORD LABEL (<= 28 chars, NOT a sentence) ' +
+    'and the body is ONE short COMPLETE sentence that ENDS WITH A PERIOD (<= 120 chars); cta = a short button label <= 22. ' +
+    'If something will not fit, write a shorter version. ' +
     `Tone: ${tone}. ` +
     (lang === 'en' ? '' : `Write ALL copy in natural, fluent, grammatically-correct ${LANG_NAMES[lang]} with proper diacritics — like a native marketing copywriter, not a literal translation. `) +
     'No markdown, no commentary, JSON only.';
   const usr = `Business name: ${company}. Industry / what they do: ${industry || 'general small business'}. Write homepage copy.`;
 
-  // 70B (best grammar, ~20s) -> 8B (fast, still specific, ~10s) -> static bank.
-  const ai = (await tryIdeas(key, MODEL_SMART, sys, usr, 20000)) ?? (await tryIdeas(key, MODEL_FAST, sys, usr, 10000));
+  // 70B (best grammar + respects limits, up to 30s) -> 8B (fast fallback, 9s) -> static bank.
+  const ai = (await tryIdeas(key, MODEL_SMART, sys, usr, 30000)) ?? (await tryIdeas(key, MODEL_FAST, sys, usr, 9000));
   if (ai) return json({ ...ai, source: 'ai' });
   console.error('[ideas] fallback: both models failed (slow/throttled)');
   return json({ ...fallbackIdeas(industry, company, lang), source: 'fallback' });

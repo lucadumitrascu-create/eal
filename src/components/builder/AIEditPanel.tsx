@@ -127,7 +127,9 @@ export default function AIEditPanel({
           ? t(data.reason === 'timeout' ? 'builder.ai.timeout' : 'builder.ai.error')
           : appliedN === 0 && skippedN > 0
             ? t('builder.ai.failed')
-            : data.reply || (appliedN > 0 ? t('builder.ai.done') : t('builder.ai.nochange'));
+            : appliedN > 0
+              ? t('builder.ai.done') // localized + clean — the small model's own reply can be garbled
+              : data.reply || t('builder.ai.nochange'); // a clarifying question keeps the model's words
       setMessages((m) => [
         ...m,
         {
@@ -235,9 +237,6 @@ export default function AIEditPanel({
               <div className="flex flex-wrap items-center gap-1.5 pl-1">
                 {m.applied > 0 && (
                   <span className="rounded bg-[var(--color-accent-light)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--color-accent)]">{tn('builder.ai.applied', m.applied)}</span>
-                )}
-                {m.skipped > 0 && m.applied > 0 && (
-                  <span className="text-[10px] text-[var(--color-text-muted)]">{tn('builder.ai.skipped', m.skipped)}</span>
                 )}
                 {m.offline && <span className="text-[10px] text-[var(--color-text-muted)]">{t('builder.ai.offline')}</span>}
                 {isActive && !busy && !m.undone && (
