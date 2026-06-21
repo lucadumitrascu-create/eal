@@ -269,6 +269,29 @@ test('rejects reorder of a section that exists in the spec but not the template'
   assert.match(r.skipped[0].reason, /unknown section/);
 });
 
+console.log('repair: route mis-targeted setText to the right op');
+
+test('routes setText into meta/image targets to setSiteName/setTagline/setImageDesc', () => {
+  const r = applyOps(base(), [
+    { op: 'setText', sectionId: 'hero', slotId: 'siteName', value: 'Pizza Roma' }, // -> setSiteName
+    { op: 'setText', sectionId: 'hero', slotId: 'tagline', value: 'Vera pizza' }, // -> setTagline
+    { op: 'setText', sectionId: 'gallery', slotId: 'img1.label', value: 'Margherita' }, // -> setImageDesc (gallery img1)
+    { op: 'setText', sectionId: 'hero', slotId: 'image.label', value: 'Hot pizza' }, // -> setImageDesc (hero's single image 'media')
+  ]);
+  assert.equal(r.skipped.length, 0, 'all four should route + apply, none skipped');
+  assert.equal(r.applied.length, 4);
+  assert.equal(r.next.meta.siteName, 'Pizza Roma');
+  assert.equal(r.next.meta.tagline, 'Vera pizza');
+  assert.equal(r.next.sections.find((s) => s.id === 'gallery')!.images.img1.label, 'Margherita');
+  assert.equal(r.next.sections.find((s) => s.id === 'hero')!.images.media.label, 'Hot pizza');
+});
+
+test('a legit setText on a real text slot is NOT rerouted', () => {
+  const r = applyOps(base(), [{ op: 'setText', sectionId: 'hero', slotId: 'headline', value: 'Ciao' }]);
+  assert.equal(r.applied.length, 1);
+  assert.equal(r.next.sections.find((s) => s.id === 'hero')!.text.headline, 'Ciao');
+});
+
 console.log('history — deeper invariants');
 
 test('N-deep undo then N-deep redo round-trips exactly', () => {

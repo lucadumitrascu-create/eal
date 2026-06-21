@@ -155,6 +155,32 @@ function textSlotMax(spec: DesignSpec, sectionId: string, slotId: string): numbe
   return tpl ? defById(tpl, sectionId)?.textSlots.find((sl) => sl.id === slotId)?.maxLen : undefined;
 }
 
+/**
+ * Route common model mistakes to the op that actually exists, so they apply instead
+ * of being skipped. Small models reliably reach for `setText` when they mean the
+ * meta fields (siteName/tagline) or an image's description — those become
+ * setSiteName / setTagline / setImageDesc. Deterministic (exact-id based), never
+ * guesses across unrelated slots, so it can't corrupt content.
+ */
+function normalizeOp(spec: DesignSpec, op: EditOp): EditOp {
+  if (op.op !== 'setText') return op;
+  if (/^site[\s_-]?name$/i.test(op.slotId)) return { op: 'setSiteName', value: op.value };
+  if (/^tag[\s_-]?line$/i.test(op.slotId)) return { op: 'setTagline', value: op.value };
+
+  const tpl = templateById(spec.templateId);
+  const def = tpl ? defById(tpl, op.sectionId) : undefined;
+  if (!def?.imageSlots.length) return op;
+  // setText into an image slot's label/alt -> setImageDesc on that image
+  const base = op.slotId.replace(/\.(label|alt|caption|desc|description)$/i, '');
+  const direct = def.imageSlots.find((s) => s.id === base);
+  if (direct) return { op: 'setImageDesc', sectionId: op.sectionId, slotId: direct.id, label: op.value };
+  // image-ish slot name + the section has exactly one image -> describe that image
+  if (def.imageSlots.length === 1 && /(image|img|photo|picture|media|poza|imagine)/i.test(op.slotId) && !def.textSlots.some((s) => s.id === op.slotId)) {
+    return { op: 'setImageDesc', sectionId: op.sectionId, slotId: def.imageSlots[0].id, label: op.value };
+  }
+  return op;
+}
+
 /** Cap to `max` WITHOUT cutting mid-word: prefer the last sentence end, else the
     last word boundary, then tidy trailing punctuation. */
 function clampWords(s: string, max: number): string {
@@ -258,7 +284,7 @@ export function applyOps(spec: DesignSpec, ops: readonly EditOp[]): ApplyResult 
       skipped.push({ op: raw, reason: `malformed op: ${parsed.error.issues.map((i) => `${i.path.join('.') || '(root)'}: ${i.message}`).join('; ')}` });
       continue;
     }
-    const op = parsed.data as EditOp; // enum soundness enforced by validateOp below
+    const op = normalizeOp(next, parsed.data as EditOp); // route common model mistakes to the right op
     const check = validateOp(next, op);
     if (!check.ok) {
       skipped.push({ op, reason: check.reason });

@@ -305,25 +305,25 @@ async function run() {
     );
   });
 
-  await test('retries once and recovers when the first attempt 5xxs (free-tier queue blip)', async () => {
+  await test('fast model 5xx -> escalates to the smart model and recovers', async () => {
     let calls = 0;
     await withMock(
       () => {
         calls++;
         return calls === 1
-          ? { ok: false, status: 503, text: async () => 'overloaded', json: async () => ({}) }
-          : ok(JSON.stringify({ ops: [{ op: 'setTheme', value: 'mono' }], reply: 'ok' }));
+          ? { ok: false, status: 503, text: async () => 'overloaded', json: async () => ({}) } // fast fails
+          : ok(JSON.stringify({ ops: [{ op: 'setTheme', value: 'mono' }], reply: 'ok' })); // smart recovers
       },
       async () => {
         const { body } = await call({ message: 'make it mono', spec: base() });
-        assert.equal(body.source, 'ai'); // the retry recovered
+        assert.equal(body.source, 'ai'); // smart model recovered
         assert.equal(body.spec.theme, 'mono');
       },
     );
-    assert.equal(calls, 2); // proves it retried exactly once
+    assert.equal(calls, 2); // 1 fast (fail) + 1 smart (ok)
   });
 
-  await test('gives up after the retry when both attempts fail -> graceful fallback', async () => {
+  await test('all attempts fail (fast + both smart) -> graceful fallback', async () => {
     let calls = 0;
     await withMock(
       () => { calls++; return { ok: false, status: 500, text: async () => 'err', json: async () => ({}) }; },
@@ -333,7 +333,7 @@ async function run() {
         assert.equal(body.reason, 'upstream');
       },
     );
-    assert.equal(calls, 2); // one retry, then gives up
+    assert.equal(calls, 3); // 1 fast + 2 smart attempts, then gives up
   });
 
   await test('escalates to the smart model only when the fast one emits all-invalid ops', async () => {
