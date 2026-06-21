@@ -20,6 +20,18 @@ const json = (obj: unknown, status = 200) =>
 
 const clamp = (v: unknown, n: number) => String(v ?? '').slice(0, n);
 
+/** Length-cap WITHOUT cutting mid-word: prefer the last sentence end within the
+    limit, else the last word boundary, then tidy trailing punctuation. */
+function clampSmart(v: unknown, max: number): string {
+  const s = String(v ?? '').replace(/\s+/g, ' ').trim();
+  if (s.length <= max) return s;
+  const head = s.slice(0, max);
+  const sentence = Math.max(head.lastIndexOf('. '), head.lastIndexOf('! '), head.lastIndexOf('? '));
+  if (sentence > max * 0.5) return head.slice(0, sentence + 1).trim();
+  const word = head.lastIndexOf(' ');
+  return (word > max * 0.5 ? head.slice(0, word) : head).trim().replace(/[\s,;:.–—-]+$/, '');
+}
+
 function extractJson(text: string): any | null {
   const m = text.match(/\{[\s\S]*\}/);
   if (!m) return null;
@@ -46,10 +58,10 @@ async function tryIdeas(key: string, model: string, sys: string, usr: string, ti
     const parsed = extractJson(data?.choices?.[0]?.message?.content ?? '');
     if (!parsed || !parsed.headline) return null;
     return {
-      headline: clamp(parsed.headline, 60),
-      subhead: clamp(parsed.subhead, 160),
-      sections: Array.isArray(parsed.sections) ? parsed.sections.slice(0, 3).map((s: any) => ({ title: clamp(s?.title, 40), body: clamp(s?.body, 140) })) : [],
-      cta: clamp(parsed.cta, 24),
+      headline: clampSmart(parsed.headline, 60),
+      subhead: clampSmart(parsed.subhead, 160),
+      sections: Array.isArray(parsed.sections) ? parsed.sections.slice(0, 3).map((s: any) => ({ title: clampSmart(s?.title, 40), body: clampSmart(s?.body, 140) })) : [],
+      cta: clampSmart(parsed.cta, 24),
     };
   } catch (e) {
     console.error(`[ideas] ${model} ${e instanceof Error && e.name === 'AbortError' ? 'timeout' : 'exception'}`);
@@ -115,7 +127,8 @@ export const POST: APIRoute = async ({ request }) => {
   const sys =
     'You are a website copywriter for small businesses. Reply with ONLY valid JSON of the shape ' +
     '{"headline":string,"subhead":string,"sections":[{"title":string,"body":string}],"cta":string}. ' +
-    'Limits: headline <= 60 chars, subhead <= 160, exactly 3 sections (title <= 40, body <= 140), cta <= 24. ' +
+    'STRICT length limits — count characters and write COMPLETE sentences that FIT (never exceed, so nothing is cut off): ' +
+    'headline <= 55, subhead <= 150, exactly 3 sections (title <= 36, body = ONE short complete sentence <= 130), cta <= 22. ' +
     `Tone: ${tone}. ` +
     (lang === 'en' ? '' : `Write ALL copy in natural, fluent, grammatically-correct ${LANG_NAMES[lang]} with proper diacritics — like a native marketing copywriter, not a literal translation. `) +
     'No markdown, no commentary, JSON only.';
