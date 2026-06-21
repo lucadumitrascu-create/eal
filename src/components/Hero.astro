@@ -10,7 +10,7 @@
   </div>
   <div class="hero-fade" aria-hidden="true"></div>
 
-  <div class="relative z-10 mx-auto w-full max-w-2xl px-6 text-center">
+  <div class="hero-content relative z-10 mx-auto w-full max-w-2xl px-6 text-center">
     <h1 class="hero-h1 font-['Outfit'] font-bold">
       <span class="block text-[#0c1a2a]" data-i18n="hero.title1">We build software</span>
       <span class="block text-[var(--color-accent)]" data-i18n="hero.title2">that works.</span>
@@ -24,7 +24,8 @@
 
 <style>
   .hero {
-    background: #d3ecf5; /* uniform, single flat tone */
+    /* radial lift: center reads brighter -> depth behind the headline, still one brand tone */
+    background: radial-gradient(125% 95% at 50% 38%, #e6f5fb 0%, #d3ecf5 62%);
     margin-top: -5rem;   /* pull up under the fixed nav, cancel the navbar spacer -> no seam */
   }
   .hero-ring-wrap {
@@ -69,8 +70,24 @@
   @keyframes heroIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
   @media (max-width: 640px) {
-    .hero-ring-wrap { width: 92vw; top: 46%; }
-    .hero-cta-row .hero-btn { flex: 1 1 auto; }
+    .hero { min-height: 86svh; align-items: flex-start; }
+    /* Title is anchored near the ring's centre via a fixed top offset (stable on
+       any width), so the ring always frames it. CTAs are pinned to the lower zone
+       below the ring, kept on ONE row (compact, no wrap). */
+    .hero-ring-wrap { width: 92vw; top: 37%; }
+    .hero-h1 { font-size: clamp(2.4rem, 11.5vw, 3.3rem); }
+
+    .hero .hero-content { position: static; margin-top: 19svh; }
+    .hero .hero-content .hero-h1 { position: relative; z-index: 10; }
+
+    .hero .hero-cta-row {
+      position: absolute; left: 0; right: 0; bottom: 9%;
+      flex-wrap: nowrap; margin: 0; padding: 0 1.25rem; gap: 0.6rem; z-index: 10;
+    }
+    .hero .hero-cta-row .hero-btn {
+      flex: 1 1 0; min-width: 0; padding: 0.9rem 0.6rem;
+      font-size: 0.9rem; white-space: nowrap;
+    }
   }
   @media (prefers-reduced-motion: reduce) {
     .hero-ring-wrap { animation: none; }
