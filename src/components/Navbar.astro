@@ -89,33 +89,37 @@ const ctaHref = isHome ? '#contact' : '/#contact';
       <span class="hamburger-line block w-7 h-[2.5px] bg-[var(--color-text)] rounded-full transition-all duration-300 origin-center"></span>
     </button>
   </nav>
-
-  <!-- Mobile menu — scale from center -->
-  <div
-    id="mobile-menu"
-    class="fixed inset-0 bg-white/95 backdrop-blur-xl z-40 flex flex-col items-center justify-center gap-8 pointer-events-auto md:hidden"
-    style="opacity:0;transform:scale(0.95);pointer-events:none;transition:opacity 0.3s ease,transform 0.3s ease;"
-  >
-    {navLinks.map(({ label, href, i18nKey }, index) => (
-      <a
-        href={href}
-        class="mobile-link text-2xl font-medium text-[var(--color-text)] no-underline hover:no-underline hover:text-[var(--color-accent)] transition-all duration-200"
-        style={`opacity:0;transform:translateY(15px);transition:opacity 0.3s ease ${0.08 * (index + 1)}s,transform 0.3s ease ${0.08 * (index + 1)}s,color 0.2s ease;`}
-        data-i18n={i18nKey}
-      >
-        {label}
-      </a>
-    ))}
-    <a
-      href={ctaHref}
-      class="btn-amber-glass mobile-link mt-4 px-8 py-3 rounded-xl text-lg font-medium no-underline hover:no-underline"
-      style={`opacity:0;transform:translateY(15px);transition:opacity 0.3s ease ${0.08 * 5}s,transform 0.3s ease ${0.08 * 5}s,background 0.2s ease;`}
-      data-i18n="nav.contactBtn"
-    >
-      Contact us
-    </a>
-  </div>
 </header>
+
+<!-- Mobile menu — MUST live OUTSIDE <header>: the navbar sets transform + will-change
+     (for its hide/reveal-on-scroll animation), which makes it the containing block for
+     any position:fixed descendant. Nested here, this overlay was sized to the 68px
+     navbar instead of the viewport, so the links overflowed off-screen. As a sibling it
+     is fixed to the viewport. -->
+<div
+  id="mobile-menu"
+  class="fixed inset-0 bg-white/95 backdrop-blur-xl z-40 flex flex-col items-center justify-center gap-8 pointer-events-auto md:hidden"
+  style="opacity:0;transform:scale(0.95);pointer-events:none;transition:opacity 0.3s ease,transform 0.3s ease;"
+>
+  {navLinks.map(({ label, href, i18nKey }, index) => (
+    <a
+      href={href}
+      class="mobile-link text-2xl font-medium text-[var(--color-text)] no-underline hover:no-underline hover:text-[var(--color-accent)] transition-all duration-200"
+      style={`opacity:0;transform:translateY(15px);transition:opacity 0.3s ease ${0.08 * (index + 1)}s,transform 0.3s ease ${0.08 * (index + 1)}s,color 0.2s ease;`}
+      data-i18n={i18nKey}
+    >
+      {label}
+    </a>
+  ))}
+  <a
+    href={ctaHref}
+    class="btn-amber-glass mobile-link mt-4 px-8 py-3 rounded-xl text-lg font-medium no-underline hover:no-underline"
+    style={`opacity:0;transform:translateY(15px);transition:opacity 0.3s ease ${0.08 * 5}s,transform 0.3s ease ${0.08 * 5}s,background 0.2s ease;`}
+    data-i18n="nav.contactBtn"
+  >
+    Contact us
+  </a>
+</div>
 
 <!-- Spacer -->
 <div class="h-20"></div>
