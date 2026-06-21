@@ -288,6 +288,37 @@ async function run() {
     );
   });
 
+  await test('retries once and recovers when the first attempt 5xxs (free-tier queue blip)', async () => {
+    let calls = 0;
+    await withMock(
+      () => {
+        calls++;
+        return calls === 1
+          ? { ok: false, status: 503, text: async () => 'overloaded', json: async () => ({}) }
+          : ok(JSON.stringify({ ops: [{ op: 'setTheme', value: 'mono' }], reply: 'ok' }));
+      },
+      async () => {
+        const { body } = await call({ message: 'make it mono', spec: base() });
+        assert.equal(body.source, 'ai'); // the retry recovered
+        assert.equal(body.spec.theme, 'mono');
+      },
+    );
+    assert.equal(calls, 2); // proves it retried exactly once
+  });
+
+  await test('gives up after the retry when both attempts fail -> graceful fallback', async () => {
+    let calls = 0;
+    await withMock(
+      () => { calls++; return { ok: false, status: 500, text: async () => 'err', json: async () => ({}) }; },
+      async () => {
+        const { body } = await call({ message: 'x', spec: base() });
+        assert.equal(body.source, 'fallback');
+        assert.equal(body.reason, 'upstream');
+      },
+    );
+    assert.equal(calls, 2); // one retry, then gives up
+  });
+
   await test('fetch throws / aborts -> graceful fallback (never crashes the request)', async () => {
     await withMock(
       () => { throw new Error('aborted'); },

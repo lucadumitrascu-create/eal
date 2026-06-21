@@ -6,12 +6,16 @@ import { buildEditMessages, parseModelPatch, type ChatMessage } from '../../lib/
 // Make ONLY this route a Vercel serverless function; the rest of the site stays static.
 export const prerender = false;
 
-// A larger model is far more accurate at picking valid section/slot ids and at
-// declining ambiguous requests (the 8B sprayed dozens of invalid ops). 70B fits
-// the 9s Vercel budget; 405B is more accurate but risks timing out. Alternatives:
-// nvidia/llama-3.1-nemotron-70b-instruct, meta/llama-3.1-8b-instruct (fast/cheap).
-const MODEL = 'meta/llama-3.3-70b-instruct';
+// Model choice is RELIABILITY over raw smarts: the 70B on NVIDIA's free tier has
+// wildly variable queue latency (a 3-word request would randomly take >45s), so
+// even with retries it timed out constantly. The 8B answers in ~1-5s and is served
+// far more reliably; the strict prompt + server-side applyOps validation keep its
+// output safe and on-vocabulary. Bump to meta/llama-3.3-70b-instruct or
+// nvidia/llama-3.1-nemotron-70b-instruct here if you later move off the free tier.
+const MODEL = 'meta/llama-3.1-8b-instruct';
 const NVIDIA_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
+const ATTEMPTS = 2; // one automatic retry — absorbs a single slow/queued/5xx attempt
+const PER_ATTEMPT_MS = 20000; // 2 x 20s < the 60s function maxDuration
 const MAX_BODY = 24576; // the body includes the whole DesignSpec + recent chat turns
 const MAX_MESSAGE = 600;
 const MAX_HISTORY = 8; // recent turns kept for multi-turn context
@@ -52,6 +56,58 @@ function getKey(): string | undefined {
   return fromImport || fromProcess;
 }
 
+type ModelFail = 'timeout' | 'upstream' | 'parse' | 'error';
+
+/**
+ * Call NVIDIA with one automatic retry. Each attempt has its own AbortController so
+ * a stalled connection (incl. a hung body read) is aborted, not left to the 60s wall.
+ * Retries a timeout or a 5xx (transient queue/cold-start); does not retry a 4xx/parse.
+ */
+async function callModel(key: string, messages: ChatMessage[]): Promise<{ content: string } | { fail: ModelFail }> {
+  let lastFail: ModelFail = 'error';
+  for (let attempt = 1; attempt <= ATTEMPTS; attempt++) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), PER_ATTEMPT_MS);
+    try {
+      const res = await fetch(NVIDIA_URL, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: MODEL,
+          messages,
+          temperature: 0.2, // low: we want a precise, deterministic patch
+          max_tokens: 1800, // room for a broad multi-slot rewrite without truncating the JSON
+          response_format: { type: 'json_object' },
+        }),
+        signal: ctrl.signal,
+      });
+      if (!res.ok) {
+        const errBody = await res.text().catch(() => '');
+        console.error(`[edit] attempt ${attempt}: nvidia ${res.status} ${errBody.slice(0, 150)}`);
+        lastFail = 'upstream';
+        if (res.status >= 500 && attempt < ATTEMPTS) continue; // transient -> retry
+        return { fail: 'upstream' };
+      }
+      try {
+        const data = await res.json();
+        return { content: data?.choices?.[0]?.message?.content ?? '' };
+      } catch {
+        console.error('[edit] upstream 200 with non-JSON body');
+        return { fail: 'parse' };
+      }
+    } catch (e) {
+      const aborted = e instanceof Error && e.name === 'AbortError';
+      console.error(`[edit] attempt ${attempt}: ${aborted ? 'timeout' : 'exception'} ${String(e)}`);
+      lastFail = aborted ? 'timeout' : 'error';
+      if (attempt < ATTEMPTS) continue; // retry a timeout / transient network error
+      return { fail: lastFail };
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+  return { fail: lastFail };
+}
+
 export const POST: APIRoute = async ({ request }) => {
   // Same-origin guard (compare browser Origin against the PUBLIC host — same as /api/ideas).
   const origin = request.headers.get('origin');
@@ -90,66 +146,27 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ spec, applied: [], skipped: [], reply: "The AI editor isn't configured right now.", source: 'fallback', reason: 'unconfigured' });
   }
 
-  // 45s, under the function's 60s maxDuration. A broad "rewrite everything" request
-  // makes the 70B emit dozens of ops (lots of output) which needs well past 25s on
-  // the free tier. A still-slower model is aborted and falls back gracefully.
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 45000);
-  try {
-    const res = await fetch(NVIDIA_URL, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: MODEL,
-        messages: buildEditMessages(spec, message, history),
-        temperature: 0.2, // low: we want a precise, deterministic patch
-        max_tokens: 1800, // room for a broad multi-slot rewrite without truncating the JSON
-        response_format: { type: 'json_object' },
-      }),
-      signal: ctrl.signal,
-    });
-    // NB: keep `timer` armed across the body read (cleared in finally). fetch resolves
-    // on headers; a stalled body would otherwise hang to the 60s wall with no fallback.
-    if (!res.ok) {
-      const errBody = await res.text().catch(() => '');
-      console.error(`[edit] fallback: nvidia status ${res.status} ${errBody.slice(0, 200)}`);
-      return json({ spec, applied: [], skipped: [], reply: "Sorry, I couldn't reach the AI just now.", source: 'fallback', reason: 'upstream' });
-    }
-
-    let data: any;
-    try {
-      data = await res.json();
-    } catch {
-      console.error('[edit] fallback: upstream 200 with non-JSON body');
-      return json({ spec, applied: [], skipped: [], reply: "Sorry, I couldn't reach the AI just now.", source: 'fallback', reason: 'parse' });
-    }
-    const content: string = data?.choices?.[0]?.message?.content ?? '';
-    const patch = parseModelPatch(content);
-    if (!patch) {
-      console.error(`[edit] fallback: unparseable model output: ${content.slice(0, 200)}`);
-      return json({ spec, applied: [], skipped: [], reply: "I couldn't understand that — try rephrasing?", source: 'fallback', reason: 'parse' });
-    }
-
-    // The model is UNTRUSTED: applyOps validates every op and skips the bad ones.
-    const result = applyOps(spec, patch.ops as unknown as readonly EditOp[]);
-    return json({
-      spec: result.next,
-      applied: result.applied,
-      skipped: result.skipped,
-      reply: clamp(patch.reply, 280) || 'Done.',
-      source: 'ai',
-    });
-  } catch (e) {
-    const aborted = e instanceof Error && e.name === 'AbortError';
-    console.error(`[edit] fallback: ${aborted ? 'timeout' : 'exception'} ${String(e)}`);
-    return json({
-      spec, applied: [], skipped: [],
-      reply: aborted ? 'The assistant took too long.' : 'Something went wrong applying that.',
-      source: 'fallback', reason: aborted ? 'timeout' : 'error',
-    });
-  } finally {
-    clearTimeout(timer);
+  const out = await callModel(key, buildEditMessages(spec, message, history));
+  if ('fail' in out) {
+    const reply = out.fail === 'timeout' ? 'The assistant took too long.' : out.fail === 'error' ? 'Something went wrong applying that.' : "Sorry, I couldn't reach the AI just now.";
+    return json({ spec, applied: [], skipped: [], reply, source: 'fallback', reason: out.fail });
   }
+
+  const patch = parseModelPatch(out.content);
+  if (!patch) {
+    console.error(`[edit] fallback: unparseable model output: ${out.content.slice(0, 200)}`);
+    return json({ spec, applied: [], skipped: [], reply: "I couldn't understand that — try rephrasing?", source: 'fallback', reason: 'parse' });
+  }
+
+  // The model is UNTRUSTED: applyOps validates every op and skips the bad ones.
+  const result = applyOps(spec, patch.ops as unknown as readonly EditOp[]);
+  return json({
+    spec: result.next,
+    applied: result.applied,
+    skipped: result.skipped,
+    reply: clamp(patch.reply, 280) || 'Done.',
+    source: 'ai',
+  });
 };
 
 // Reject non-POST verbs cleanly.
