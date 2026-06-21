@@ -383,8 +383,9 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 sm:px-6">
-      {/* Top toolbar — the only chrome; everything else is edited on the canvas */}
-      <div className="mb-3 flex items-center justify-between gap-2">
+      {/* Top toolbar — the only chrome; everything else is edited on the canvas.
+          Wraps to two rows on narrow phones so nothing overflows off-screen. */}
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-x-2 gap-y-2">
         <div className="relative flex items-center gap-2">
           <button
             type="button"
