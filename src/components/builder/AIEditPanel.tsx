@@ -29,6 +29,8 @@ type Msg =
   | { id: number; role: 'error'; text: string };
 
 const MAX_MESSAGE = 600; // mirrors the endpoint's MAX_MESSAGE cap
+const EXAMPLES = ['builder.ai.ex1', 'builder.ai.ex2', 'builder.ai.ex3', 'builder.ai.ex4', 'builder.ai.ex5', 'builder.ai.ex6', 'builder.ai.ex7', 'builder.ai.ex8'];
+const CHIP_CLS = 'shrink-0 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-neutral)] px-2.5 py-1 text-[11px] text-[var(--color-text-muted)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text)]';
 
 /**
  * Conversational editing panel. The user types a plain-language request; we POST
@@ -166,6 +168,8 @@ export default function AIEditPanel({
   })();
   const changeId = lastAssistant && lastAssistant.before ? lastAssistant.id : null;
 
+  const fillExample = (key: string) => { setInput(t(key)); inputRef.current?.focus(); };
+
   const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -199,15 +203,8 @@ export default function AIEditPanel({
           <div className="space-y-2.5">
             <p className="text-xs leading-relaxed text-[var(--color-text-muted)]">{t('builder.ai.desc')}</p>
             <div className="flex flex-wrap gap-1.5">
-              {['builder.ai.ex1', 'builder.ai.ex2', 'builder.ai.ex3'].map((ex) => (
-                <button
-                  key={ex}
-                  type="button"
-                  onClick={() => { setInput(t(ex)); inputRef.current?.focus(); }}
-                  className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface-neutral)] px-2.5 py-1 text-[11px] text-[var(--color-text-muted)] transition-colors hover:border-[var(--color-accent)] hover:text-[var(--color-text)]"
-                >
-                  {t(ex)}
-                </button>
+              {EXAMPLES.map((ex) => (
+                <button key={ex} type="button" onClick={() => fillExample(ex)} className={CHIP_CLS}>{t(ex)}</button>
               ))}
             </div>
           </div>
@@ -262,6 +259,13 @@ export default function AIEditPanel({
 
       {/* composer */}
       <div className="border-t border-[var(--color-border)] p-3">
+        {messages.length > 0 && (
+          <div className="-mt-0.5 mb-2 flex gap-1.5 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {EXAMPLES.map((ex) => (
+              <button key={ex} type="button" onClick={() => fillExample(ex)} className={CHIP_CLS}>{t(ex)}</button>
+            ))}
+          </div>
+        )}
         <textarea
           ref={inputRef}
           value={input}

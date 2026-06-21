@@ -231,7 +231,12 @@
     "showcase.accent": "Work",
     "showcase.subtitle": "A few of the sites we've built - pick one to bring it to the front.",
     "showcase.open": "Open",
-    "showcase.aria": "Projects"
+    "showcase.aria": "Projects",
+    "builder.ai.ex4": "Hide the gallery",
+    "builder.ai.ex5": "Use a modern font",
+    "builder.ai.ex6": "Friendlier tone",
+    "builder.ai.ex7": "Shorten the intro",
+    "builder.ai.ex8": "Add gentle animations"
   },
   "ro": {
     "hero.title1": "Construim software",
@@ -433,7 +438,7 @@
     "builder.ai.undone": "Anulat",
     "builder.ai.offline": "Asistent offline",
     "builder.ai.hint": "Enter pentru trimitere, Shift+Enter pentru rand nou",
-    "builder.ai.ex1": "Fa-l intunecat",
+    "builder.ai.ex1": "Fă-l întunecat",
     "builder.ai.ex2": "Culori mai calde",
     "builder.ai.ex3": "Titlu mai puternic",
     "builder.section.steps": "Pasi",
@@ -465,7 +470,12 @@
     "showcase.accent": "recente",
     "showcase.subtitle": "Cateva dintre site-urile pe care le-am construit - alege unul ca sa il aduci in fata.",
     "showcase.open": "Deschide",
-    "showcase.aria": "Proiecte"
+    "showcase.aria": "Proiecte",
+    "builder.ai.ex4": "Ascunde galeria",
+    "builder.ai.ex5": "Font modern",
+    "builder.ai.ex6": "Ton mai prietenos",
+    "builder.ai.ex7": "Scurtează introducerea",
+    "builder.ai.ex8": "Animații subtile"
   },
   "de": {
     "hero.title1": "Wir entwickeln Software,",
@@ -668,8 +678,8 @@
     "builder.ai.offline": "Assistent offline",
     "builder.ai.hint": "Enter zum Senden, Shift+Enter fuer neue Zeile",
     "builder.ai.ex1": "Mach es dunkel",
-    "builder.ai.ex2": "Waermere Farben",
-    "builder.ai.ex3": "Praegnantere Ueberschrift",
+    "builder.ai.ex2": "Wärmere Farben",
+    "builder.ai.ex3": "Prägnantere Überschrift",
     "builder.section.steps": "Schritte",
     "builder.section.stats": "Zahlen",
     "builder.section.pricing": "Preise",
@@ -699,7 +709,12 @@
     "showcase.accent": "Projekte",
     "showcase.subtitle": "Einige unserer gebauten Websites - wahle eine aus, um sie nach vorne zu holen.",
     "showcase.open": "Offnen",
-    "showcase.aria": "Projekte"
+    "showcase.aria": "Projekte",
+    "builder.ai.ex4": "Galerie ausblenden",
+    "builder.ai.ex5": "Moderne Schrift",
+    "builder.ai.ex6": "Freundlicherer Ton",
+    "builder.ai.ex7": "Intro kürzen",
+    "builder.ai.ex8": "Sanfte Animationen"
   },
   "fr": {
     "hero.title1": "Nous creons des logiciels",
@@ -933,7 +948,12 @@
     "showcase.accent": "recents",
     "showcase.subtitle": "Quelques sites que nous avons crees - choisissez-en un pour le mettre en avant.",
     "showcase.open": "Ouvrir",
-    "showcase.aria": "Projets"
+    "showcase.aria": "Projets",
+    "builder.ai.ex4": "Masquer la galerie",
+    "builder.ai.ex5": "Police moderne",
+    "builder.ai.ex6": "Ton plus amical",
+    "builder.ai.ex7": "Raccourcir l'intro",
+    "builder.ai.ex8": "Animations douces"
   },
   "es": {
     "hero.title1": "Creamos software",
@@ -1136,8 +1156,8 @@
     "builder.ai.offline": "Asistente sin conexion",
     "builder.ai.hint": "Enter para enviar, Mayus+Enter para nueva linea",
     "builder.ai.ex1": "Ponlo oscuro",
-    "builder.ai.ex2": "Colores mas calidos",
-    "builder.ai.ex3": "Titular mas directo",
+    "builder.ai.ex2": "Colores más cálidos",
+    "builder.ai.ex3": "Titular más directo",
     "builder.section.steps": "Pasos",
     "builder.section.stats": "Cifras",
     "builder.section.pricing": "Precios",
@@ -1167,7 +1187,12 @@
     "showcase.accent": "recientes",
     "showcase.subtitle": "Algunos de los sitios que hemos creado - elige uno para traerlo al frente.",
     "showcase.open": "Abrir",
-    "showcase.aria": "Proyectos"
+    "showcase.aria": "Proyectos",
+    "builder.ai.ex4": "Ocultar la galería",
+    "builder.ai.ex5": "Fuente moderna",
+    "builder.ai.ex6": "Tono más cercano",
+    "builder.ai.ex7": "Acortar la intro",
+    "builder.ai.ex8": "Animaciones suaves"
   },
   "it": {
     "hero.title1": "Creiamo software",
@@ -1370,8 +1395,8 @@
     "builder.ai.offline": "Assistente offline",
     "builder.ai.hint": "Invio per inviare, Maiusc+Invio per andare a capo",
     "builder.ai.ex1": "Rendilo scuro",
-    "builder.ai.ex2": "Colori piu caldi",
-    "builder.ai.ex3": "Titolo piu incisivo",
+    "builder.ai.ex2": "Colori più caldi",
+    "builder.ai.ex3": "Titolo più incisivo",
     "builder.section.steps": "Passaggi",
     "builder.section.stats": "Numeri",
     "builder.section.pricing": "Prezzi",
@@ -1401,6 +1426,11 @@
     "showcase.accent": "recenti",
     "showcase.subtitle": "Alcuni dei siti che abbiamo realizzato - scegline uno per portarlo in primo piano.",
     "showcase.open": "Apri",
-    "showcase.aria": "Progetti"
+    "showcase.aria": "Progetti",
+    "builder.ai.ex4": "Nascondi la galleria",
+    "builder.ai.ex5": "Font moderno",
+    "builder.ai.ex6": "Tono più amichevole",
+    "builder.ai.ex7": "Accorcia l'intro",
+    "builder.ai.ex8": "Animazioni delicate"
   }
 }
