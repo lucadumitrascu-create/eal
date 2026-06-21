@@ -1,53 +1,5 @@
 [
   {
-    "id": "il-rione",
-    "title": "Il Rione",
-    "description": "Authentic Neapolitan pizzeria in Vienna — founder story, menu, and gallery.",
-    "tech": [
-      "Next.js",
-      "Tailwind CSS"
-    ],
-    "url": "https://rione-demo.ealenterprises.com",
-    "image": "/images/projects/il-rione.webp",
-    "featured": true
-  },
-  {
-    "id": "baumgartner-holzbau",
-    "title": "Baumgartner Holzbau",
-    "description": "Editorial site for an Austrian timber-construction firm, established 1978.",
-    "tech": [
-      "Next.js",
-      "Tailwind CSS"
-    ],
-    "url": "https://bg-demo.ealenterprises.com",
-    "image": "/images/projects/baumgartner-holzbau.webp",
-    "featured": true
-  },
-  {
-    "id": "elektro-schweitzer",
-    "title": "Elektro Schweitzer",
-    "description": "Master electrician in Burgenland — three generations since 1974.",
-    "tech": [
-      "Next.js",
-      "Tailwind CSS"
-    ],
-    "url": "https://elektro-demo.ealenterprises.com",
-    "image": "/images/projects/elektro-schweitzer.webp",
-    "featured": true
-  },
-  {
-    "id": "independent-plumbing",
-    "title": "Independent Plumbing",
-    "description": "Bold one-page site for an independent plumber in Phoenix, Arizona.",
-    "tech": [
-      "Next.js",
-      "Tailwind CSS"
-    ],
-    "url": "https://caleb-demo.ealenterprises.com",
-    "image": "/images/projects/independent-plumbing.webp",
-    "featured": true
-  },
-  {
     "id": "solbotpro",
     "title": "SOLbot Pro",
     "description": "Trading toolkit for the Solana blockchain.",
@@ -95,6 +47,54 @@
     ],
     "url": "https://adricut.com",
     "image": "/images/projects/adricut.webp",
+    "featured": true
+  },
+  {
+    "id": "il-rione",
+    "title": "Il Rione",
+    "description": "Authentic Neapolitan pizzeria in Vienna — founder story, menu, and gallery.",
+    "tech": [
+      "Next.js",
+      "Tailwind CSS"
+    ],
+    "url": "https://rione-demo.ealenterprises.com",
+    "image": "/images/projects/il-rione.webp",
+    "featured": true
+  },
+  {
+    "id": "baumgartner-holzbau",
+    "title": "Baumgartner Holzbau",
+    "description": "Editorial site for an Austrian timber-construction firm, established 1978.",
+    "tech": [
+      "Next.js",
+      "Tailwind CSS"
+    ],
+    "url": "https://bg-demo.ealenterprises.com",
+    "image": "/images/projects/baumgartner-holzbau.webp",
+    "featured": true
+  },
+  {
+    "id": "elektro-schweitzer",
+    "title": "Elektro Schweitzer",
+    "description": "Master electrician in Burgenland — three generations since 1974.",
+    "tech": [
+      "Next.js",
+      "Tailwind CSS"
+    ],
+    "url": "https://elektro-demo.ealenterprises.com",
+    "image": "/images/projects/elektro-schweitzer.webp",
+    "featured": true
+  },
+  {
+    "id": "independent-plumbing",
+    "title": "Independent Plumbing",
+    "description": "Bold one-page site for an independent plumber in Phoenix, Arizona.",
+    "tech": [
+      "Next.js",
+      "Tailwind CSS"
+    ],
+    "url": "https://caleb-demo.ealenterprises.com",
+    "image": "/images/projects/independent-plumbing.webp",
     "featured": true
   }
 ]

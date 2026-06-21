@@ -170,12 +170,8 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
           transition:transform .5s cubic-bezier(.22,.7,.3,1), box-shadow .5s cubic-bezier(.22,.7,.3,1);
           box-shadow:0 2px 6px rgba(15,23,42,.22), 26px 28px 50px -18px rgba(15,23,42,.50);
         }
-        /* Progressive overlap: perspective foreshortens the right cards (they get
-           narrower), so a uniform margin leaves a gap on the right. Overlap more
-           toward the right to keep the rendered overlap even. */
-        .lc-card:nth-child(1){ margin-right:-215px; }
-        .lc-card:nth-child(2){ margin-right:-243px; }
-        .lc-card:nth-child(3){ margin-right:-267px; }
+        /* Progressive overlap (perspective foreshortens the right cards) is set
+           per-card inline via marginRight so it scales to any number of cards. */
         .lc-card.is-active{
           box-shadow:0 12px 24px rgba(15,23,42,.28), 0 60px 110px -28px rgba(15,23,42,.55);
           z-index:50;
@@ -206,14 +202,18 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
 
       <div className="lc-stage">
         <div ref={shelfRef} className="lc-shelf">
-          {[0, 1, 2, 3].map((i) => (
+          {images.map((_, i) => (
             <div
               key={i}
               ref={(el) => {
                 cardRefs.current[i] = el;
               }}
               className={`lc-card ${active === i ? 'is-active' : ''}`}
-              style={transformFor(i) ? { transform: transformFor(i) } : undefined}
+              style={{
+                ...(transformFor(i) ? { transform: transformFor(i) } : {}),
+                // progressive overlap; every card but the last pulls the next one in
+                marginRight: i < images.length - 1 ? `-${215 + i * 26}px` : undefined,
+              }}
             >
               {images[i] ? (
                 <img src={images[i]} alt={titles[i] ?? `Project ${i + 1}`} />
