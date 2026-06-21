@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { useT } from '../../lib/builder/i18n';
+import { useT, useLang } from '../../lib/builder/i18n';
 import type { Idea } from '../../lib/ai/fallbackIdeas';
 
 const inputCls =
@@ -9,6 +9,7 @@ type Tone = 'professional' | 'friendly' | 'bold';
 
 export default function IdeasHelper({ onApply, onApplyAll, defaultCompany = '' }: { onApply: (slot: 'headline' | 'subhead' | 'cta', value: string) => void; onApplyAll: (idea: Idea, company: string) => void; defaultCompany?: string }) {
   const t = useT();
+  const lang = useLang();
   const [company, setCompany] = useState(defaultCompany);
   const [industry, setIndustry] = useState('');
   const [tone, setTone] = useState<Tone>('professional');
@@ -29,7 +30,7 @@ export default function IdeasHelper({ onApply, onApplyAll, defaultCompany = '' }
       const res = await fetch('/api/ideas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ company: company.trim(), industry: industry.trim(), tone }),
+        body: JSON.stringify({ company: company.trim(), industry: industry.trim(), tone, lang }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data || !data.headline) {

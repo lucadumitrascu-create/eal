@@ -4,7 +4,7 @@ import { templates, templateById, themes, fonts } from '../../data/templates';
 import { defaultPresetId } from '../../data/imageLibrary';
 import { defaultSpecFromTemplate, validateSpec, defById, sectionFromDef } from '../../lib/builder/spec';
 import { decodeSpec, encodeSpec } from '../../lib/builder/encode';
-import { useT } from '../../lib/builder/i18n';
+import { useT, currentLang } from '../../lib/builder/i18n';
 import LivePreview, { type EditAPI } from './LivePreview';
 import TemplatePicker from './TemplatePicker';
 import IdeasHelper from './IdeasHelper';
@@ -50,7 +50,7 @@ function reducer(state: DesignSpec, a: Action): DesignSpec {
   switch (a.type) {
     case 'template': {
       const tpl = templateById(a.id);
-      return tpl ? defaultSpecFromTemplate(tpl) : state;
+      return tpl ? defaultSpecFromTemplate(tpl, currentLang()) : state;
     }
     case 'meta':
       return { ...state, meta: { ...state.meta, [a.field]: a.value } };
@@ -150,7 +150,9 @@ function reducer(state: DesignSpec, a: Action): DesignSpec {
       const tpl = templateById(state.templateId);
       const def = tpl ? defById(tpl, a.id) : undefined;
       if (!def || state.sections.some((s) => s.id === a.id)) return state;
-      return { ...state, sections: [...state.sections, sectionFromDef(def)] };
+      // A re-added template section keeps its own copy; a universal block uses the shared catalog.
+      const ownerId = tpl!.sections.some((s) => s.id === a.id) ? tpl!.id : '__universal';
+      return { ...state, sections: [...state.sections, sectionFromDef(def, currentLang(), ownerId)] };
     }
     case 'load':
       return a.spec;
@@ -170,7 +172,7 @@ function initSpec(decoded: DesignSpec | null): DesignSpec {
   } catch {
     /* ignore corrupt draft */
   }
-  return defaultSpecFromTemplate(templates[0]);
+  return defaultSpecFromTemplate(templates[0], currentLang());
 }
 
 export default function BuilderApp() {
@@ -350,7 +352,7 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
 
   const onReset = () => {
     if (tpl && window.confirm(t('builder.reset.confirm'))) {
-      dispatch({ type: 'load', spec: defaultSpecFromTemplate(tpl) });
+      dispatch({ type: 'load', spec: defaultSpecFromTemplate(tpl, currentLang()) });
     }
   };
 

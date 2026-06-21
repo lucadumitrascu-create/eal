@@ -3,12 +3,18 @@
  * the NVIDIA key/model is unavailable, and imported client-side so the Ideas
  * helper still works fully offline. No network, no dependencies.
  */
+import localizedBanks from './fallbackIdeasContent.json';
+
 export interface Idea {
   headline: string;
   subhead: string;
   sections: { title: string; body: string }[];
   cta: string;
 }
+
+// Localized banks (ro/de/fr/es/it) keyed the same as the English BANK below; any
+// missing language/industry falls back to English.
+const LOCALIZED = localizedBanks as Partial<Record<string, Record<string, Idea>>>;
 
 const BANK: Record<string, Idea> = {
   restaurant: {
@@ -72,8 +78,9 @@ function pickKey(industry: string): keyof typeof BANK {
   return 'default';
 }
 
-export function fallbackIdeas(industry = '', _company = ''): Idea {
-  const base = BANK[pickKey(industry)] || BANK.default;
+export function fallbackIdeas(industry = '', _company = '', lang = 'en'): Idea {
+  const key = pickKey(industry);
+  const base = LOCALIZED[lang]?.[key] || BANK[key] || BANK.default;
   // Return a copy so callers can't mutate the bank.
   return { ...base, sections: base.sections.map((s) => ({ ...s })) };
 }

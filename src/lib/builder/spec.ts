@@ -1,15 +1,23 @@
 import type { Template, DesignSpec, ColorTheme, FontPair, AnimationPreset, SectionDisplay, HeroPos, HeroWidth, HeroVAlign, ButtonStyle, ImageRef, SectionDef } from '../../data/templates';
 import { templateById, universalBlocks } from '../../data/templates';
 import { defaultPresetId } from '../../data/imageLibrary';
+import { localizedDefault } from '../../data/templateContent';
+import type { Lang } from './i18n';
 
-/** Build a fresh section-spec object from a section definition. */
-export function sectionFromDef(s: SectionDef): DesignSpec['sections'][number] {
+/** Build a fresh section-spec object from a section definition, with its default
+    copy localized to `lang` (ownerId = the templateId, or `__universal`). */
+export function sectionFromDef(s: SectionDef, lang: Lang = 'en', ownerId: string = s.id): DesignSpec['sections'][number] {
   return {
     id: s.id,
     enabled: s.enabledByDefault,
     display: s.display,
-    text: Object.fromEntries(s.textSlots.map((sl) => [sl.id, sl.default])),
-    images: Object.fromEntries(s.imageSlots.map((sl) => [sl.id, { ...sl.default }])),
+    text: Object.fromEntries(s.textSlots.map((sl) => [sl.id, localizedDefault(lang, ownerId, `${s.id}.${sl.id}`, sl.default)])),
+    images: Object.fromEntries(
+      s.imageSlots.map((sl) => {
+        const label = localizedDefault(lang, ownerId, `${s.id}.${sl.id}.label`, sl.default.label);
+        return [sl.id, { presetId: sl.default.presetId, label, alt: label }];
+      }),
+    ),
   };
 }
 
@@ -35,15 +43,18 @@ export function clampText(v: string, max: number): string {
   return v.length > max ? v.slice(0, max) : v;
 }
 
-export function defaultSpecFromTemplate(tpl: Template): DesignSpec {
+export function defaultSpecFromTemplate(tpl: Template, lang: Lang = 'en'): DesignSpec {
   return {
     v: SPEC_VERSION,
     templateId: tpl.id,
     theme: tpl.theme,
     font: tpl.font,
     animation: tpl.animation,
-    meta: { siteName: tpl.defaultSiteName, tagline: tpl.defaultTagline },
-    sections: tpl.sections.map(sectionFromDef),
+    meta: {
+      siteName: localizedDefault(lang, tpl.id, '__siteName', tpl.defaultSiteName),
+      tagline: localizedDefault(lang, tpl.id, '__tagline', tpl.defaultTagline),
+    },
+    sections: tpl.sections.map((s) => sectionFromDef(s, lang, tpl.id)),
   };
 }
 

@@ -298,7 +298,7 @@ export const templates: Template[] = [
     industryHint: ['beauty', 'salon', 'spa', 'hair', 'nails', 'makeup', 'wellness'],
     theme: 'rose', font: 'editorial', animation: 'blur',
     layout: { hero: 'editorial', nav: 'center', feature: 'split', cards: 'plain', align: 'center', bands: true, scale: 'lg', radius: 'round', type: 'serifDisplay', btn: 'outline', density: 'airy' },
-    defaultSiteName: 'Lumière Studio', defaultTagline: 'Hair & beauty',
+    defaultSiteName: 'Lumiere Studio', defaultTagline: 'Hair & beauty',
     sections: [
       hero('Est. 2014', 'Look like yourself, only lovelier', 'A calm, modern salon for hair, skin and nails — unhurried, attentive, and quietly luxurious.', 'Book an appointment', 'ph-salon', 'The studio'),
       features('What we offer', [['Hair', 'Cuts, colour and care by stylists who actually listen.'], ['Skin', 'Facials and treatments tailored to your skin, not a script.'], ['Nails', 'Meticulous manicures in a space made for slowing down.']]),

@@ -1,0 +1,487 @@
+{
+"ro": {
+"restaurant": {
+"headline": "Proaspat preparat, servit cald",
+"subhead": "Mancare cinstita, o sala primitoare si o echipa care trateaza fiecare oaspete ca pe familie.",
+"cta": "Rezerva o masa",
+"sections": [
+{
+"title": "Meniu de sezon",
+"body": "Preparate care se schimba dupa ce e bun acum."
+},
+{
+"title": "Rezerva o masa",
+"body": "Rezervi online in mai putin de un minut, in orice zi."
+},
+{
+"title": "Evenimente private",
+"body": "De la zile de nastere la cine de afaceri, le gazduim noi."
+}
+]
+},
+"agency": {
+"headline": "Construit corect, livrat rapid",
+"subhead": "O echipa mica de seniori care creeaza si construieste produse web pe care oamenii chiar le folosesc cu placere.",
+"cta": "Incepe un proiect",
+"sections": [
+{
+"title": "Strategie",
+"body": "Transformam o idee bruta intr-un plan clar, usor de construit."
+},
+{
+"title": "Design si dezvoltare",
+"body": "O singura echipa, de la prima schita la productie."
+},
+{
+"title": "Suport continuu",
+"body": "Ramanem alaturi dupa lansare: actualizari, reparatii, crestere."
+}
+]
+},
+"portfolio": {
+"headline": "Lucrari alese, facute cu grija",
+"subhead": "Un designer concentrat pe lucrari clare si gandite, in branding si digital.",
+"cta": "Contacteaza-ma",
+"sections": [
+{
+"title": "Proiecte recente",
+"body": "O privire asupra a ceea ce am livrat de curand."
+},
+{
+"title": "Cum lucrez",
+"body": "Colaborare apropiata, putine surprize, la timp."
+},
+{
+"title": "Hai sa vorbim",
+"body": "Deschis pentru proiecte freelance si colaborari."
+}
+]
+},
+"shop": {
+"headline": "Lucruri care merita pastrate",
+"subhead": "Un magazin mic, cu o gama restransa si bine aleasa si livrare rapida si prietenoasa.",
+"cta": "Cumpara acum",
+"sections": [
+{
+"title": "Vezi gama",
+"body": "O selectie atent aleasa, reaprovizionata des."
+},
+{
+"title": "Livrare rapida",
+"body": "Expediat intr-o zi, urmarit pana la usa ta."
+},
+{
+"title": "Retur usor",
+"body": "Te-ai razgandit? Fara batai de cap, 30 de zile."
+}
+]
+},
+"default": {
+"headline": "Bun venit, hai sa incepem",
+"subhead": "Spune vizitatorilor cine esti, ce oferi si de ce conteaza, intr-o singura propozitie clara.",
+"cta": "Contacteaza-ne",
+"sections": [
+{
+"title": "Ce oferim",
+"body": "Un rezumat scurt si sincer al serviciului tau principal."
+},
+{
+"title": "De ce noi",
+"body": "Cele unul-doua lucruri care te diferentiaza."
+},
+{
+"title": "Contacteaza-ne",
+"body": "Fa-le oamenilor usor sa faca pasul urmator."
+}
+]
+}
+},
+"de": {
+"restaurant": {
+"headline": "Frisch zubereitet, warm serviert",
+"subhead": "Ehrliche Kueche, ein einladender Raum und ein Team, das jeden Gast wie Familie behandelt.",
+"cta": "Tisch reservieren",
+"sections": [
+{
+"title": "Saisonale Karte",
+"body": "Gerichte, die sich nach dem richten, was gerade gut ist."
+},
+{
+"title": "Tisch buchen",
+"body": "Reservieren Sie online in unter einer Minute, an jedem Tag."
+},
+{
+"title": "Private Feiern",
+"body": "Vom Geburtstag bis zum Geschaeftsessen richten wir es aus."
+}
+]
+},
+"agency": {
+"headline": "Richtig gebaut, schnell geliefert",
+"subhead": "Ein kleines erfahrenes Team, das Web-Produkte gestaltet und baut, die Menschen wirklich gern nutzen.",
+"cta": "Projekt starten",
+"sections": [
+{
+"title": "Strategie",
+"body": "Wir machen aus einer groben Idee einen klaren, baubaren Plan."
+},
+{
+"title": "Design und Umsetzung",
+"body": "Ein Team von der ersten Skizze bis zur Produktion."
+},
+{
+"title": "Laufende Betreuung",
+"body": "Wir bleiben nach dem Start dabei: Updates, Fixes, Wachstum."
+}
+]
+},
+"portfolio": {
+"headline": "Ausgewaehlte Arbeiten, sorgfaeltig gemacht",
+"subhead": "Eine Designerin mit Fokus auf klare, durchdachte Arbeit ueber Marke und Digitales hinweg.",
+"cta": "Kontakt aufnehmen",
+"sections": [
+{
+"title": "Aktuelle Projekte",
+"body": "Ein Blick auf das, was ich zuletzt umgesetzt habe."
+},
+{
+"title": "Wie ich arbeite",
+"body": "Enge Zusammenarbeit, wenige Ueberraschungen, puenktlich."
+},
+{
+"title": "Lass uns reden",
+"body": "Offen fuer freie Auftraege und Kooperationen."
+}
+]
+},
+"shop": {
+"headline": "Dinge, die es wert sind zu bleiben",
+"subhead": "Ein kleiner Shop mit einer feinen, gut gewaehlten Auswahl und schnellem, freundlichem Versand.",
+"cta": "Jetzt einkaufen",
+"sections": [
+{
+"title": "Sortiment entdecken",
+"body": "Eine kuratierte Auswahl, regelmaessig neu bestueckt."
+},
+{
+"title": "Schneller Versand",
+"body": "Versand innerhalb eines Tages, verfolgt bis zur Tuer."
+},
+{
+"title": "Einfache Ruecksendung",
+"body": "Meinung geaendert? Ganz unkompliziert, 30 Tage."
+}
+]
+},
+"default": {
+"headline": "Willkommen - legen wir los",
+"subhead": "Sagen Sie Besuchern in einer klaren Zeile, wer Sie sind, was Sie bieten und warum es zaehlt.",
+"cta": "Kontakt aufnehmen",
+"sections": [
+{
+"title": "Was wir bieten",
+"body": "Eine kurze, ehrliche Zusammenfassung Ihrer Kernleistung."
+},
+{
+"title": "Warum wir",
+"body": "Die ein, zwei Dinge, die Sie von anderen abheben."
+},
+{
+"title": "Kontakt aufnehmen",
+"body": "Machen Sie es Menschen leicht, den naechsten Schritt zu gehen."
+}
+]
+}
+},
+"fr": {
+"restaurant": {
+"headline": "Frais du jour, servi avec le sourire",
+"subhead": "Une cuisine sincere, une salle accueillante et une equipe qui traite chaque convive comme un proche.",
+"cta": "Reserver une table",
+"sections": [
+{
+"title": "Menu de saison",
+"body": "Des plats qui evoluent au rythme des produits du moment."
+},
+{
+"title": "Reserver une table",
+"body": "Reservez en ligne en moins d'une minute, tous les jours."
+},
+{
+"title": "Evenements prives",
+"body": "Anniversaires ou diners d'affaires, nous accueillons tout."
+}
+]
+},
+"agency": {
+"headline": "Bien concu, livre rapidement",
+"subhead": "Une petite equipe senior qui concoit et developpe des produits web que les gens aiment vraiment utiliser.",
+"cta": "Lancer un projet",
+"sections": [
+{
+"title": "Strategie",
+"body": "Nous transformons une idee floue en un plan clair et realisable."
+},
+{
+"title": "Design et developpement",
+"body": "Une seule equipe, du premier croquis a la production."
+},
+{
+"title": "Suivi continu",
+"body": "Nous restons apres le lancement: mises a jour, correctifs, croissance."
+}
+]
+},
+"portfolio": {
+"headline": "Des projets choisis, faits avec soin",
+"subhead": "Un designer attache a un travail clair et reflechi, en identite de marque comme en digital.",
+"cta": "Me contacter",
+"sections": [
+{
+"title": "Projets recents",
+"body": "Un apercu de mes dernieres realisations."
+},
+{
+"title": "Ma facon de travailler",
+"body": "Collaboration etroite, peu de surprises, dans les delais."
+},
+{
+"title": "Discutons",
+"body": "Ouvert aux missions freelance et aux collaborations."
+}
+]
+},
+"shop": {
+"headline": "Des objets faits pour durer",
+"subhead": "Une petite boutique a la selection resserree et soignee, avec une livraison rapide et chaleureuse.",
+"cta": "Acheter",
+"sections": [
+{
+"title": "Decouvrir la selection",
+"body": "Une selection pointue, reassortie regulierement."
+},
+{
+"title": "Livraison rapide",
+"body": "Expedie en un jour, suivi jusqu'a votre porte."
+},
+{
+"title": "Retours faciles",
+"body": "Vous changez d'avis? Sans souci, sous 30 jours."
+}
+]
+},
+"default": {
+"headline": "Bienvenue, c'est parti",
+"subhead": "Dites a vos visiteurs qui vous etes, ce que vous proposez et pourquoi cela compte, en une phrase claire.",
+"cta": "Me contacter",
+"sections": [
+{
+"title": "Notre offre",
+"body": "Un resume court et sincere de votre service principal."
+},
+{
+"title": "Pourquoi nous choisir",
+"body": "Les une ou deux choses qui vous distinguent vraiment."
+},
+{
+"title": "Nous contacter",
+"body": "Facilitez le passage a l'etape suivante pour chacun."
+}
+]
+}
+},
+"es": {
+"restaurant": {
+"headline": "Hecho fresco, servido caliente",
+"subhead": "Comida honesta, un local acogedor y un equipo que trata a cada cliente como de la familia.",
+"cta": "Reservar mesa",
+"sections": [
+{
+"title": "Menu de temporada",
+"body": "Platos que cambian segun lo mejor de cada momento."
+},
+{
+"title": "Reserva tu mesa",
+"body": "Reserva online en menos de un minuto, cualquier dia."
+},
+{
+"title": "Eventos privados",
+"body": "De cumpleanos a cenas de empresa, lo organizamos."
+}
+]
+},
+"agency": {
+"headline": "Bien hecho, entregado rapido",
+"subhead": "Un equipo senior y reducido que disena y crea productos web que la gente disfruta de verdad usar.",
+"cta": "Iniciar un proyecto",
+"sections": [
+{
+"title": "Estrategia",
+"body": "Convertimos una idea en bruto en un plan claro y realizable."
+},
+{
+"title": "Diseno y desarrollo",
+"body": "Un solo equipo del primer boceto a produccion."
+},
+{
+"title": "Soporte continuo",
+"body": "Seguimos tras el lanzamiento: mejoras, arreglos, crecimiento."
+}
+]
+},
+"portfolio": {
+"headline": "Trabajos elegidos, hechos con cuidado",
+"subhead": "Una disenadora centrada en un trabajo claro y meditado entre marca y digital.",
+"cta": "Contactar",
+"sections": [
+{
+"title": "Proyectos recientes",
+"body": "Un vistazo a lo que he lanzado ultimamente."
+},
+{
+"title": "Como trabajo",
+"body": "Colaboracion cercana, pocas sorpresas, a tiempo."
+},
+{
+"title": "Hablemos",
+"body": "Abierta a trabajos freelance y colaboraciones."
+}
+]
+},
+"shop": {
+"headline": "Cosas que vale la pena tener",
+"subhead": "Una tienda pequena con una gama reducida y bien elegida y un envio rapido y cercano.",
+"cta": "Comprar ahora",
+"sections": [
+{
+"title": "Ver la gama",
+"body": "Una seleccion cuidada, repuesta con frecuencia."
+},
+{
+"title": "Envio rapido",
+"body": "Enviado en un dia, con seguimiento hasta tu puerta."
+},
+{
+"title": "Devoluciones faciles",
+"body": "Cambiaste de idea? Sin lios, 30 dias."
+}
+]
+},
+"default": {
+"headline": "Bienvenido, empecemos ya",
+"subhead": "Cuenta a quien te visita quien eres, que ofreces y por que importa, en una sola linea clara.",
+"cta": "Contactar",
+"sections": [
+{
+"title": "Que ofrecemos",
+"body": "Un resumen breve y honesto de tu servicio principal."
+},
+{
+"title": "Por que elegirnos",
+"body": "Las una o dos cosas que te hacen diferente."
+},
+{
+"title": "Contacta con nosotros",
+"body": "Pon facil que la gente de el siguiente paso."
+}
+]
+}
+},
+"it": {
+"restaurant": {
+"headline": "Fatto fresco, servito caldo",
+"subhead": "Cucina genuina, una sala accogliente e un team che tratta ogni ospite come se fosse di famiglia.",
+"cta": "Prenota un tavolo",
+"sections": [
+{
+"title": "Menu di stagione",
+"body": "Piatti che cambiano con cio che il mercato offre di buono adesso."
+},
+{
+"title": "Prenota un tavolo",
+"body": "Prenota online in meno di un minuto, ogni giorno della settimana."
+},
+{
+"title": "Eventi privati",
+"body": "Dai compleanni alle cene di lavoro, lo organizziamo noi."
+}
+]
+},
+"agency": {
+"headline": "Fatto bene, rilasciato in fretta",
+"subhead": "Un piccolo team senior che progetta e costruisce prodotti web che le persone usano davvero con piacere.",
+"cta": "Avvia un progetto",
+"sections": [
+{
+"title": "Strategia",
+"body": "Trasformiamo un'idea grezza in un piano chiaro e realizzabile."
+},
+{
+"title": "Design e sviluppo",
+"body": "Un solo team dal primo schizzo alla produzione."
+},
+{
+"title": "Supporto continuo",
+"body": "Restiamo dopo il lancio: aggiornamenti, fix, crescita."
+}
+]
+},
+"portfolio": {
+"headline": "Lavori scelti, fatti con cura",
+"subhead": "Un designer concentrato su un lavoro chiaro e ponderato, tra brand e digitale.",
+"cta": "Contattami",
+"sections": [
+{
+"title": "Progetti recenti",
+"body": "Uno sguardo a cio che ho realizzato ultimamente."
+},
+{
+"title": "Come lavoro",
+"body": "Collaborazione stretta, poche sorprese, sempre puntuale."
+},
+{
+"title": "Parliamone",
+"body": "Disponibile per freelance e collaborazioni."
+}
+]
+},
+"shop": {
+"headline": "Cose che vale la pena tenere",
+"subhead": "Un piccolo negozio con una selezione ristretta e ben scelta e una consegna rapida e cordiale.",
+"cta": "Acquista ora",
+"sections": [
+{
+"title": "Esplora la selezione",
+"body": "Una scelta curata, rifornita spesso."
+},
+{
+"title": "Consegna rapida",
+"body": "Spedito entro un giorno, tracciato fino alla tua porta."
+},
+{
+"title": "Resi facili",
+"body": "Hai cambiato idea? Nessun problema, 30 giorni."
+}
+]
+},
+"default": {
+"headline": "Benvenuto, iniziamo subito",
+"subhead": "Racconta ai visitatori chi sei, cosa offri e perche conta, in una sola riga chiara.",
+"cta": "Contattaci",
+"sections": [
+{
+"title": "Cosa offriamo",
+"body": "Un riassunto breve e onesto del tuo servizio principale."
+},
+{
+"title": "Perche sceglierci",
+"body": "Le una o due cose che ti rendono diverso."
+},
+{
+"title": "Contattaci",
+"body": "Rendi semplice per le persone fare il passo successivo."
+}
+]
+}
+}
+}
