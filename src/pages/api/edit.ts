@@ -90,11 +90,11 @@ export const POST: APIRoute = async ({ request }) => {
     return json({ spec, applied: [], skipped: [], reply: "The AI editor isn't configured right now.", source: 'fallback', reason: 'unconfigured' });
   }
 
-  // 25s, well under the function's 60s maxDuration: the 70B model on NVIDIA's free
-  // tier has high, variable cold-start latency, so a 9s wall timed out even trivial
-  // edits. A slow model is still aborted and falls back gracefully (never 504s).
+  // 45s, under the function's 60s maxDuration. A broad "rewrite everything" request
+  // makes the 70B emit dozens of ops (lots of output) which needs well past 25s on
+  // the free tier. A still-slower model is aborted and falls back gracefully.
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 25000);
+  const timer = setTimeout(() => ctrl.abort(), 45000);
   try {
     const res = await fetch(NVIDIA_URL, {
       method: 'POST',
@@ -103,7 +103,7 @@ export const POST: APIRoute = async ({ request }) => {
         model: MODEL,
         messages: buildEditMessages(spec, message, history),
         temperature: 0.2, // low: we want a precise, deterministic patch
-        max_tokens: 1400, // room for a broad multi-slot rewrite without truncating the JSON
+        max_tokens: 1800, // room for a broad multi-slot rewrite without truncating the JSON
         response_format: { type: 'json_object' },
       }),
       signal: ctrl.signal,

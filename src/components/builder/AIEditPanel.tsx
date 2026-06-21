@@ -57,6 +57,7 @@ export default function AIEditPanel({
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
+  const [slow, setSlow] = useState(false); // becomes true after a few seconds of waiting
   const idRef = useRef(0);
   const nextId = () => (idRef.current += 1);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -75,6 +76,13 @@ export default function AIEditPanel({
   useEffect(() => {
     if (active) inputRef.current?.focus();
   }, [active]);
+
+  // After a few seconds of waiting, reassure the user that a big change is in progress.
+  useEffect(() => {
+    if (!busy) { setSlow(false); return; }
+    const id = setTimeout(() => setSlow(true), 7000);
+    return () => clearTimeout(id);
+  }, [busy]);
 
   const run = async () => {
     const message = input.trim();
@@ -247,7 +255,7 @@ export default function AIEditPanel({
         })}
 
         {busy && (
-          <p className="animate-pulse text-xs text-[var(--color-text-muted)]" aria-live="polite">{t('builder.ai.sending')}</p>
+          <p className="animate-pulse text-xs text-[var(--color-text-muted)]" aria-live="polite">{slow ? t('builder.ai.slow') : t('builder.ai.sending')}</p>
         )}
       </div>
 
