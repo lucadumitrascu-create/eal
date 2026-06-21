@@ -43,6 +43,22 @@ async function run() {
     assert.ok(usr.content.includes('USER REQUEST: make it blue and hide the gallery'));
   });
 
+  await test('buildEditMessages interleaves conversation history between system and the new request', () => {
+    const history = [
+      { role: 'user' as const, content: 'make the text italian mafia style' },
+      { role: 'assistant' as const, content: 'Which sections would you like me to change?' },
+    ];
+    const msgs = buildEditMessages(base(), 'all of them', history);
+    assert.equal(msgs.length, 4); // system + 2 history + user
+    assert.equal(msgs[0].role, 'system');
+    assert.deepEqual({ role: msgs[1].role, content: msgs[1].content }, history[0]);
+    assert.equal(msgs[2].role, 'assistant');
+    assert.equal(msgs[3].role, 'user');
+    assert.ok(msgs[3].content.includes('USER REQUEST: all of them'));
+    // no history -> just system + user
+    assert.equal(buildEditMessages(base(), 'hi').length, 2);
+  });
+
   await test('specSummary exposes section ids, toggleable flags, slot maxLens + current values', () => {
     const s = specSummary(base());
     assert.ok(s.includes('template "restaurant"'));
@@ -236,6 +252,27 @@ async function run() {
         assert.equal(body.reply, 'Done.');
       },
     );
+  });
+
+  await test('endpoint forwards sanitized history to the model (drops bad entries)', async () => {
+    let sentMessages: any[] = [];
+    await withMock(
+      (_url, init) => { sentMessages = JSON.parse(init.body).messages; return ok(JSON.stringify({ ops: [], reply: 'ok' })); },
+      async () => {
+        await call({
+          message: 'all of them',
+          spec: base(),
+          history: [
+            { role: 'user', content: 'make it mafia style' },
+            { role: 'assistant', content: 'Which sections?' },
+            { role: 'bogus', content: 'drop me' }, // bad role -> dropped
+            { role: 'user', content: 123 }, // non-string -> dropped
+          ],
+        });
+      },
+    );
+    assert.deepEqual(sentMessages.map((m) => m.role), ['system', 'user', 'assistant', 'user']);
+    assert.ok(sentMessages[3].content.includes('USER REQUEST: all of them'));
   });
 
   await test('NVIDIA non-200 -> graceful fallback, spec unchanged', async () => {

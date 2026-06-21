@@ -9,6 +9,7 @@ interface EditResponse {
   skipped: unknown[];
   reply: string;
   source: 'ai' | 'fallback';
+  reason?: 'unconfigured' | 'upstream' | 'parse' | 'timeout' | 'error';
 }
 
 type Msg =
@@ -59,6 +60,12 @@ export default function AIEditPanel({ spec, active, onApply }: { spec: DesignSpe
     const message = input.trim();
     if (!message || busy) return;
     const sent = spec; // snapshot: the base we edit + the undo target for this turn
+    // Recent turns (not the message we're about to send) so the model can follow
+    // up on its own clarifying questions ("all of them", "the hero one", ...).
+    const history = messages
+      .filter((m) => m.role === 'user' || m.role === 'assistant')
+      .slice(-8)
+      .map((m) => ({ role: m.role, content: m.text }));
     setMessages((m) => [...m, { id: nextId(), role: 'user', text: message }]);
     setInput('');
     setBusy(true);
@@ -66,7 +73,7 @@ export default function AIEditPanel({ spec, active, onApply }: { spec: DesignSpe
       const res = await fetch('/api/edit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, spec: sent }),
+        body: JSON.stringify({ message, spec: sent, history }),
       });
       const data = (await res.json().catch(() => null)) as EditResponse | null;
       if (!res.ok || !data || !data.spec) {
@@ -83,12 +90,14 @@ export default function AIEditPanel({ spec, active, onApply }: { spec: DesignSpe
         return;
       }
       if (appliedN > 0) onApply(data.spec);
-      // Don't trust the model's reply when nothing landed — it tends to claim success
-      // ("Your site now says X") even though every op it emitted was invalid/skipped.
+      // The endpoint's fallback replies are English-only and the model sometimes claims
+      // success when nothing landed — pick honest, localized text in those cases.
       const text =
-        appliedN === 0 && skippedN > 0
-          ? t('builder.ai.failed')
-          : data.reply || (appliedN > 0 ? t('builder.ai.done') : t('builder.ai.nochange'));
+        data.source === 'fallback'
+          ? t(data.reason === 'timeout' ? 'builder.ai.timeout' : 'builder.ai.error')
+          : appliedN === 0 && skippedN > 0
+            ? t('builder.ai.failed')
+            : data.reply || (appliedN > 0 ? t('builder.ai.done') : t('builder.ai.nochange'));
       setMessages((m) => [
         ...m,
         {

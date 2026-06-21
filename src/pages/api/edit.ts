@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 import { validateSpec } from '../../lib/builder/spec';
 import { applyOps, type EditOp } from '../../lib/editOps';
-import { buildEditMessages, parseModelPatch } from '../../lib/ai/editPrompt';
+import { buildEditMessages, parseModelPatch, type ChatMessage } from '../../lib/ai/editPrompt';
 
 // Make ONLY this route a Vercel serverless function; the rest of the site stays static.
 export const prerender = false;
@@ -12,8 +12,24 @@ export const prerender = false;
 // nvidia/llama-3.1-nemotron-70b-instruct, meta/llama-3.1-8b-instruct (fast/cheap).
 const MODEL = 'meta/llama-3.3-70b-instruct';
 const NVIDIA_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
-const MAX_BODY = 16384; // the body includes the whole DesignSpec
+const MAX_BODY = 24576; // the body includes the whole DesignSpec + recent chat turns
 const MAX_MESSAGE = 600;
+const MAX_HISTORY = 8; // recent turns kept for multi-turn context
+const MAX_TURN = 400; // per-turn content cap
+
+/** Sanitize the client-supplied conversation history (untrusted). */
+function parseHistory(raw: unknown): ChatMessage[] {
+  if (!Array.isArray(raw)) return [];
+  const out: ChatMessage[] = [];
+  for (const item of raw.slice(-MAX_HISTORY)) {
+    const role = (item as any)?.role;
+    const content = (item as any)?.content;
+    if ((role === 'user' || role === 'assistant') && typeof content === 'string' && content.trim()) {
+      out.push({ role, content: content.slice(0, MAX_TURN) });
+    }
+  }
+  return out;
+}
 
 const json = (obj: unknown, status = 200) =>
   new Response(JSON.stringify(obj), {
@@ -65,12 +81,13 @@ export const POST: APIRoute = async ({ request }) => {
   // Sanitize the client-supplied spec before using it as the edit base.
   const spec = validateSpec(body?.spec);
   if (!spec) return json({ error: 'invalid spec' }, 400);
+  const history = parseHistory(body?.history);
 
   const key = getKey();
-  console.log(`[edit] keyPresent=${!!key}`);
+  console.log(`[edit] keyPresent=${!!key} history=${history.length}`);
   if (!key) {
     console.error('[edit] fallback: NVIDIA_API_KEY missing in runtime env');
-    return json({ spec, applied: [], skipped: [], reply: "The AI editor isn't configured right now.", source: 'fallback' });
+    return json({ spec, applied: [], skipped: [], reply: "The AI editor isn't configured right now.", source: 'fallback', reason: 'unconfigured' });
   }
 
   // 9s < Vercel's 10s serverless wall (matches /api/ideas): a slow model is
@@ -83,9 +100,9 @@ export const POST: APIRoute = async ({ request }) => {
       headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: MODEL,
-        messages: buildEditMessages(spec, message),
+        messages: buildEditMessages(spec, message, history),
         temperature: 0.2, // low: we want a precise, deterministic patch
-        max_tokens: 900,
+        max_tokens: 1400, // room for a broad multi-slot rewrite without truncating the JSON
         response_format: { type: 'json_object' },
       }),
       signal: ctrl.signal,
@@ -94,7 +111,7 @@ export const POST: APIRoute = async ({ request }) => {
     if (!res.ok) {
       const errBody = await res.text().catch(() => '');
       console.error(`[edit] fallback: nvidia status ${res.status} ${errBody.slice(0, 200)}`);
-      return json({ spec, applied: [], skipped: [], reply: "Sorry, I couldn't reach the AI just now.", source: 'fallback' });
+      return json({ spec, applied: [], skipped: [], reply: "Sorry, I couldn't reach the AI just now.", source: 'fallback', reason: 'upstream' });
     }
 
     const data = await res.json();
@@ -102,7 +119,7 @@ export const POST: APIRoute = async ({ request }) => {
     const patch = parseModelPatch(content);
     if (!patch) {
       console.error(`[edit] fallback: unparseable model output: ${content.slice(0, 200)}`);
-      return json({ spec, applied: [], skipped: [], reply: "I couldn't understand that — try rephrasing?", source: 'fallback' });
+      return json({ spec, applied: [], skipped: [], reply: "I couldn't understand that — try rephrasing?", source: 'fallback', reason: 'parse' });
     }
 
     // The model is UNTRUSTED: applyOps validates every op and skips the bad ones.
@@ -116,8 +133,13 @@ export const POST: APIRoute = async ({ request }) => {
     });
   } catch (e) {
     clearTimeout(timer);
-    console.error(`[edit] fallback: exception ${String(e)}`);
-    return json({ spec, applied: [], skipped: [], reply: 'Something went wrong applying that.', source: 'fallback' });
+    const aborted = e instanceof Error && e.name === 'AbortError';
+    console.error(`[edit] fallback: ${aborted ? 'timeout' : 'exception'} ${String(e)}`);
+    return json({
+      spec, applied: [], skipped: [],
+      reply: aborted ? 'The assistant took too long.' : 'Something went wrong applying that.',
+      source: 'fallback', reason: aborted ? 'timeout' : 'error',
+    });
   }
 };
 

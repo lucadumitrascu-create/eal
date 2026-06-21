@@ -231,7 +231,7 @@ function Chip({ active, onClick, children }: { active: boolean; onClick: () => v
   );
 }
 
-function DesignPopover({ spec, dispatch, t, onClose }: { spec: DesignSpec; dispatch: (a: Action) => void; t: (k: string, f?: string) => string; onClose: () => void }) {
+function DesignPopover({ spec, dispatch, t }: { spec: DesignSpec; dispatch: (a: Action) => void; t: (k: string, f?: string) => string }) {
   const Group = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <div className="mb-4 last:mb-0">
       <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">{title}</h4>
@@ -239,9 +239,7 @@ function DesignPopover({ spec, dispatch, t, onClose }: { spec: DesignSpec; dispa
     </div>
   );
   return (
-    <>
-      <div className="fixed inset-0 z-30" onClick={onClose} aria-hidden="true" />
-      <div className="absolute left-0 top-full z-40 mt-2 max-h-[72vh] w-[330px] overflow-y-auto rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.20)]">
+    <div className="absolute left-0 top-full z-40 mt-2 max-h-[72vh] w-[330px] overflow-y-auto rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.20)]">
         <Group title={t('builder.panel.template')}>
           <TemplatePicker current={spec.templateId} onSelect={(id) => dispatch({ type: 'template', id })} />
         </Group>
@@ -282,8 +280,7 @@ function DesignPopover({ spec, dispatch, t, onClose }: { spec: DesignSpec; dispa
             ))}
           </div>
         </Group>
-      </div>
-    </>
+    </div>
   );
 }
 
@@ -390,11 +387,9 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
             </svg>
             {t('builder.action.ai', 'Assistant')}
           </button>
-          {panel === 'design' && <DesignPopover spec={spec} dispatch={dispatch} t={t} onClose={() => setPanel(null)} />}
+          {panel === 'design' && <DesignPopover spec={spec} dispatch={dispatch} t={t} />}
           {panel === 'ideas' && (
-            <>
-              <div className="fixed inset-0 z-30" onClick={() => setPanel(null)} aria-hidden="true" />
-              <div className="absolute left-0 top-full z-40 mt-2 w-[330px] rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.20)]">
+            <div className="absolute left-0 top-full z-40 mt-2 w-[330px] rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-4 shadow-[0_24px_70px_rgba(0,0,0,0.20)]">
                 <IdeasHelper
                   onApply={(slot, value) => dispatch({ type: 'text', sid: 'hero', slot, value })}
                   onApplyAll={(idea, company) => {
@@ -410,12 +405,11 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
                   }}
                   defaultCompany={spec.meta.siteName}
                 />
-              </div>
-            </>
+            </div>
           )}
-          {/* Kept mounted (visibility toggled) so the conversation + undo snapshots
-              survive closing/reopening the panel and editing on the canvas. */}
-          {panel === 'ai' && <div className="fixed inset-0 z-30" onClick={() => setPanel(null)} aria-hidden="true" />}
+          {/* Non-modal: kept mounted (visibility toggled) so the conversation + undo
+              snapshots survive closing/reopening — and so you can scroll/edit the
+              canvas while it's open. Close via the toggle button or Escape. */}
           <div className={`absolute left-0 top-full z-40 mt-2 w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] shadow-[0_24px_70px_rgba(0,0,0,0.20)] ${panel === 'ai' ? '' : 'hidden'}`}>
             <AIEditPanel
               spec={spec}

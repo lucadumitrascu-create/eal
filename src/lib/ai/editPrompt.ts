@@ -12,7 +12,7 @@ import { THEME_VALUES, FONT_VALUES, ANIMATION_VALUES } from '../editOps';
 import { defById } from '../builder/spec';
 
 export interface ChatMessage {
-  role: 'system' | 'user';
+  role: 'system' | 'user' | 'assistant';
   content: string;
 }
 export interface ModelPatch {
@@ -48,12 +48,18 @@ const SYSTEM = [
   'Reply with ONLY valid JSON of the shape {"ops":[...],"reply":STRING}.',
   '',
   'RULES — follow them strictly:',
+  '- The earlier messages are the conversation so far. The latest user message may be ANSWERING your',
+  '  previous clarifying question (e.g. "all of them", "the hero one", "yes") — interpret it in that',
+  '  context, then act; do not ask the same question again.',
   '- Copy every sectionId, slotId, theme, font, animation and presetId EXACTLY from the lists above.',
   '  If you are not certain an op is valid, OMIT it. Never invent or guess an id.',
   '- Make the SMALLEST set of ops that satisfies the request. Touch ONLY fields the user asked about;',
-  '  never change unrelated text, and never write the same value into several slots.',
-  '- If the request is vague or ambiguous (e.g. you cannot tell WHICH section, slot or value it means),',
-  '  do NOT guess: return "ops":[] and ask ONE short clarifying question in "reply".',
+  '  never change unrelated fields, and never write the SAME value into several slots.',
+  '- A clear instruction to restyle or rewrite ALL or MANY text fields in a stated tone (e.g. "make all',
+  '  the copy more playful", "rewrite everything in an Italian-mafia tone") is NOT ambiguous: emit one',
+  '  setText per text slot you are changing, each with NEW distinct copy in that tone within its maxLen.',
+  '- Only when the target or the change is genuinely unclear (you cannot tell WHICH section/slot/value),',
+  '  return "ops":[] and ask ONE short clarifying question in "reply" — do not guess.',
   '- If the request cannot be done with these operations at all, return "ops":[] and say so briefly.',
   '- "reply" is ONE short sentence in the user\'s language and must HONESTLY describe only what your ops do.',
   '  If "ops" is empty, do not claim you changed anything.',
@@ -61,9 +67,10 @@ const SYSTEM = [
   '- No markdown, no code fences, no text outside the JSON.',
 ].join('\n');
 
-export function buildEditMessages(spec: DesignSpec, message: string): ChatMessage[] {
+export function buildEditMessages(spec: DesignSpec, message: string, history: ChatMessage[] = []): ChatMessage[] {
   return [
     { role: 'system', content: SYSTEM },
+    ...history,
     { role: 'user', content: `${specSummary(spec)}\n\nUSER REQUEST: ${message}` },
   ];
 }
