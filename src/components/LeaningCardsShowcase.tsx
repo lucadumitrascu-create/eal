@@ -8,7 +8,16 @@ type Props = {
   titles?: string[];
 };
 
-const TILT = 64; // degrees the cards lean at rest
+const TILT = 64; // degrees the cards lean at rest (rotateY)
+const TILTX = 8; // slight downward tilt so the card tops show (rotateX)
+// Perspective is baked into EACH card's own transform (not the parent stage), so
+// every card is foreshortened identically no matter where it sits in the row. A
+// single parent perspective puts its vanishing point at the row's centre, which
+// makes the far-right cards project at a visibly different, skewed angle.
+const PERSP = 1600;
+// The leaning pivots each card's near (left) edge outward, shifting the whole
+// fan's visual mass left of its layout box; nudge the shelf right to re-centre.
+const SHELF_NUDGE = 38;
 // neighbours slide aside when a card pops; asymmetric because every card leans
 // the same way, so the LEFT neighbour's (receding) edge needs a bigger push to
 // clear the popped card than the right neighbour's.
@@ -16,6 +25,10 @@ const SPREAD_LEFT = 176;
 const SPREAD_RIGHT = 160;
 const POP_Z = 96; // px the active card comes forward (kept modest so it doesn't grow over a neighbour)
 const POP_Y = -46; // px the active card lifts
+
+// scene framing prepended to every card transform (rest, popped, slid-aside) so
+// the per-card perspective + downward tilt stay consistent across all states.
+const FRAME = `perspective(${PERSP}px) rotateX(${TILTX}deg)`;
 
 /**
  * Leaning-cards showcase: four project screenshots lean against each other like
@@ -152,20 +165,26 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
   // Undefined => fall back to the CSS rest transform (and the touch override).
   const transformFor = (i: number): string | undefined => {
     if (active < 0) return undefined;
-    if (i === active) return `rotateY(0deg) translateY(${POP_Y}px) translateZ(${POP_Z}px)`;
-    return `translateX(${i < active ? -SPREAD_LEFT : SPREAD_RIGHT}px) rotateY(${TILT}deg)`;
+    if (i === active) return `${FRAME} translateY(${POP_Y}px) translateZ(${POP_Z}px)`;
+    return `${FRAME} translateX(${i < active ? -SPREAD_LEFT : SPREAD_RIGHT}px) rotateY(${TILT}deg)`;
   };
 
   return (
     <div className="lc-root w-full flex flex-col items-center overflow-x-hidden">
       <style>{`
         .lc-stage { display:flex; justify-content:center; align-items:center; width:100%;
-          perspective:2000px; padding:92px 40px 44px; min-height:510px; }
-        .lc-shelf { position:relative; display:flex; align-items:center; transform-style:preserve-3d; transform:rotateX(8deg); }
+          padding:92px 40px 44px; min-height:510px; --lc-scale:1; }
+        /* The fan is a fixed pixel size; scale it down on narrower desktops (laptops
+           keep the leaning layout via hover:hover) so it never clips at the edges. */
+        @media (max-width:1400px){ .lc-stage{ --lc-scale:.88; } }
+        @media (max-width:1240px){ .lc-stage{ --lc-scale:.80; min-height:460px; } }
+        @media (max-width:1080px){ .lc-stage{ --lc-scale:.70; min-height:420px; } }
+        .lc-shelf { position:relative; display:flex; align-items:center; transform-style:preserve-3d;
+          transform:scale(var(--lc-scale,1)) translateX(${SHELF_NUDGE}px); }
         .lc-card {
-          position:relative; flex:none; width:396px; aspect-ratio:16/10;
+          position:relative; flex:none; width:340px; aspect-ratio:16/10;
           border-radius:14px; overflow:hidden; background:#0d1422;
-          transform-origin:center bottom; transform:rotateY(${TILT}deg);
+          transform-origin:center bottom; transform:${FRAME} rotateY(${TILT}deg);
           backface-visibility:hidden;
           transition:transform .5s cubic-bezier(.22,.7,.3,1), box-shadow .5s cubic-bezier(.22,.7,.3,1);
           box-shadow:0 2px 6px rgba(15,23,42,.22), 26px 28px 50px -18px rgba(15,23,42,.50);
@@ -211,12 +230,10 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
               className={`lc-card ${active === i ? 'is-active' : ''}`}
               style={{
                 ...(transformFor(i) ? { transform: transformFor(i) } : {}),
-                // Each card (but the last) pulls the next one in. Perspective already
-                // foreshortens the right-hand cards, so the per-card overlap grows only
-                // GENTLY left→right (slope ~8) — a steeper slope double-crushes the
-                // right cards into identical-looking slivers. Tuned for an even fan that
-                // holds up from 4 to ~8+ cards.
-                marginRight: i < images.length - 1 ? `-${218 + i * 8}px` : undefined,
+                // Each card (but the last) pulls the next one in. With per-card
+                // perspective every card foreshortens the same, so a near-flat slope
+                // keeps the visible spines even across all of them (last 3 included).
+                marginRight: i < images.length - 1 ? `-${140 + i * 3}px` : undefined,
               }}
             >
               {images[i] ? (
