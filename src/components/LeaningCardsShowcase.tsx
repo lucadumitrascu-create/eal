@@ -16,8 +16,9 @@ const TILTX = 8; // slight downward tilt so the card tops show (rotateX)
 // makes the far-right cards project at a visibly different, skewed angle.
 const PERSP = 1600;
 // The leaning pivots each card's near (left) edge outward, shifting the whole
-// fan's visual mass left of its layout box; nudge the shelf right to re-centre.
-const SHELF_NUDGE = 38;
+// fan's visual mass left of its layout box; a small nudge re-centres it (kept
+// low so the fan sits a touch left rather than dead-centre).
+const SHELF_NUDGE = 10;
 // neighbours slide aside when a card pops; asymmetric because every card leans
 // the same way, so the LEFT neighbour's (receding) edge needs a bigger push to
 // clear the popped card than the right neighbour's.
@@ -182,7 +183,7 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
         .lc-shelf { position:relative; display:flex; align-items:center; transform-style:preserve-3d;
           transform:scale(var(--lc-scale,1)) translateX(${SHELF_NUDGE}px); }
         .lc-card {
-          position:relative; flex:none; width:340px; aspect-ratio:16/10;
+          position:relative; flex:none; width:366px; aspect-ratio:16/9;
           border-radius:14px; overflow:hidden; background:#0d1422;
           transform-origin:center bottom; transform:${FRAME} rotateY(${TILT}deg);
           backface-visibility:hidden;
@@ -234,7 +235,7 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
                 // perspective every card foreshortens the same, so a near-flat slope
                 // keeps the visible spines even — tightened to a dense, cohesive deck
                 // (a looser overlap left too much air between cards).
-                marginRight: i < images.length - 1 ? `-${222 + i * 2}px` : undefined,
+                marginRight: i < images.length - 1 ? `-${239 + i * 2}px` : undefined,
               }}
             >
               {images[i] ? (
