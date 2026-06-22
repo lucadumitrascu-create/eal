@@ -211,8 +211,12 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
               className={`lc-card ${active === i ? 'is-active' : ''}`}
               style={{
                 ...(transformFor(i) ? { transform: transformFor(i) } : {}),
-                // progressive overlap; every card but the last pulls the next one in
-                marginRight: i < images.length - 1 ? `-${215 + i * 26}px` : undefined,
+                // Each card (but the last) pulls the next one in. Perspective already
+                // foreshortens the right-hand cards, so the per-card overlap grows only
+                // GENTLY left→right (slope ~8) — a steeper slope double-crushes the
+                // right cards into identical-looking slivers. Tuned for an even fan that
+                // holds up from 4 to ~8+ cards.
+                marginRight: i < images.length - 1 ? `-${218 + i * 8}px` : undefined,
               }}
             >
               {images[i] ? (
