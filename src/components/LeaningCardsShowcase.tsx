@@ -198,7 +198,7 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
           border-radius:14px; overflow:hidden; background:#0d1422;
           transform-origin:center bottom; transform:${FRAME} rotateY(${TILT}deg);
           backface-visibility:hidden;
-          transition:transform .56s cubic-bezier(.4,0,.2,1), box-shadow .56s cubic-bezier(.4,0,.2,1);
+          transition:transform .42s cubic-bezier(.4,0,.2,1), box-shadow .42s cubic-bezier(.4,0,.2,1);
           box-shadow:0 2px 6px rgba(15,23,42,.22), 26px 28px 50px -18px rgba(15,23,42,.50);
         }
         /* Progressive overlap (perspective foreshortens the right cards) is set
