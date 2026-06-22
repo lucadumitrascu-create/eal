@@ -119,7 +119,19 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
       return best;
     };
 
-    const setIdx = (idx: number) => {
+    // Hover intent: commit immediately on a deliberate (slow) move so hovers stay
+    // snappy, but when the cursor is SWEEPING fast across the fan, defer the switch
+    // until it settles — otherwise every card the cursor flies over pops + its
+    // neighbours slide, which ripples as flicker.
+    const FAST_SWEEP = 1.5; // px/ms; above this the pointer is sweeping, not hovering
+    const SETTLE = 70; // ms the sweep must rest on a card before it pops
+    let pendingIdx = -1;
+    let dwellTimer = 0;
+    let lastX = 0;
+    let lastY = 0;
+    let lastT = 0;
+
+    const commit = (idx: number) => {
       if (idx === current) return;
       current = idx;
       setActive(idx);
@@ -127,11 +139,33 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
     const onMove = (e: MouseEvent) => {
       const idx = pick(e.clientX, e.clientY);
       shelf.style.cursor = idx >= 0 ? 'pointer' : '';
-      setIdx(idx);
+      const speed = Math.hypot(e.clientX - lastX, e.clientY - lastY) / Math.max(1, e.timeStamp - lastT);
+      lastX = e.clientX;
+      lastY = e.clientY;
+      lastT = e.timeStamp;
+      if (idx === current) {
+        // back on the active card — cancel any pending switch
+        if (dwellTimer) { clearTimeout(dwellTimer); dwellTimer = 0; }
+        pendingIdx = idx;
+        return;
+      }
+      if (speed < FAST_SWEEP) {
+        // deliberate: switch now
+        if (dwellTimer) { clearTimeout(dwellTimer); dwellTimer = 0; }
+        pendingIdx = idx;
+        commit(idx);
+      } else if (idx !== pendingIdx) {
+        // sweeping: restart the settle timer each time the target changes, so a fast
+        // pass over many cards never commits until the pointer actually stops
+        pendingIdx = idx;
+        if (dwellTimer) clearTimeout(dwellTimer);
+        dwellTimer = window.setTimeout(() => { dwellTimer = 0; commit(pendingIdx); }, SETTLE);
+      }
     };
     const onLeave = () => {
       shelf.style.cursor = '';
-      setIdx(-1);
+      if (dwellTimer) { clearTimeout(dwellTimer); dwellTimer = 0; }
+      commit(-1);
     };
     const onClick = (e: MouseEvent) => {
       const idx = current >= 0 ? current : pick(e.clientX, e.clientY);
@@ -176,6 +210,7 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
       window.removeEventListener('load', measure);
       cancelAnimationFrame(raf);
       if (scrollRaf) cancelAnimationFrame(scrollRaf);
+      if (dwellTimer) clearTimeout(dwellTimer);
       ro?.disconnect();
     };
   }, []);
