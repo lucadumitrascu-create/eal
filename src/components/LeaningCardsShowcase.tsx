@@ -26,6 +26,11 @@ const SPREAD_LEFT = 176;
 const SPREAD_RIGHT = 160;
 const POP_Z = 96; // px the active card comes forward (kept modest so it doesn't grow over a neighbour)
 const POP_Y = -46; // px the active card lifts
+// Hysteresis: once a card is active, the cursor must get this many px CLOSER to a
+// neighbour's centre before the active card switches. Without it, hovering on a
+// boundary flips between two cards (each flip pops one + slides the other), which
+// reads as jitter when the mouse wiggles back and forth.
+const SWITCH_HYST = 38;
 
 // scene framing prepended to every card transform (rest, popped, slid-aside) so
 // the per-card perspective + downward tilt stay consistent across all states.
@@ -97,6 +102,12 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
           bestD = d;
           best = i;
         }
+      }
+      // Sticky zones: keep the current card until the cursor is clearly (SWITCH_HYST
+      // px) closer to another card's centre, so boundary wiggles don't flicker.
+      if (current >= 0 && best !== current) {
+        const cc = centers[current];
+        if (cc != null && Math.abs(x - cc) - bestD < SWITCH_HYST) return current;
       }
       return best;
     };
@@ -187,7 +198,7 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
           border-radius:14px; overflow:hidden; background:#0d1422;
           transform-origin:center bottom; transform:${FRAME} rotateY(${TILT}deg);
           backface-visibility:hidden;
-          transition:transform .5s cubic-bezier(.22,.7,.3,1), box-shadow .5s cubic-bezier(.22,.7,.3,1);
+          transition:transform .56s cubic-bezier(.4,0,.2,1), box-shadow .56s cubic-bezier(.4,0,.2,1);
           box-shadow:0 2px 6px rgba(15,23,42,.22), 26px 28px 50px -18px rgba(15,23,42,.50);
         }
         /* Progressive overlap (perspective foreshortens the right cards) is set
