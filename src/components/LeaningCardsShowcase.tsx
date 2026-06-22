@@ -232,8 +232,9 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
                 ...(transformFor(i) ? { transform: transformFor(i) } : {}),
                 // Each card (but the last) pulls the next one in. With per-card
                 // perspective every card foreshortens the same, so a near-flat slope
-                // keeps the visible spines even across all of them (last 3 included).
-                marginRight: i < images.length - 1 ? `-${140 + i * 3}px` : undefined,
+                // keeps the visible spines even — tightened to a dense, cohesive deck
+                // (a looser overlap left too much air between cards).
+                marginRight: i < images.length - 1 ? `-${222 + i * 2}px` : undefined,
               }}
             >
               {images[i] ? (
