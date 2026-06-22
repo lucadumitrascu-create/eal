@@ -36,6 +36,7 @@ import projects from '../data/projects.json';
         {projects.map((project, i) => (
           <div data-animate="fade-up" data-stagger-delay={String(i + 1)}>
             <ProjectCard
+              id={project.id}
               title={project.title}
               description={project.description}
               tech={project.tech}

@@ -236,7 +236,16 @@
     "builder.ai.ex5": "Use a modern font",
     "builder.ai.ex6": "Friendlier tone",
     "builder.ai.ex7": "Shorten the intro",
-    "builder.ai.ex8": "Add gentle animations"
+    "builder.ai.ex8": "Add gentle animations",
+    "project.solbotpro.desc": "Trading toolkit",
+    "project.georgio-portfolio.desc": "Creative portfolio",
+    "project.transport-services.desc": "Transport company",
+    "project.adricut.desc": "Personalization studio",
+    "project.il-rione.desc": "Neapolitan pizzeria",
+    "project.baumgartner-holzbau.desc": "Timber construction",
+    "project.elektro-schweitzer.desc": "Electrical services",
+    "project.independent-plumbing.desc": "Plumbing services",
+    "projects.viewProject": "View project"
   },
   "ro": {
     "hero.title1": "Construim software",
@@ -475,7 +484,16 @@
     "builder.ai.ex5": "Font modern",
     "builder.ai.ex6": "Ton mai prietenos",
     "builder.ai.ex7": "Scurtează introducerea",
-    "builder.ai.ex8": "Animații subtile"
+    "builder.ai.ex8": "Animații subtile",
+    "project.solbotpro.desc": "Instrumente trading",
+    "project.georgio-portfolio.desc": "Portofoliu creativ",
+    "project.transport-services.desc": "Firmă de transport",
+    "project.adricut.desc": "Studio personalizare",
+    "project.il-rione.desc": "Pizzerie napolitană",
+    "project.baumgartner-holzbau.desc": "Construcții din lemn",
+    "project.elektro-schweitzer.desc": "Servicii electrice",
+    "project.independent-plumbing.desc": "Instalații sanitare",
+    "projects.viewProject": "Vezi proiectul"
   },
   "de": {
     "hero.title1": "Wir entwickeln Software,",
@@ -714,7 +732,16 @@
     "builder.ai.ex5": "Moderne Schrift",
     "builder.ai.ex6": "Freundlicherer Ton",
     "builder.ai.ex7": "Intro kürzen",
-    "builder.ai.ex8": "Sanfte Animationen"
+    "builder.ai.ex8": "Sanfte Animationen",
+    "project.solbotpro.desc": "Trading-Toolkit",
+    "project.georgio-portfolio.desc": "Kreatives Portfolio",
+    "project.transport-services.desc": "Transportfirma",
+    "project.adricut.desc": "Personalisierungsstudio",
+    "project.il-rione.desc": "Neapolitanische Pizzeria",
+    "project.baumgartner-holzbau.desc": "Holzbau",
+    "project.elektro-schweitzer.desc": "Elektroinstallation",
+    "project.independent-plumbing.desc": "Sanitärinstallation",
+    "projects.viewProject": "Projekt ansehen"
   },
   "fr": {
     "hero.title1": "Nous creons des logiciels",
@@ -953,7 +980,16 @@
     "builder.ai.ex5": "Police moderne",
     "builder.ai.ex6": "Ton plus amical",
     "builder.ai.ex7": "Raccourcir l'intro",
-    "builder.ai.ex8": "Animations douces"
+    "builder.ai.ex8": "Animations douces",
+    "project.solbotpro.desc": "Outils de trading",
+    "project.georgio-portfolio.desc": "Portfolio créatif",
+    "project.transport-services.desc": "Entreprise de transport",
+    "project.adricut.desc": "Studio de personnalisation",
+    "project.il-rione.desc": "Pizzeria napolitaine",
+    "project.baumgartner-holzbau.desc": "Construction bois",
+    "project.elektro-schweitzer.desc": "Services électriques",
+    "project.independent-plumbing.desc": "Services de plomberie",
+    "projects.viewProject": "Voir le projet"
   },
   "es": {
     "hero.title1": "Creamos software",
@@ -1192,7 +1228,16 @@
     "builder.ai.ex5": "Fuente moderna",
     "builder.ai.ex6": "Tono más cercano",
     "builder.ai.ex7": "Acortar la intro",
-    "builder.ai.ex8": "Animaciones suaves"
+    "builder.ai.ex8": "Animaciones suaves",
+    "project.solbotpro.desc": "Kit de trading",
+    "project.georgio-portfolio.desc": "Portafolio creativo",
+    "project.transport-services.desc": "Empresa de transporte",
+    "project.adricut.desc": "Estudio de personalización",
+    "project.il-rione.desc": "Pizzería napolitana",
+    "project.baumgartner-holzbau.desc": "Construcción en madera",
+    "project.elektro-schweitzer.desc": "Servicios eléctricos",
+    "project.independent-plumbing.desc": "Servicios de fontanería",
+    "projects.viewProject": "Ver proyecto"
   },
   "it": {
     "hero.title1": "Creiamo software",
@@ -1431,6 +1476,15 @@
     "builder.ai.ex5": "Font moderno",
     "builder.ai.ex6": "Tono più amichevole",
     "builder.ai.ex7": "Accorcia l'intro",
-    "builder.ai.ex8": "Animazioni delicate"
+    "builder.ai.ex8": "Animazioni delicate",
+    "project.solbotpro.desc": "Toolkit di trading",
+    "project.georgio-portfolio.desc": "Portfolio creativo",
+    "project.transport-services.desc": "Azienda di trasporti",
+    "project.adricut.desc": "Studio di personalizzazione",
+    "project.il-rione.desc": "Pizzeria napoletana",
+    "project.baumgartner-holzbau.desc": "Costruzioni in legno",
+    "project.elektro-schweitzer.desc": "Servizi elettrici",
+    "project.independent-plumbing.desc": "Servizi idraulici",
+    "projects.viewProject": "Vedi progetto"
   }
 }

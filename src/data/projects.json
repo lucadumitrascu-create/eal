@@ -2,7 +2,7 @@
   {
     "id": "solbotpro",
     "title": "SOLbot Pro",
-    "description": "Trading toolkit for the Solana blockchain.",
+    "description": "Trading toolkit",
     "tech": [
       "React",
       "Web3",
@@ -15,7 +15,7 @@
   {
     "id": "georgio-portfolio",
     "title": "Georgio Portfolio",
-    "description": "Personal portfolio with modern design and fluid animations.",
+    "description": "Creative portfolio",
     "tech": [
       "HTML",
       "CSS",
@@ -28,7 +28,7 @@
   {
     "id": "transport-services",
     "title": "Transport Services",
-    "description": "Presentation website for a transport company in Austria.",
+    "description": "Transport company",
     "tech": [
       "Astro",
       "Tailwind CSS"
@@ -40,7 +40,7 @@
   {
     "id": "adricut",
     "title": "Adricut",
-    "description": "Custom personalization studio — laser engraving, custom mugs & t-shirts, 3D printing, and vinyl.",
+    "description": "Personalization studio",
     "tech": [
       "Next.js",
       "React"
@@ -52,7 +52,7 @@
   {
     "id": "il-rione",
     "title": "Il Rione",
-    "description": "Authentic Neapolitan pizzeria in Vienna — founder story, menu, and gallery.",
+    "description": "Neapolitan pizzeria",
     "tech": [
       "Next.js",
       "Tailwind CSS"
@@ -64,7 +64,7 @@
   {
     "id": "baumgartner-holzbau",
     "title": "Baumgartner Holzbau",
-    "description": "Editorial site for an Austrian timber-construction firm, established 1978.",
+    "description": "Timber construction",
     "tech": [
       "Next.js",
       "Tailwind CSS"
@@ -76,7 +76,7 @@
   {
     "id": "elektro-schweitzer",
     "title": "Elektro Schweitzer",
-    "description": "Master electrician in Burgenland — three generations since 1974.",
+    "description": "Electrical services",
     "tech": [
       "Next.js",
       "Tailwind CSS"
@@ -88,7 +88,7 @@
   {
     "id": "independent-plumbing",
     "title": "Independent Plumbing",
-    "description": "Bold one-page site for an independent plumber in Phoenix, Arizona.",
+    "description": "Plumbing services",
     "tech": [
       "Next.js",
       "Tailwind CSS"
