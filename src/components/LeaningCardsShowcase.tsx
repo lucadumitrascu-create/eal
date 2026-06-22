@@ -31,6 +31,10 @@ const POP_Y = -46; // px the active card lifts
 // boundary flips between two cards (each flip pops one + slides the other), which
 // reads as jitter when the mouse wiggles back and forth.
 const SWITCH_HYST = 38;
+// Same idea for the fan's OUTER edge: once a card is active, widen the bounds the
+// cursor must leave before everything un-pops, so wiggling in/out from the
+// surrounding background doesn't flicker pop↔un-pop.
+const EDGE_HYST = 48;
 
 // scene framing prepended to every card transform (rest, popped, slid-aside) so
 // the per-card perspective + downward tilt stay consistent across all states.
@@ -89,9 +93,12 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
         return -1;
       }
       if (!shelfRect) return -1;
-      // bounds: the shelf box, with headroom above for the popped card
-      if (y < shelfRect.top - 80 || y > shelfRect.bottom + 16) return -1;
-      if (x < shelfRect.left - 20 || x > shelfRect.right + 20) return -1;
+      // bounds: the shelf box, with headroom above for the popped card. Once a card
+      // is active, widen the leave-bounds (EDGE_HYST) so wiggling across the outer
+      // edge between a card and the background doesn't flicker pop/un-pop.
+      const e = current >= 0 ? EDGE_HYST : 0;
+      if (y < shelfRect.top - 80 - e || y > shelfRect.bottom + 16 + e) return -1;
+      if (x < shelfRect.left - 20 - e || x > shelfRect.right + 20 + e) return -1;
       let best = -1;
       let bestD = Infinity;
       for (let i = 0; i < centers.length; i++) {
@@ -142,8 +149,10 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
       });
     };
 
-    shelf.addEventListener('mousemove', onMove);
-    shelf.addEventListener('mouseleave', onLeave);
+    // Track the pointer on window (not the shelf) so pick()'s hysteresis bounds fully
+    // own pop/un-pop. A shelf 'mouseleave' un-pops abruptly at the element edge with
+    // no deadzone, which flickers when you wiggle in and out of the fan.
+    window.addEventListener('mousemove', onMove);
     shelf.addEventListener('click', onClick);
     window.addEventListener('resize', measure);
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -159,8 +168,7 @@ export default function LeaningCardsShowcase({ images, urls = [], titles = [] }:
     window.addEventListener('load', measure);
 
     return () => {
-      shelf.removeEventListener('mousemove', onMove);
-      shelf.removeEventListener('mouseleave', onLeave);
+      window.removeEventListener('mousemove', onMove);
       shelf.removeEventListener('click', onClick);
       window.removeEventListener('resize', measure);
       window.removeEventListener('scroll', onScroll);
