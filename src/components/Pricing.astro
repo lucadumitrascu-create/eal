@@ -1,0 +1,1001 @@
+---
+// Pricing — "Liquid glass on calm cyan". Three glass plans + an interactive
+// configurator ("Build your setup") with a LIVE running total in a sticky glass
+// summary. Middle plan (Professional) is the signature liquid-glass object, with
+// the brand's cut-glass ring echoed behind it. One accent only (cyan), GPU-only
+// motion, prefers-reduced-motion honored. Every visible string carries a
+// data-i18n key (see src/data/translations.json).
+//
+// The configurator is progressive enhancement: with JS off it still reads as a
+// static list of packages + priced modules (buttons carry name + price), and the
+// summary shows a sensible default (Professional, one-time). A small vanilla
+// <script> parses prices from data-attributes and updates the total live.
+
+// English defaults rendered server-side; i18n.ts swaps textContent on load.
+const c = {
+  'pricing.oneTime': 'one-time',
+  'pricing.eyebrow': 'Pricing',
+  'pricing.starter.name': 'Starter',
+  'pricing.starter.tagline': 'A sharp one-page site to get you online and taken seriously.',
+  'pricing.starter.f1': 'Custom one-page design',
+  'pricing.starter.f2': 'Mobile-first, built to load fast',
+  'pricing.starter.f3': 'Basic SEO setup',
+  'pricing.starter.f4': 'Contact form',
+  'pricing.starter.cta': 'Get started',
+  'pricing.pro.name': 'Professional',
+  'pricing.pro.badge': 'Most popular',
+  'pricing.pro.tagline': 'A complete website you can edit yourself, built to convert and rank.',
+  'pricing.pro.f1': 'Everything in Starter',
+  'pricing.pro.f2': 'Self-editable website (CMS)',
+  'pricing.pro.f3': 'Booking / registration system',
+  'pricing.pro.f4': 'Complete SEO + structured data',
+  'pricing.pro.f5': 'Security-hardened, with animations',
+  'pricing.pro.f6': 'Legal pages included',
+  'pricing.pro.cta': 'Get started',
+  'pricing.enterprise.name': 'Enterprise',
+  'pricing.enterprise.pricePrefix': 'from',
+  'pricing.enterprise.period': 'on request',
+  'pricing.enterprise.tagline': "Bespoke software for when a website isn't enough.",
+  'pricing.enterprise.f1': 'Custom web apps & dashboards',
+  'pricing.enterprise.f2': 'Third-party integrations',
+  'pricing.enterprise.f3': 'Automations & workflows',
+  'pricing.enterprise.f4': 'Scoped to your requirements',
+  'pricing.enterprise.cta': 'Request a quote',
+  // À la carte / Bausteine — optional building blocks
+  'pricing.addons.title': 'Build your own',
+  'pricing.addons.subtitle': 'Prefer only certain parts? Pick exactly what you need.',
+  'pricing.addons.combinable': 'Combinable with any package',
+  'pricing.addons.from': 'from',
+  'pricing.addons.perPage': '/ page',
+  'pricing.addons.perLang': '/ language',
+  'pricing.addons.a1': 'Additional page',
+  'pricing.addons.a2': 'Self-service CMS',
+  'pricing.addons.a3': 'Booking & registration',
+  'pricing.addons.a4': 'SEO pack',
+  'pricing.addons.a5': 'Multilingual',
+  'pricing.addons.a6': 'Online store',
+  'pricing.addons.a7': 'Copy & content',
+  // Interactive configurator
+  'pricing.build.title': 'Build your setup',
+  'pricing.build.subtitle': 'Pick a starting point, then add the modules you need. Your price updates live.',
+  'pricing.build.baseLabel': 'Start from',
+  'pricing.build.alacarte': 'No package',
+  'pricing.build.included': 'Included',
+  'pricing.build.modulesLabel': 'Add modules',
+  'pricing.build.summaryTitle': 'Your setup',
+  'pricing.build.emptyHint': 'Pick a base or a module to see your price.',
+  'pricing.build.totalLabel': 'Total',
+  'pricing.build.careLine': '+ €35 / month care & hosting',
+  'pricing.build.note': 'Estimate. We confirm your fixed price when we talk.',
+  'pricing.build.cta': 'Get a fixed quote',
+  'pricing.care.label': 'Care & maintenance',
+  'pricing.care.period': '/ month',
+  'pricing.care.note': 'hosting, updates, support, small changes',
+} as const;
+
+type PlanKey = 'starter' | 'pro' | 'enterprise';
+
+const plans: {
+  key: PlanKey;
+  price: string;
+  prefixKey?: string;
+  periodKey: string;
+  highlighted: boolean;
+  features: string[];
+}[] = [
+  {
+    key: 'starter',
+    price: '€590',
+    periodKey: 'pricing.oneTime',
+    highlighted: false,
+    features: ['pricing.starter.f1', 'pricing.starter.f2', 'pricing.starter.f3', 'pricing.starter.f4'],
+  },
+  {
+    key: 'pro',
+    price: '€1.190',
+    periodKey: 'pricing.oneTime',
+    highlighted: true,
+    features: [
+      'pricing.pro.f1',
+      'pricing.pro.f2',
+      'pricing.pro.f3',
+      'pricing.pro.f4',
+      'pricing.pro.f5',
+      'pricing.pro.f6',
+    ],
+  },
+  {
+    key: 'enterprise',
+    price: '€2.590',
+    prefixKey: 'pricing.enterprise.pricePrefix',
+    periodKey: 'pricing.enterprise.period',
+    highlighted: false,
+    features: [
+      'pricing.enterprise.f1',
+      'pricing.enterprise.f2',
+      'pricing.enterprise.f3',
+      'pricing.enterprise.f4',
+    ],
+  },
+];
+
+// À la carte building blocks. Prices are language-agnostic (German number
+// format, one accent on the "+€"); only labels + unit/prefix notes are i18n.
+// `num` = the value the configurator adds; `from` marks a "from/ab" starting
+// price so the live total shows a "from" prefix when it is included.
+const addons: {
+  key: string;
+  price: string;
+  num: number;
+  prefixKey?: string;
+  unitKey?: string;
+  from?: boolean;
+}[] = [
+  { key: 'a1', price: '+€140', num: 140, unitKey: 'pricing.addons.perPage' },
+  { key: 'a2', price: '+€290', num: 290 },
+  { key: 'a3', price: '+€350', num: 350 },
+  { key: 'a4', price: '+€190', num: 190 },
+  { key: 'a5', price: '+€120', num: 120, unitKey: 'pricing.addons.perLang' },
+  { key: 'a6', price: '€690', num: 690, prefixKey: 'pricing.addons.from', from: true },
+  { key: 'a7', price: '+€90', num: 90, unitKey: 'pricing.addons.perPage' },
+];
+
+// Configurator base options. `pro` is the default starting point (matches the
+// "Most popular" story and gives a meaningful total on first paint / with JS off).
+const bases: {
+  key: 'alacarte' | PlanKey;
+  num: number;
+  from?: boolean;
+  price?: string;
+  prefixKey?: string;
+  isDefault?: boolean;
+}[] = [
+  { key: 'alacarte', num: 0 },
+  { key: 'starter', num: 590, price: '€590' },
+  { key: 'pro', num: 1190, price: '€1.190', isDefault: true },
+  { key: 'enterprise', num: 2590, from: true, price: '€2.590', prefixKey: 'pricing.enterprise.pricePrefix' },
+];
+
+// Modules each base already bundles — when that base is active these toggles
+// render as "Included" (checked, muted, not clickable) and add €0 to the total.
+// Professional + Enterprise both bundle CMS (a2), Booking (a3) and the SEO pack (a4).
+const baseIncludes: Record<string, string[]> = {
+  alacarte: [],
+  starter: [],
+  pro: ['a2', 'a3', 'a4'],
+  enterprise: ['a2', 'a3', 'a4'],
+};
+const defaultBaseKey = 'pro';
+const defaultIncludes = baseIncludes[defaultBaseKey];
+
+const cx = (key: string) => c[key as keyof typeof c] ?? '';
+const baseLabelKey = (k: string) => (k === 'alacarte' ? 'pricing.build.alacarte' : `pricing.${k}.name`);
+---
+
+<section id="pricing" class="relative py-24 sm:py-32 overflow-hidden section-transition">
+  <!-- Section glow orbs — one accent, whisper-quiet -->
+  <div class="absolute inset-0 -z-10" aria-hidden="true">
+    <div class="absolute top-[8%] right-[-6%] w-[38%] h-[38%] rounded-full bg-cyan-500 opacity-[0.06] blur-[120px]"></div>
+    <div class="absolute bottom-[6%] left-[-6%] w-[34%] h-[34%] rounded-full bg-cyan-500 opacity-[0.04] blur-[100px]"></div>
+  </div>
+
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <!-- Section identity — cyan mono kicker, then a confident editorial header -->
+    <div class="text-center mb-12 sm:mb-16" data-animate="fade-up">
+      <span class="eal-eyebrow" data-i18n="pricing.eyebrow">Pricing</span>
+      <h2 class="mt-4 text-[2rem] sm:text-4xl lg:text-[3.25rem] font-bold leading-[1.05] tracking-[-0.022em] text-[var(--color-text)]" data-i18n="pricing.title">
+        Simple, honest pricing
+      </h2>
+      <p class="mx-auto mt-4 max-w-2xl text-base sm:text-lg text-[var(--color-text-muted)] leading-relaxed" data-i18n="pricing.subtitle">
+        Fixed project prices, no surprises. Pick the scope that fits, we handle the rest.
+      </p>
+    </div>
+
+    <!-- Plan cards — Professional is the signature liquid-glass object -->
+    <div class="grid gap-5 sm:gap-6 md:grid-cols-3 md:items-stretch">
+      {plans.map((plan, i) => (
+        <div
+          class:list={[
+            'plan-card group relative flex flex-col rounded-2xl p-6 sm:p-8 overflow-hidden',
+            plan.highlighted ? 'plan-card--hero md:z-10' : 'plan-card--quiet',
+          ]}
+          data-animate="fade-up"
+          data-stagger-delay={String(i)}
+        >
+          {plan.highlighted && (
+            <img class="plan-ring" src="/images/hero/hero-ring-v5.webp" alt="" width="2000" height="2000" loading="lazy" decoding="async" aria-hidden="true" />
+          )}
+
+          <!-- Top highlight hairline -->
+          <div
+            class:list={[
+              'plan-hairline absolute top-0 left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent to-transparent',
+              plan.highlighted ? 'via-[rgba(6,182,212,0.34)]' : 'via-black/[0.05]',
+            ]}
+          ></div>
+
+          <div class="relative z-[1] flex flex-1 flex-col">
+            <!-- Name + badge -->
+            <div class="flex items-center justify-between gap-3 min-h-[1.75rem]">
+              <h3 class="text-lg font-semibold text-[var(--color-text)]" data-i18n={`pricing.${plan.key}.name`}>
+                {cx(`pricing.${plan.key}.name`)}
+              </h3>
+              {plan.highlighted && (
+                <span
+                  class="inline-flex items-center rounded-full border border-[rgba(8,145,178,0.34)] bg-[var(--color-accent-light)] px-3 py-1 text-[0.7rem] font-semibold uppercase tracking-wider text-[var(--color-accent)]"
+                  data-i18n="pricing.pro.badge"
+                >
+                  Most popular
+                </span>
+              )}
+            </div>
+
+            <!-- Price -->
+            <div class="mt-5 flex items-baseline gap-1.5">
+              {plan.prefixKey && (
+                <span class="text-sm font-medium text-[var(--color-text-muted)]" data-i18n={plan.prefixKey}>
+                  {cx(plan.prefixKey)}
+                </span>
+              )}
+              <span class="text-4xl sm:text-5xl font-bold tracking-tight text-[var(--color-text)] tabular-nums">
+                {plan.price}
+              </span>
+              <span class="text-sm text-[var(--color-text-muted)]" data-i18n={plan.periodKey}>
+                {cx(plan.periodKey)}
+              </span>
+            </div>
+
+            <!-- Positioning line — min-height keeps the dividers aligned across cards -->
+            <p class="mt-3 text-[0.95rem] leading-relaxed text-[var(--color-text-muted)] md:min-h-[3rem]" data-i18n={`pricing.${plan.key}.tagline`}>
+              {cx(`pricing.${plan.key}.tagline`)}
+            </p>
+
+            <!-- Divider -->
+            <div class="mt-6 h-px w-full bg-[var(--color-border)]"></div>
+
+            <!-- Features -->
+            <ul class="mt-6 flex-1 list-none space-y-3 p-0 m-0">
+              {plan.features.map((fk) => (
+                <li class="flex items-start gap-3">
+                  <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                  </svg>
+                  <span class="text-[0.95rem] leading-snug text-[var(--color-text-muted)]" data-i18n={fk}>
+                    {cx(fk)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            <!-- CTA -->
+            <a
+              href="#contact"
+              class="btn-amber-glass mt-8 inline-flex w-full items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold no-underline hover:no-underline hover:scale-[1.02]"
+            >
+              <span data-i18n={`pricing.${plan.key}.cta`}>{cx(`pricing.${plan.key}.cta`)}</span>
+              <svg class="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </a>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- ── Interactive configurator: "Build your setup" ── -->
+    <div class="mx-auto mt-16 sm:mt-24 max-w-5xl">
+      <div class="text-center" data-animate="fade-up">
+        <h3 class="text-2xl sm:text-3xl font-bold tracking-[-0.02em] text-[var(--color-text)]" data-i18n="pricing.build.title">
+          Build your setup
+        </h3>
+        <p class="mx-auto mt-2.5 max-w-xl text-sm sm:text-base leading-relaxed text-[var(--color-text-muted)]" data-i18n="pricing.build.subtitle">
+          Pick a starting point, then add the modules you need. Your price updates live.
+        </p>
+      </div>
+
+      <div id="eal-configurator" class="cfg-panel mt-8 sm:mt-10" data-animate="fade-up" data-stagger-delay="1">
+        <div class="cfg-grid">
+          <!-- Controls: base selector + module toggles -->
+          <div class="cfg-controls">
+            <!-- Base selector -->
+            <div>
+              <span class="cfg-group-label" data-i18n="pricing.build.baseLabel">Start from</span>
+              <div class="cfg-bases" role="group" aria-label="Base package">
+                {bases.map((b) => (
+                  <button
+                    type="button"
+                    class="cfg-base"
+                    data-base={b.key}
+                    data-base-price={String(b.num)}
+                    data-base-from={String(!!b.from)}
+                    data-includes={baseIncludes[b.key].join(' ')}
+                    aria-pressed={String(!!b.isDefault)}
+                  >
+                    <span class="cfg-base-name" data-i18n={baseLabelKey(b.key)}>{cx(baseLabelKey(b.key))}</span>
+                    {b.price && (
+                      <span class="cfg-base-price tabular-nums">
+                        {b.prefixKey && <span class="cfg-base-prefix" data-i18n={b.prefixKey}>{cx(b.prefixKey)}</span>}
+                        {b.price}
+                      </span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <!-- Module toggles -->
+            <div class="mt-6 sm:mt-7">
+              <span class="cfg-group-label" data-i18n="pricing.build.modulesLabel">Add modules</span>
+              <div class="cfg-modules">
+                {addons.map((a, i) => {
+                  const included = defaultIncludes.includes(a.key);
+                  return (
+                    <button
+                      type="button"
+                      class:list={['cfg-module', included && 'is-included']}
+                      data-module={a.key}
+                      data-price={String(a.num)}
+                      data-from={String(!!a.from)}
+                      aria-pressed="false"
+                      disabled={included}
+                      data-animate="fade-up"
+                      data-stagger-delay={String((i % 3) + 1)}
+                    >
+                      <span class="cfg-mod-ic" aria-hidden="true">
+                        <svg class="ic-plus" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                        </svg>
+                        <svg class="ic-check" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                        </svg>
+                      </span>
+                      <span class="cfg-mod-name" data-i18n={`pricing.addons.${a.key}`}>{cx(`pricing.addons.${a.key}`)}</span>
+                      <span class="cfg-mod-price tabular-nums">
+                        {a.prefixKey && <span class="cfg-mod-prefix" data-i18n={a.prefixKey}>{cx(a.prefixKey)}</span>}
+                        <span>{a.price}</span>
+                        {a.unitKey && <span class="cfg-mod-unit" data-i18n={a.unitKey}>{cx(a.unitKey)}</span>}
+                      </span>
+                      <span class="cfg-mod-incl" data-i18n="pricing.build.included">Included</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <!-- Live summary — sticky glass, running total -->
+          <aside class="cfg-summary">
+            <div class="cfg-summary-inner">
+              <span class="cfg-summary-title" data-i18n="pricing.build.summaryTitle">Your setup</span>
+
+              <div id="eal-chips" class="cfg-chips">
+                <span class="cfg-chip cfg-chip--base">{cx('pricing.pro.name')}</span>
+              </div>
+
+              <div id="eal-body" class="cfg-total-wrap">
+                <div class="cfg-total-line">
+                  <span id="eal-total" class="cfg-total tabular-nums">€1.190</span>
+                  <span class="cfg-total-period" data-i18n="pricing.oneTime">one-time</span>
+                </div>
+                <p class="cfg-care" data-i18n="pricing.build.careLine">+ €35 / month care &amp; hosting</p>
+              </div>
+
+              <p id="eal-empty" class="cfg-empty" hidden data-i18n="pricing.build.emptyHint">
+                Pick a base or a module to see your price.
+              </p>
+
+              <a href="#contact" class="btn-amber-glass cfg-cta" data-i18n="pricing.build.cta">Get a fixed quote</a>
+              <p class="cfg-note" data-i18n="pricing.build.note">Estimate. We confirm your fixed price when we talk.</p>
+
+              <!-- Screen-reader plumbing -->
+              <span id="eal-prefix" class="sr-only" data-i18n="pricing.addons.from">from</span>
+              <span id="eal-total-label" class="sr-only" data-i18n="pricing.build.totalLabel">Total</span>
+              <span id="eal-live" class="sr-only" aria-live="polite"></span>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </div>
+
+    <!-- À la carte combinable note + care line -->
+    <div class="mt-10 sm:mt-12 flex flex-col items-center gap-4">
+      <div class="inline-flex items-center gap-1.5 rounded-full border border-[rgba(8,145,178,0.22)] bg-[var(--color-accent-light)] px-3.5 py-1.5 text-[0.78rem] font-medium text-[var(--color-accent)]" data-animate="fade-up">
+        <svg class="h-3.5 w-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+        </svg>
+        <span data-i18n="pricing.addons.combinable">Combinable with any package</span>
+      </div>
+
+      <div class="inline-flex max-w-full flex-wrap items-center justify-center gap-x-2.5 gap-y-1 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-neutral)] backdrop-blur-xl px-5 py-2.5 text-sm" data-animate="fade-up" data-stagger-delay="1">
+        <svg class="h-4 w-4 flex-shrink-0 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+        </svg>
+        <span class="font-medium text-[var(--color-text)]"><span data-i18n="pricing.care.label">Care &amp; maintenance</span>:</span>
+        <span class="font-semibold text-[var(--color-text)] tabular-nums">€35</span>
+        <span class="text-[var(--color-text-muted)]" data-i18n="pricing.care.period">/ month</span>
+        <span class="text-[var(--color-text-muted)] opacity-40" aria-hidden="true">·</span>
+        <span class="text-[var(--color-text-muted)]" data-i18n="pricing.care.note">hosting, updates, support, small changes</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom gradient transition -->
+  <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#f0fdfa] to-transparent pointer-events-none"></div>
+</section>
+
+<style>
+  /* ── Section identity: cyan mono eyebrow ── */
+  .eal-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-accent);
+  }
+  .eal-eyebrow::before {
+    content: '';
+    width: 1.75rem;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(8, 145, 178, 0.55));
+  }
+  .eal-eyebrow::after {
+    content: '';
+    width: 1.75rem;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(8, 145, 178, 0.55), transparent);
+  }
+
+  /* ── Plan cards ── */
+  .plan-card {
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.3s ease;
+  }
+
+  /* Supporting options — quieter, flatter glass */
+  .plan-card--quiet {
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid var(--color-border);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 14px 34px -24px rgba(8, 51, 68, 0.22);
+  }
+  .plan-card--quiet:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-border-hover);
+    box-shadow: 0 22px 48px -26px rgba(8, 51, 68, 0.3);
+  }
+
+  /* Signature — real liquid-glass depth, floating elevation, refraction sheen */
+  .plan-card--hero {
+    background:
+      linear-gradient(160deg, rgba(255, 255, 255, 0.66) 0%, rgba(255, 255, 255, 0.22) 48%, rgba(224, 247, 250, 0.34) 100%);
+    border: 1px solid rgba(8, 145, 178, 0.42);
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    backdrop-filter: blur(22px) saturate(160%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.92),          /* soft top highlight */
+      inset 0 -16px 32px rgba(255, 255, 255, 0.28),
+      0 4px 20px -8px rgba(8, 51, 68, 0.16),
+      0 36px 82px -34px rgba(8, 51, 68, 0.5);            /* floating elevation */
+  }
+  @media (min-width: 768px) {
+    .plan-card--hero { transform: translateY(-10px) scale(1.035); }
+    .plan-card--hero:hover { transform: translateY(-16px) scale(1.035); }
+  }
+  /* Faint cyan-tinted refraction sheen across the glass */
+  .plan-card--hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(
+      122deg,
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 255, 255, 0) 26%,
+      rgba(255, 255, 255, 0) 60%,
+      rgba(8, 145, 178, 0.09) 100%
+    );
+    z-index: 0;
+  }
+  @media (min-width: 768px) {
+    .plan-card--hero:hover { box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -16px 32px rgba(255, 255, 255, 0.32),
+      0 6px 24px -8px rgba(8, 51, 68, 0.2),
+      0 46px 96px -36px rgba(8, 51, 68, 0.55); }
+  }
+
+  /* Brand cut-glass ring, echoed behind the signature card (second-read detail) */
+  .plan-ring {
+    position: absolute;
+    z-index: 0;
+    left: 50%;
+    top: 34%;
+    width: 128%;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+    opacity: 0.13;
+    pointer-events: none;
+    transform-origin: 50% 50%;
+    animation: planRingSpin 40s linear infinite;
+    will-change: transform;
+    -webkit-mask-image: radial-gradient(closest-side, #000 62%, transparent 100%);
+    mask-image: radial-gradient(closest-side, #000 62%, transparent 100%);
+  }
+  @keyframes planRingSpin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to   { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+
+  /* ── Configurator panel ── */
+  .cfg-panel {
+    position: relative;
+    overflow: hidden;
+    border-radius: 22px;
+    padding: clamp(1.15rem, 3vw, 2.15rem);
+    background: rgba(255, 255, 255, 0.52);
+    border: 1px solid rgba(8, 145, 178, 0.16);
+    -webkit-backdrop-filter: blur(16px) saturate(150%);
+    backdrop-filter: blur(16px) saturate(150%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.8),
+      0 30px 72px -42px rgba(8, 51, 68, 0.4);
+  }
+
+  .cfg-grid {
+    display: grid;
+    gap: 1.25rem;
+  }
+  @media (min-width: 1024px) {
+    .cfg-grid {
+      grid-template-columns: 1fr 322px;
+      gap: 1.85rem;
+      align-items: start;
+    }
+  }
+
+  .cfg-group-label {
+    display: block;
+    margin-bottom: 0.7rem;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  /* Base selector */
+  .cfg-bases {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .cfg-base {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.95rem;
+    border-radius: 0.8rem;
+    cursor: pointer;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    font-size: 0.9rem;
+    font-weight: 600;
+    line-height: 1;
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+                background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  }
+  .cfg-base:hover { border-color: var(--color-border-hover); }
+  .cfg-base-prefix {
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    margin-right: 0.15rem;
+  }
+  .cfg-base-price {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+  .cfg-base[aria-pressed="true"] {
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.62), rgba(6, 182, 212, 0.12));
+    border-color: rgba(8, 145, 178, 0.55);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      0 10px 24px -14px rgba(8, 51, 68, 0.32);
+  }
+  .cfg-base[aria-pressed="true"] .cfg-base-price { color: var(--color-accent); }
+
+  /* Module toggles */
+  .cfg-modules {
+    display: grid;
+    gap: 0.6rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 640px) {
+    .cfg-modules { grid-template-columns: 1fr 1fr; }
+  }
+  .cfg-module {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    width: 100%;
+    padding: 0.8rem 0.95rem;
+    border-radius: 0.9rem;
+    cursor: pointer;
+    text-align: left;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--color-border);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
+                background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  }
+  .cfg-module:hover { border-color: var(--color-border-hover); }
+  .cfg-module[aria-pressed="true"] {
+    background: rgba(6, 182, 212, 0.1);
+    border-color: rgba(8, 145, 178, 0.5);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      0 10px 24px -14px rgba(8, 51, 68, 0.28);
+    transform: translateY(-2px);
+  }
+
+  .cfg-mod-ic {
+    position: relative;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 1.55rem;
+    height: 1.55rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(8, 145, 178, 0.24);
+    background: var(--color-accent-light);
+    color: var(--color-accent);
+    transition: background 0.18s ease, border-color 0.18s ease;
+  }
+  .cfg-mod-ic svg {
+    position: absolute;
+    width: 0.85rem;
+    height: 0.85rem;
+    transition: opacity 0.18s ease;
+  }
+  .cfg-mod-ic .ic-check { opacity: 0; }
+  .cfg-module[aria-pressed="true"] .cfg-mod-ic {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #ffffff;
+  }
+  .cfg-module[aria-pressed="true"] .ic-plus { opacity: 0; }
+  .cfg-module[aria-pressed="true"] .ic-check { opacity: 1; }
+
+  .cfg-mod-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 0.92rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-text);
+  }
+  .cfg-mod-price {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.2rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-accent);
+    white-space: nowrap;
+  }
+  .cfg-mod-prefix {
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+  }
+  .cfg-mod-unit {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+  }
+
+  /* "Included" badge — shown only when the active base bundles this module */
+  .cfg-mod-incl {
+    display: none;
+    flex-shrink: 0;
+    align-items: center;
+    padding: 0.14rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.66rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    background: rgba(12, 26, 42, 0.05);
+    border: 1px solid var(--color-border);
+    white-space: nowrap;
+  }
+
+  /* Included state — checked, muted/greyed, not interactive (no opacity, to avoid
+     clashing with the data-animate reveal that drives opacity to 1). */
+  .cfg-module.is-included {
+    background: rgba(255, 255, 255, 0.32);
+    border-color: var(--color-border);
+    cursor: default;
+    transform: none;
+  }
+  .cfg-module.is-included .ic-plus { opacity: 0; }
+  .cfg-module.is-included .ic-check { opacity: 1; }
+  .cfg-module.is-included .cfg-mod-ic {
+    background: var(--color-accent-light);
+    border-color: rgba(8, 145, 178, 0.2);
+    color: var(--color-accent);
+  }
+  .cfg-module.is-included .cfg-mod-name { color: var(--color-text-muted); }
+  .cfg-module.is-included .cfg-mod-price { display: none; }
+  .cfg-module.is-included .cfg-mod-incl { display: inline-flex; }
+
+  /* ── Live summary (sticky glass) ── */
+  .cfg-summary {
+    position: sticky;
+    bottom: 0.75rem;
+    z-index: 5;
+  }
+  @media (min-width: 1024px) {
+    .cfg-summary {
+      position: sticky;
+      top: 6rem;
+      bottom: auto;
+    }
+  }
+  .cfg-summary-inner {
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem 1.35rem calc(1.25rem + env(safe-area-inset-bottom, 0px));
+    border-radius: 18px;
+    background:
+      linear-gradient(160deg, rgba(255, 255, 255, 0.82) 0%, rgba(234, 253, 255, 0.7) 100%);
+    border: 1px solid rgba(8, 145, 178, 0.34);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    backdrop-filter: blur(20px) saturate(160%);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      0 20px 48px -22px rgba(8, 51, 68, 0.4);
+  }
+  .cfg-summary-title {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+  .cfg-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.75rem;
+  }
+  .cfg-chips:empty { display: none; }
+  /* Chips are injected by JS at runtime (no Astro scope attr), so scope the
+     rules through the SSR #eal-chips parent and keep the child selector global. */
+  #eal-chips :global(.cfg-chip) {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.22rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: var(--color-text-muted);
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid var(--color-border);
+  }
+  #eal-chips :global(.cfg-chip--base) {
+    color: var(--color-accent);
+    background: var(--color-accent-light);
+    border-color: rgba(8, 145, 178, 0.28);
+  }
+  .cfg-total-wrap { margin-top: 0.9rem; }
+  .cfg-total-wrap[hidden] { display: none; }
+  .cfg-total-line {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+  }
+  .cfg-total {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.4rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--color-text);
+  }
+  .cfg-total-period {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+  }
+  .cfg-care {
+    margin: 0.5rem 0 0;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+  }
+  .cfg-empty {
+    margin: 0.9rem 0 0;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: var(--color-text-muted);
+  }
+  .cfg-empty[hidden] { display: none; }
+  .cfg-cta {
+    margin-top: 1.1rem;
+    display: inline-flex;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.8rem;
+    padding: 0.8rem 1.25rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .cfg-cta:hover { text-decoration: none; }
+  .cfg-note {
+    margin: 0.7rem 0 0;
+    font-size: 0.74rem;
+    line-height: 1.45;
+    color: var(--color-text-muted);
+    opacity: 0.85;
+  }
+
+  /* ── Focus + reduced motion ── */
+  .cfg-base:focus-visible,
+  .cfg-module:focus-visible,
+  .cfg-cta:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .plan-ring { animation: none !important; }
+    .plan-card,
+    .cfg-base,
+    .cfg-module { transition: none !important; }
+    .plan-card--hero:hover,
+    .plan-card--quiet:hover,
+    .cfg-module[aria-pressed="true"] { transform: none !important; }
+  }
+</style>
+
+<script>
+  // Progressive-enhancement configurator. Reads prices from data-attributes,
+  // reads labels from the (already i18n-swapped) DOM, updates a live total.
+  function initConfigurator() {
+    const root = document.getElementById('eal-configurator');
+    if (!root) return;
+
+    const baseButtons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-base]'));
+    const moduleButtons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-module]'));
+    const chipsEl = root.querySelector<HTMLElement>('#eal-chips');
+    const bodyEl = root.querySelector<HTMLElement>('#eal-body');
+    const totalEl = root.querySelector<HTMLElement>('#eal-total');
+    const emptyEl = root.querySelector<HTMLElement>('#eal-empty');
+    const liveEl = root.querySelector<HTMLElement>('#eal-live');
+    const prefixEl = root.querySelector<HTMLElement>('#eal-prefix');
+    const totalLabelEl = root.querySelector<HTMLElement>('#eal-total-label');
+    if (!chipsEl || !bodyEl || !totalEl || !emptyEl) return;
+
+    const fmt = (n: number) => n.toLocaleString('de-DE');
+
+    // Reflect which modules the active base already bundles: those toggles become
+    // "Included" (checked, muted, locked) and are deselected so they add €0. This
+    // is idempotent — re-run on every base switch to re-enable modules a former
+    // base included but the new one doesn't.
+    function applyIncludes() {
+      const activeBase = baseButtons.find((b) => b.getAttribute('aria-pressed') === 'true');
+      const includes = activeBase
+        ? (activeBase.dataset.includes || '').split(' ').filter(Boolean)
+        : [];
+      moduleButtons.forEach((m) => {
+        const key = m.dataset.module || '';
+        if (includes.indexOf(key) !== -1) {
+          m.classList.add('is-included');
+          m.setAttribute('aria-pressed', 'false');
+          m.disabled = true;
+        } else {
+          m.classList.remove('is-included');
+          m.disabled = false;
+        }
+      });
+    }
+
+    function render() {
+      let sum = 0;
+      let from = false;
+      const chips: { label: string; base: boolean }[] = [];
+
+      const activeBase = baseButtons.find((b) => b.getAttribute('aria-pressed') === 'true');
+      if (activeBase) {
+        sum += Number(activeBase.dataset.basePrice || '0');
+        if (activeBase.dataset.baseFrom === 'true') from = true;
+        if (activeBase.dataset.base !== 'alacarte') {
+          const name = activeBase.querySelector('.cfg-base-name');
+          chips.push({ label: (name?.textContent || '').trim(), base: true });
+        }
+      }
+
+      moduleButtons.forEach((m) => {
+        if (m.disabled) return; // included-by-base modules never count
+        if (m.getAttribute('aria-pressed') !== 'true') return;
+        sum += Number(m.dataset.price || '0');
+        if (m.dataset.from === 'true') from = true;
+        const name = m.querySelector('.cfg-mod-name');
+        chips.push({ label: (name?.textContent || '').trim(), base: false });
+      });
+
+      // Chips
+      chipsEl!.innerHTML = '';
+      chips.forEach((c) => {
+        const s = document.createElement('span');
+        s.className = 'cfg-chip' + (c.base ? ' cfg-chip--base' : '');
+        s.textContent = c.label;
+        chipsEl!.appendChild(s);
+      });
+
+      const isEmpty = chips.length === 0 && sum === 0;
+      const prefixTxt = (prefixEl?.textContent || 'from').trim();
+      const totalTxt = (from ? prefixTxt + ' ' : '') + '€' + fmt(sum);
+
+      totalEl!.textContent = totalTxt;
+      bodyEl!.hidden = isEmpty;
+      emptyEl!.hidden = !isEmpty;
+
+      if (liveEl) {
+        const label = (totalLabelEl?.textContent || 'Total').trim();
+        liveEl.textContent = isEmpty
+          ? (emptyEl!.textContent || '').trim()
+          : label + ': ' + totalTxt;
+      }
+    }
+
+    // Base = single-select. Switching base re-computes which modules are bundled.
+    baseButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        baseButtons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+        applyIncludes();
+        render();
+      });
+    });
+
+    // Modules = multi toggle (locked/included ones are disabled, so no-op).
+    moduleButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (btn.disabled) return;
+        const on = btn.getAttribute('aria-pressed') === 'true';
+        btn.setAttribute('aria-pressed', String(!on));
+        render();
+      });
+    });
+
+    // Initial paint (DOM is already localized if i18n ran first) + re-render on
+    // language switch (i18n dispatches this after swapping textContent).
+    applyIncludes();
+    render();
+    window.addEventListener('eal:langchange', render);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initConfigurator);
+  } else {
+    initConfigurator();
+  }
+</script>
