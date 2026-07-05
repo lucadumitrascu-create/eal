@@ -14,7 +14,6 @@
 // English defaults rendered server-side; i18n.ts swaps textContent on load.
 const c = {
   'pricing.oneTime': 'one-time',
-  'pricing.eyebrow': 'Pricing',
   'pricing.starter.name': 'Starter',
   'pricing.starter.tagline': 'A sharp one-page site to get you online and taken seriously.',
   'pricing.starter.f1': 'Custom one-page design',
@@ -180,10 +179,9 @@ const baseLabelKey = (k: string) => (k === 'alacarte' ? 'pricing.build.alacarte'
   </div>
 
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <!-- Section identity — cyan mono kicker, then a confident editorial header -->
+    <!-- Section header — confident editorial title, no kicker -->
     <div class="text-center mb-12 sm:mb-16" data-animate="fade-up">
-      <span class="eal-eyebrow" data-i18n="pricing.eyebrow">Pricing</span>
-      <h2 class="mt-4 text-[2rem] sm:text-4xl lg:text-[3.25rem] font-bold leading-[1.05] tracking-[-0.022em] text-[var(--color-text)]" data-i18n="pricing.title">
+      <h2 class="text-[2rem] sm:text-4xl lg:text-[3.25rem] font-bold leading-[1.05] tracking-[-0.022em] text-[var(--color-text)]" data-i18n="pricing.title">
         Simple, honest pricing
       </h2>
       <p class="mx-auto mt-4 max-w-2xl text-base sm:text-lg text-[var(--color-text-muted)] leading-relaxed" data-i18n="pricing.subtitle">
@@ -424,31 +422,6 @@ const baseLabelKey = (k: string) => (k === 'alacarte' ? 'pricing.build.alacarte'
 </section>
 
 <style>
-  /* ── Section identity: cyan mono eyebrow ── */
-  .eal-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--color-accent);
-  }
-  .eal-eyebrow::before {
-    content: '';
-    width: 1.75rem;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(8, 145, 178, 0.55));
-  }
-  .eal-eyebrow::after {
-    content: '';
-    width: 1.75rem;
-    height: 1px;
-    background: linear-gradient(90deg, rgba(8, 145, 178, 0.55), transparent);
-  }
-
   /* ── Plan cards ── */
   .plan-card {
     transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
