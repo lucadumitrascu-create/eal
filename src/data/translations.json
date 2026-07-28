@@ -295,7 +295,16 @@
     "about.team.p1.bio": "[About 60 to 70 words: what this person does, what they have built, and what a client gets from working with them.]",
     "about.team.p2.name": "[Name]",
     "about.team.p2.role": "[Role]",
-    "about.team.p2.bio": "[About 60 to 70 words: what this person does, what they have built, and what a client gets from working with them.]"
+    "about.team.p2.bio": "[About 60 to 70 words: what this person does, what they have built, and what a client gets from working with them.]",
+    "about.drive.title": "What drives us",
+    "about.drive.text": "We believe good software does not just work. It simplifies processes, wins people over and grows with what a company needs.",
+    "about.principle1.title": "Code quality",
+    "about.principle1.desc": "Quality starts in the source code. So we build software that runs reliably, extends easily and lasts.",
+    "about.principle2.title": "Transparency",
+    "about.principle2.desc": "Open, clear communication for the whole length of the project.",
+    "about.principle3.title": "Efficiency & effectiveness",
+    "about.principle3.desc": "Clear processes, efficient delivery and results that hold, with no compromise on quality.",
+    "about.photoCaption": "Luca and [partner], the two people behind EAL."
   },
   "ro": {
     "hero.title1": "Munca ta zilnică,",
@@ -593,7 +602,16 @@
     "about.team.p1.bio": "[Cam 60-70 de cuvinte: ce face, ce a construit, și ce primește clientul care lucrează cu ea.]",
     "about.team.p2.name": "[Nume]",
     "about.team.p2.role": "[Rol]",
-    "about.team.p2.bio": "[Cam 60-70 de cuvinte: ce face, ce a construit, și ce primește clientul care lucrează cu ea.]"
+    "about.team.p2.bio": "[Cam 60-70 de cuvinte: ce face, ce a construit, și ce primește clientul care lucrează cu ea.]",
+    "about.drive.title": "Ce ne motivează",
+    "about.drive.text": "Credem că un software bun nu doar funcționează. Simplifică procese, entuziasmează oamenii și crește odată cu nevoile unei firme.",
+    "about.principle1.title": "Calitatea codului",
+    "about.principle1.desc": "Calitatea începe în codul sursă. De aceea construim software care funcționează sigur, se extinde ușor și rezistă în timp.",
+    "about.principle2.title": "Transparență",
+    "about.principle2.desc": "Comunicare deschisă și clară pe tot parcursul proiectului.",
+    "about.principle3.title": "Eficiență și eficacitate",
+    "about.principle3.desc": "Procese clare, implementare eficientă și rezultate durabile, fără compromisuri la calitate.",
+    "about.photoCaption": "Luca și [partener], cei doi oameni din spatele EAL."
   },
   "de": {
     "hero.title1": "Ihr Arbeitsalltag,",
@@ -891,7 +909,16 @@
     "about.team.p1.bio": "[Ca. 60 bis 70 Wörter: was diese Person macht, was sie gebaut hat, und was ein Kunde davon hat.]",
     "about.team.p2.name": "[Name]",
     "about.team.p2.role": "[Rolle]",
-    "about.team.p2.bio": "[Ca. 60 bis 70 Wörter: was diese Person macht, was sie gebaut hat, und was ein Kunde davon hat.]"
+    "about.team.p2.bio": "[Ca. 60 bis 70 Wörter: was diese Person macht, was sie gebaut hat, und was ein Kunde davon hat.]",
+    "about.drive.title": "Was uns antreibt",
+    "about.drive.text": "Wir glauben, dass gute Software nicht nur funktioniert. Sie vereinfacht Prozesse, begeistert Menschen und wächst mit den Anforderungen eines Unternehmens.",
+    "about.principle1.title": "Codequalität",
+    "about.principle1.desc": "Qualität beginnt im Quellcode. Deshalb entwickeln wir Software, die zuverlässig funktioniert, einfach erweitert werden kann und langfristig Bestand hat.",
+    "about.principle2.title": "Transparenz",
+    "about.principle2.desc": "Offene und klare Kommunikation während des gesamten Projekts.",
+    "about.principle3.title": "Effizienz & Effektivität",
+    "about.principle3.desc": "Klare Prozesse, effiziente Umsetzung und nachhaltige Ergebnisse, ohne Kompromisse bei der Qualität.",
+    "about.photoCaption": "Luca und [Partner], die zwei Menschen hinter EAL."
   },
   "fr": {
     "hero.title1": "Votre quotidien,",
@@ -1189,7 +1216,16 @@
     "about.team.p1.bio": "[Environ 60 à 70 mots : ce que fait cette personne, ce qu'elle a construit, et ce qu'un client y gagne.]",
     "about.team.p2.name": "[Nom]",
     "about.team.p2.role": "[Rôle]",
-    "about.team.p2.bio": "[Environ 60 à 70 mots : ce que fait cette personne, ce qu'elle a construit, et ce qu'un client y gagne.]"
+    "about.team.p2.bio": "[Environ 60 à 70 mots : ce que fait cette personne, ce qu'elle a construit, et ce qu'un client y gagne.]",
+    "about.drive.title": "Ce qui nous anime",
+    "about.drive.text": "Nous pensons qu'un bon logiciel ne se contente pas de fonctionner. Il simplifie les processus, séduit les utilisateurs et grandit avec les besoins de l'entreprise.",
+    "about.principle1.title": "Qualité du code",
+    "about.principle1.desc": "La qualité commence dans le code source. Nous développons donc des logiciels fiables, faciles à étendre et durables.",
+    "about.principle2.title": "Transparence",
+    "about.principle2.desc": "Une communication ouverte et claire pendant toute la durée du projet.",
+    "about.principle3.title": "Efficience et efficacité",
+    "about.principle3.desc": "Des processus clairs, une exécution efficace et des résultats durables, sans compromis sur la qualité.",
+    "about.photoCaption": "Luca et [partenaire], les deux personnes derrière EAL."
   },
   "es": {
     "hero.title1": "Tu día a día,",
@@ -1487,7 +1523,16 @@
     "about.team.p1.bio": "[Unas 60 a 70 palabras: qué hace, qué ha construido y qué gana el cliente que trabaja con ella.]",
     "about.team.p2.name": "[Nombre]",
     "about.team.p2.role": "[Rol]",
-    "about.team.p2.bio": "[Unas 60 a 70 palabras: qué hace, qué ha construido y qué gana el cliente que trabaja con ella.]"
+    "about.team.p2.bio": "[Unas 60 a 70 palabras: qué hace, qué ha construido y qué gana el cliente que trabaja con ella.]",
+    "about.drive.title": "Lo que nos impulsa",
+    "about.drive.text": "Creemos que un buen software no solo funciona. Simplifica procesos, entusiasma a las personas y crece con lo que necesita la empresa.",
+    "about.principle1.title": "Calidad del código",
+    "about.principle1.desc": "La calidad empieza en el código fuente. Por eso construimos software que funciona con fiabilidad, se amplía con facilidad y perdura.",
+    "about.principle2.title": "Transparencia",
+    "about.principle2.desc": "Comunicación abierta y clara durante todo el proyecto.",
+    "about.principle3.title": "Eficiencia y eficacia",
+    "about.principle3.desc": "Procesos claros, ejecución eficiente y resultados duraderos, sin renunciar a la calidad.",
+    "about.photoCaption": "Luca y [socio], las dos personas detrás de EAL."
   },
   "it": {
     "hero.title1": "Il tuo lavoro,",
@@ -1785,6 +1830,15 @@
     "about.team.p1.bio": "[Circa 60-70 parole: cosa fa, cosa ha costruito e cosa ottiene il cliente che lavora con lei.]",
     "about.team.p2.name": "[Nome]",
     "about.team.p2.role": "[Ruolo]",
-    "about.team.p2.bio": "[Circa 60-70 parole: cosa fa, cosa ha costruito e cosa ottiene il cliente che lavora con lei.]"
+    "about.team.p2.bio": "[Circa 60-70 parole: cosa fa, cosa ha costruito e cosa ottiene il cliente che lavora con lei.]",
+    "about.drive.title": "Cosa ci spinge",
+    "about.drive.text": "Crediamo che un buon software non si limiti a funzionare. Semplifica i processi, entusiasma le persone e cresce con le esigenze di un'azienda.",
+    "about.principle1.title": "Qualità del codice",
+    "about.principle1.desc": "La qualità comincia nel codice sorgente. Per questo costruiamo software affidabile, facile da estendere e destinato a durare.",
+    "about.principle2.title": "Trasparenza",
+    "about.principle2.desc": "Comunicazione aperta e chiara per tutta la durata del progetto.",
+    "about.principle3.title": "Efficienza ed efficacia",
+    "about.principle3.desc": "Processi chiari, esecuzione efficiente e risultati duraturi, senza compromessi sulla qualità.",
+    "about.photoCaption": "Luca e [socio], le due persone dietro EAL."
   }
 }
