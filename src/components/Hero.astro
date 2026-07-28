@@ -10,7 +10,11 @@
   </div>
   <div class="hero-fade" aria-hidden="true"></div>
 
-  <div class="hero-content relative z-10 mx-auto w-full max-w-2xl px-6 text-center">
+  <!-- max-w-3xl, not 2xl: the German headline's accent line ("einfacher gemacht.")
+       measures 631px at the 73.6rem cap and 2xl left only 624px of content width,
+       so it broke onto a third line for 7px. Widening the box instead of shrinking
+       the type keeps the other five languages at their current size. -->
+  <div class="hero-content relative z-10 mx-auto w-full max-w-3xl px-6 text-center">
     <h1 class="hero-h1 font-['Outfit'] font-bold">
       <span class="block text-[#0c1a2a]" data-i18n="hero.title1">We build software</span>
       <span class="block text-[var(--color-accent)]" data-i18n="hero.title2">that works.</span>
