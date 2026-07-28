@@ -11,9 +11,13 @@
 //
 // Name, role and bio stay as visibly marked slots until they write them.
 
+// p1 carries a portrait; p2 keeps a marked slot until he has one he likes.
+// The portrait is a skin-retouch of the same photo the band comes from, so the
+// two images sit together. Only p1 was retouched - p2's likeness is his own
+// call, and nothing was run on it.
 const people = [
-  { key: 'p1', delay: '1' },
-  { key: 'p2', delay: '2' },
+  { key: 'p1', delay: '1', photo: '/images/about/person-1.jpg' },
+  { key: 'p2', delay: '2', photo: null },
 ];
 
 const principles = [
@@ -58,6 +62,23 @@ const principles = [
     <div class="mt-10 grid gap-8 sm:gap-10 md:grid-cols-2 md:gap-14">
       {people.map((p) => (
         <div data-animate="fade-up" data-stagger-delay={p.delay}>
+          {p.photo ? (
+            <img
+              src={p.photo}
+              alt=""
+              width="600"
+              height="800"
+              loading="lazy"
+              decoding="async"
+              class="mb-6 w-[132px] rounded-xl border border-[var(--color-border)] object-cover sm:w-[152px]"
+            />
+          ) : (
+            <div class="person-slot mb-6 flex w-[132px] items-end rounded-xl border border-dashed border-[rgba(8,145,178,0.4)] p-3 sm:w-[152px]">
+              <p class="text-[0.7rem] leading-snug text-[var(--color-text-muted)]" data-i18n="about.team.photoBrief">
+                Photo to shoot: portrait, daylight, plain background, looking into the lens.
+              </p>
+            </div>
+          )}
           <p class="text-2xl font-semibold text-[var(--color-text)]" data-i18n={`about.team.${p.key}.name`}>
             [Name]
           </p>
@@ -111,6 +132,10 @@ const principles = [
   @media (max-width: 640px) {
     .founders-band { aspect-ratio: 4 / 3; }
   }
+
+  /* The empty portrait slot matches the filled one's footprint exactly, so the
+     two columns stay level while one of them is still waiting for a photo. */
+  .person-slot { aspect-ratio: 3 / 4; }
 
   /* The belief line is the statement of the section: big enough to slow the
      reader down, short enough to stay two or three lines in every language. */
