@@ -5,14 +5,19 @@
 // the company what these two descriptions say about the people, and the stats
 // were making a claim the page could not back.
 //
+// The portrait sits INSIDE the brand's cut-glass ring - the same asset that
+// frames the hero headline and sits behind the Grow plan. Reusing it here costs
+// nothing (already fetched, already cached) and ties the one section that is
+// about people to the object the whole brand is built on. No other agency can
+// copy this framing without copying the ring.
+//
 // Photo, name, role and description are DELIBERATELY empty, marked slots. A
 // founder bio is exactly the kind of content that reads as real because it
 // cannot be guessed, so inventing one here would be the wrong kind of filler.
-// Each slot carries its own brief so it is obvious what belongs in it.
 
 const people = [
-  { key: 'p1', delay: '1' },
-  { key: 'p2', delay: '2' },
+  { key: 'p1', delay: '1', spin: 'ring-cw' },
+  { key: 'p2', delay: '2', spin: 'ring-ccw' },
 ];
 ---
 
@@ -30,38 +35,51 @@ const people = [
       </h2>
     </div>
 
-    <div class="grid gap-6 sm:gap-8 md:grid-cols-2">
+    <div class="grid gap-8 sm:gap-10 md:grid-cols-2">
       {people.map((p) => (
         <article
-          class="person-card group relative flex flex-col rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-neutral)] backdrop-blur-xl p-6 sm:p-8 overflow-hidden transition-all duration-400 hover:border-[rgba(6,182,212,0.2)] hover:shadow-[0_0_40px_rgba(6,182,212,0.06)] hover:-translate-y-1"
+          class="person-card group relative flex flex-col items-center rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-neutral)] backdrop-blur-xl px-6 py-8 sm:px-8 sm:py-10 text-center overflow-hidden transition-all duration-400 hover:border-[rgba(6,182,212,0.2)] hover:shadow-[0_0_40px_rgba(6,182,212,0.06)] hover:-translate-y-1"
           data-animate="fade-up"
           data-stagger-delay={p.delay}
         >
           <!-- Top highlight hairline -->
           <div class="absolute top-0 left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-black/[0.04] to-transparent"></div>
           <!-- Hover glow -->
-          <div class="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-cyan-500/0 group-hover:bg-cyan-500/[0.06] blur-[30px] transition-all duration-500"></div>
+          <div class="absolute -top-10 -right-10 w-28 h-28 rounded-full bg-cyan-500/0 group-hover:bg-cyan-500/[0.07] blur-[34px] transition-all duration-500"></div>
 
-          <!-- Photo slot. Replace the whole block with an <img> once the
-               portrait exists; the brief below says what to shoot. -->
-          <div class="person-photo relative flex aspect-[4/3] w-full flex-col justify-end rounded-xl border border-dashed border-[rgba(8,145,178,0.35)] bg-[rgba(8,145,178,0.04)] p-4">
-            <svg class="absolute left-4 top-4 h-5 w-5 text-[var(--color-accent)] opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
-            </svg>
-            <p class="text-xs leading-relaxed text-[var(--color-text-muted)]" data-i18n="about.team.photoBrief">
-              Photo to shoot: portrait, daylight, plain background, looking into the lens. Same framing for both.
-            </p>
+          <!-- Portrait framed by the brand ring. Replace the inner circle's
+               contents with an <img class="h-full w-full object-cover"> once the
+               portrait exists; the ring layer stays exactly as it is. -->
+          <div class="person-ring relative aspect-square w-full max-w-[290px]">
+            <div class="person-slot absolute inset-[15%] flex items-center justify-center overflow-hidden rounded-full border border-dashed border-[rgba(8,145,178,0.4)]">
+              <svg class="h-8 w-8 text-[var(--color-accent)] opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.4" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+              </svg>
+            </div>
+            <img
+              class:list={['ring-frame absolute inset-0 h-full w-full select-none', p.spin]}
+              src="/images/hero/hero-ring-v5.webp"
+              alt=""
+              width="2000"
+              height="2000"
+              loading="lazy"
+              decoding="async"
+              aria-hidden="true"
+            />
           </div>
 
-          <p class="mt-6 text-2xl font-semibold text-[var(--color-text)]" data-i18n={`about.team.${p.key}.name`}>
+          <p class="mt-7 text-2xl font-semibold text-[var(--color-text)]" data-i18n={`about.team.${p.key}.name`}>
             [Name]
           </p>
           <p class="mt-1 text-sm font-medium uppercase tracking-wider text-[var(--color-accent)]" data-i18n={`about.team.${p.key}.role`}>
             [Role]
           </p>
           <p class="mt-4 text-base leading-relaxed text-[var(--color-text-muted)]" data-i18n={`about.team.${p.key}.bio`}>
-            [About 60 to 70 words: what you do, what you have built, and what a client gets when they work with you.]
+            [About 60 to 70 words: what this person does, what they have built, and what a client gets from working with them.]
+          </p>
+          <p class="mt-5 text-xs leading-relaxed text-[var(--color-text-muted)] opacity-70" data-i18n="about.team.photoBrief">
+            Photo to shoot: portrait, daylight, plain background, looking into the lens. Same framing for both.
           </p>
         </article>
       ))}
@@ -71,3 +89,47 @@ const people = [
   <!-- Bottom gradient transition -->
   <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#f0fdfa] to-transparent pointer-events-none"></div>
 </section>
+
+<style>
+  /* The two rings turn in opposite directions, slowly enough that it reads as
+     drift rather than motion. It is the second-read detail: you notice it only
+     if you stay on the section. */
+  .ring-frame {
+    transform-origin: 50% 50%;
+    will-change: transform;
+  }
+
+  /* The empty portrait slot gets the same radial lift the hero uses, so it
+     reads as a designed opening rather than a grey hole. Delete this rule when
+     a real <img> fills the circle - a photo does not need a backdrop. */
+  .person-slot {
+    background: radial-gradient(
+      120% 100% at 50% 22%,
+      rgba(255, 255, 255, 0.9) 0%,
+      rgba(6, 182, 212, 0.09) 58%,
+      rgba(8, 145, 178, 0.14) 100%
+    );
+  }
+  .ring-cw  { animation: personRingSpin 54s linear infinite; }
+  .ring-ccw { animation: personRingSpin 54s linear infinite reverse; }
+
+  @keyframes personRingSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  /* The whole framed portrait opens up a touch when the card lifts. This has to
+     sit on the WRAPPER, not on the ring image: the spin animation also writes
+     `transform`, and an animation beats a plain declaration, so a hover scale on
+     the image itself would silently never apply. */
+  .person-ring {
+    transition: transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .person-card:hover .person-ring { transform: scale(1.04); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ring-frame { animation: none !important; }
+    .person-ring { transition: none !important; transform: none !important; }
+    .person-card { transition: none !important; }
+  }
+</style>
