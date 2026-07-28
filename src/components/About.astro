@@ -73,11 +73,11 @@ const principles = [
               class="mb-6 w-[132px] rounded-xl border border-[var(--color-border)] object-cover sm:w-[152px]"
             />
           ) : (
-            <div class="person-slot mb-6 flex w-[132px] items-end rounded-xl border border-dashed border-[rgba(8,145,178,0.4)] p-3 sm:w-[152px]">
-              <p class="text-[0.7rem] leading-snug text-[var(--color-text-muted)]" data-i18n="about.team.photoBrief">
-                Photo to shoot: portrait, daylight, plain background, looking into the lens.
-              </p>
-            </div>
+            <!-- No visible placeholder. An empty dashed box reads as a broken
+                 page rather than as a slot waiting to be filled. The spacer
+                 keeps the same footprint so both names stay on one line; drop
+                 it and add an <img> when the second portrait exists. -->
+            <div class="person-slot mb-6 w-[132px] sm:w-[152px]" aria-hidden="true"></div>
           )}
           <p class="text-2xl font-semibold text-[var(--color-text)]" data-i18n={`about.team.${p.key}.name`}>
             [Name]
