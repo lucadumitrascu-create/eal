@@ -63,7 +63,7 @@ const c = {
   'pricing.build.summaryTitle': 'Your setup',
   'pricing.build.emptyHint': 'Pick a base or a module to see your price.',
   'pricing.build.totalLabel': 'Total',
-  'pricing.build.careLine': '+ €35 / month care & hosting',
+  'pricing.build.careLine': '+ from €35 / month care & hosting',
   'pricing.build.note': 'Estimate. We confirm your fixed price when we talk.',
   'pricing.build.cta': 'Get a fixed quote',
   'pricing.care.label': 'Care & maintenance',
@@ -368,7 +368,7 @@ const baseLabelKey = (k: string) => (k === 'alacarte' ? 'pricing.build.alacarte'
                   <span id="eal-total" class="cfg-total tabular-nums">€1.190</span>
                   <span class="cfg-total-period" data-i18n="pricing.oneTime">one-time</span>
                 </div>
-                <p class="cfg-care" data-i18n="pricing.build.careLine">+ €35 / month care &amp; hosting</p>
+                <p class="cfg-care" data-i18n="pricing.build.careLine">+ from €35 / month care &amp; hosting</p>
               </div>
 
               <p id="eal-empty" class="cfg-empty" hidden data-i18n="pricing.build.emptyHint">
@@ -402,6 +402,11 @@ const baseLabelKey = (k: string) => (k === 'alacarte' ? 'pricing.build.alacarte'
           <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
         </svg>
         <span class="font-medium text-[var(--color-text)]"><span data-i18n="pricing.care.label">Care &amp; maintenance</span>:</span>
+        <!-- "from €35", not "€35": 35 is the floor (a Launch-sized site). Bigger
+             databases and external services push it up, so the number has to
+             read as a starting point. Reuses the existing pricePrefix key,
+             which is already authored in all six languages. -->
+        <span class="text-[var(--color-text-muted)]" data-i18n="pricing.enterprise.pricePrefix">from</span>
         <span class="font-semibold text-[var(--color-text)] tabular-nums">€35</span>
         <span class="text-[var(--color-text-muted)]" data-i18n="pricing.care.period">/ month</span>
         <span class="text-[var(--color-text-muted)] opacity-40" aria-hidden="true">·</span>
