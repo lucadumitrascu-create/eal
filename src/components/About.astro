@@ -94,11 +94,17 @@ const principles = [
         <p class="text-xs font-medium uppercase tracking-[0.18em] text-[#5ED9F0]" data-i18n="about.drive.title">
           What drives us
         </p>
-        <p
-          class="drive-statement mt-5 max-w-4xl font-bold tracking-[-0.02em] text-white"
-          data-i18n="about.drive.text"
-        >
-          We believe good software does not just work. It simplifies processes, wins people over and grows with what a company needs.
+        <!-- The client's sentence split at its own full stop: the claim above
+             at statement size, the elaboration below at reading size. The hedge
+             it opened with ("Wir glauben, dass" / "We believe that") is cut - it
+             asked permission for a claim the sentence then makes anyway, and it
+             was a third of the line. German now lands on one line instead of
+             four. -->
+        <p class="drive-statement mt-6 font-bold tracking-[-0.022em] text-white" data-i18n="about.drive.lead">
+          Good software does not just work.
+        </p>
+        <p class="drive-rest mt-5 max-w-2xl text-white/70" data-i18n="about.drive.text">
+          It simplifies processes, wins people over and grows with what a company needs.
         </p>
 
         <ul class="principle-rail mt-14 grid md:grid-cols-3">
@@ -126,11 +132,17 @@ const principles = [
     .founders-band { aspect-ratio: 4 / 3; }
   }
 
-  /* The belief line is the statement of the section: big enough to slow the
-     reader down, short enough to stay two or three lines in every language. */
+  /* Claim across the full width of the panel, elaboration under it in a reading
+     measure. The earlier two-column version halved the claim's width to 465px,
+     which is what pushed it onto three lines - the grid was the problem, not
+     the sentence. */
   .drive-statement {
-    font-size: clamp(1.45rem, 2.6vw, 2.15rem);
-    line-height: 1.28;
+    font-size: clamp(1.6rem, 3vw, 2.55rem);
+    line-height: 1.18;
+  }
+  .drive-rest {
+    font-size: 1.0625rem;
+    line-height: 1.65;
   }
 
   /* The one dark block on the whole page. The site is uniformly pale, so this
