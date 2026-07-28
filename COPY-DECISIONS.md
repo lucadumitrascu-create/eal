@@ -8,7 +8,7 @@ Source for the current round: „ANALYSE DER WEBSITE EAL" (Pages, de_AT) plus it
 
 | Decision | Date | Note |
 |---|---|---|
-| **German first, other languages later** | 2026-07-27 | Rewrite `de` only. The other five (`en`, `ro`, `fr`, `es`, `it`) keep the current punchy-English tone until the German version is reviewed live. Propagate only if approved. |
+| ~~German first, other languages later~~ → **all six, done** | 2026-07-28 | The German rewrite was reviewed on the preview and carried into `en`, `ro`, `fr`, `es`, `it`, each in its own register (fr on `vous`, the rest on `tu`/`you`). Package names are Launch / Grow / Evolve everywhere now, so switching language no longer changes the product names. |
 | Copy lives in `src/data/translations.json` | 2026-07-27 | Flat dotted keys, six top-level language objects. Copy work touches values only, never keys, or the other five languages break. |
 | Umlauts fixed section by section | 2026-07-27 | 21 of 305 German keys have stripped umlauts or `ae/oe/ue` transliterations. Each is repaired when its section comes up. **Leftovers not covered by the document: `nav.about`, `projects.title`, `projects.back`, `error.description`, `footer.description`, and 8 `builder.*` keys.** |
 
@@ -86,12 +86,26 @@ Checked before applying, because the Romanian analysis flagged it as the riskies
 - **The real breakage was a cross-reference in prose:** `pricing.pro.f1` said „Alles aus Starter" and would have pointed at a package no longer on the page. Now „Alles aus Launch". **Any future rename must grep the other plans' feature lists for the old name.**
 - German is now the only language on Launch / Grow / Evolve. The other five still say Starter / Professional / Enterprise. Accepted under the DE-first decision, but it is now visible to anyone switching language.
 
+## Layout parity is the requirement, not just translation
+
+Verified at 1440 and 390 in all six languages after translating: hero two lines on desktop, the four service cards the same line shape, plan taglines 2/2/2, overflow 0. **French needed a tightening to get there** - its Evolve tagline ran to three lines at fourteen words and now runs twelve. Translating without measuring would have shipped one language out of step with the other five and nobody would have noticed until a screenshot.
+
+## The About section is now two people, not principles
+
+Replaced 2026-07-28. The three principles (Codequalität / Transparenz / Effizienz) and the three stats (`<7 Tage`, `24/7`, `10+ Kunden`) are deleted, on the user's call. Two person cards take their place, with **deliberately empty, visibly marked slots**: photo (carrying its shot brief), `[Name]`, `[Rolle]`, and a bio placeholder naming the 60-70 word target. Keys are `about.team.p1.*` / `about.team.p2.*` / `about.team.photoBrief`, authored in all six languages so no locale falls back to English.
+
+The photo slot is `aspect-[4/3]`. It was `4/5` first, which at ~490px of card width made a 660px portrait that pushed the name and bio below the fold - the card measured 712px. At 4/3 the card is 513px and the whole card reads at once.
+
+**Do not fill these slots with invented content.** The bio is the one thing on this page that cannot be guessed, which is exactly why a wrong one reads as a lie rather than a placeholder.
+
 ## Still open
 
 | Item | Note |
 |---|---|
 | `services.maintenance.desc` (card 4) | Left untouched on the user's instruction — he wants to discuss a different idea for it. **Still carries three defects:** the broken „fur", the `euch` register break, and an English em-dash. |
-| „Über uns" section | Deferred to 2026-07-28, the user is doing it with his partner. Needs a founder photo + a 60-70 word bio that do not exist yet. |
+| ~~„Über uns" section~~ | DONE 2026-07-28 as two person cards with marked slots. Still needs the real photos, names, roles and bios from the user and his partner - and each bio then needs translating into six languages. |
+| Stripped accents in `ro`, `fr`, `es`, `it` | Same disease as the German umlauts, at a much larger scale: Romanian alone has 141 of 305 keys with no diacritics at all („Solutii", „functioneaza", „Contacteaza-ne"). The strings written on 2026-07-28 are correctly accented, so those locales now MIX correct and stripped text, which looks worse than uniformly stripped. Worth a mechanical sweep. |
+| Trailing „→" on buttons | Present across the site. The user rejected exactly this pattern on ioana-contabil („de scot sagetile, pare slop ai"), but has not ruled on it for EAL. |
 | `pricing.build.subtitle` | Kept as it is („Wählen Sie einen Ausgangspunkt und fügen Sie die passenden Module hinzu. Ihr Preis aktualisiert sich live."). The document offers „Wir kombinieren die passenden Funktionen…" instead. The current line tells the visitor what to DO in a tool he operates; the document's tells him what the agency does. Not ruled on. |
 | `pricing.subtitle` grammar, pre-existing | The line replaced today had a comma splice („…passenden Umfang, um den Rest kümmern wir uns"). Gone now, but the same shape may exist elsewhere. |
 
