@@ -50,6 +50,18 @@
     "featured": true
   },
   {
+    "id": "business-lounge",
+    "title": "Business Lounge",
+    "description": "Business event in Vienna",
+    "tech": [
+      "Next.js",
+      "Tailwind CSS"
+    ],
+    "url": "https://business-lounge-the-talk-more.at",
+    "image": "/images/projects/business-lounge.webp",
+    "featured": true
+  },
+  {
     "id": "il-rione",
     "title": "Il Rione",
     "description": "Neapolitan pizzeria",
@@ -83,18 +95,6 @@
     ],
     "url": "https://elektro-demo.ealenterprises.com",
     "image": "/images/projects/elektro-schweitzer.webp",
-    "featured": true
-  },
-  {
-    "id": "independent-plumbing",
-    "title": "Independent Plumbing",
-    "description": "Plumbing services",
-    "tech": [
-      "Next.js",
-      "Tailwind CSS"
-    ],
-    "url": "https://caleb-demo.ealenterprises.com",
-    "image": "/images/projects/independent-plumbing.webp",
     "featured": true
   }
 ]

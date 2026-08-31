@@ -6,14 +6,16 @@
   <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(8,145,178,0.2)] to-transparent"></div>
   <div class="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-[rgba(8,145,178,0.04)] to-transparent pointer-events-none"></div>
 
-  <!-- Watermark -->
-  <div class="absolute inset-x-0 bottom-[6.5rem] sm:bottom-[7.5rem] lg:bottom-24 flex items-center justify-center pointer-events-none select-none" aria-hidden="true">
-    <span class="text-[8rem] sm:text-[12rem] lg:text-[16rem] font-black uppercase tracking-widest text-black/[0.02] leading-none">EAL</span>
-  </div>
-
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-12 sm:pb-16 relative">
-    <!-- Spacer for watermark -->
-    <div class="h-24 sm:h-32 lg:h-40"></div>
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-4 sm:pb-5 relative">
+    <!-- Watermark anchored to the divider: appended content below can no
+         longer push it down or let the line cut through it -->
+    <div class="relative">
+      <div class="absolute inset-x-0 bottom-0 flex items-center justify-center pointer-events-none select-none" aria-hidden="true">
+        <span class="text-[8rem] sm:text-[12rem] lg:text-[16rem] font-black uppercase tracking-widest text-black/[0.02] leading-none">EAL</span>
+      </div>
+      <!-- Spacer reserves the watermark's height -->
+      <div class="h-24 sm:h-32 lg:h-40"></div>
+    </div>
 
     <!-- Grey divider -->
     <div class="h-px bg-gradient-to-r from-transparent via-[rgba(0,0,0,0.12)] to-transparent"></div>
@@ -24,5 +26,175 @@
         &copy; 2026 EAL ENTERPRISES S.R.L. All rights reserved.
       </p>
     </div>
+
+    <!-- ANPC SAL badge + legal link (compact, single row, wraps on mobile) -->
+    <div class="mt-3.5 flex flex-wrap items-center justify-center gap-x-5 gap-y-2.5">
+      <a
+        href="https://anpc.ro/ce-este-sal/"
+        target="_blank"
+        rel="noopener nofollow"
+        aria-label="ANPC — Solutionarea Alternativa a Litigiilor (SAL)"
+        class="inline-flex"
+      >
+        <img
+          src="/anpc/anpc-sal.svg"
+          alt="ANPC SAL — Solutionarea Alternativa a Litigiilor"
+          width="202"
+          height="50"
+          loading="lazy"
+          decoding="async"
+          class="h-[50px] w-auto opacity-80 hover:opacity-100 transition-opacity duration-300"
+        />
+      </a>
+
+      <button
+        type="button"
+        id="legal-open"
+        class="group inline-flex items-center gap-1.5 text-xs text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors duration-300 cursor-pointer"
+      >
+        <svg class="w-3.5 h-3.5 opacity-70 group-hover:opacity-100 transition-opacity" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+          <circle cx="12" cy="12" r="9.25"></circle>
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.75a.75.75 0 100-1.5.75.75 0 000 1.5zM12 10.5v6.75"></path>
+        </svg>
+        <span data-i18n="legal.open">Legal &amp; privacy</span>
+      </button>
+    </div>
   </div>
 </footer>
+
+<!-- ══════════════════════ Legal modal ══════════════════════ -->
+<div id="legal-modal" class="fixed inset-0 z-[10000] hidden opacity-0 transition-opacity duration-300" role="dialog" aria-modal="true" aria-labelledby="legal-modal-title">
+  <!-- Backdrop -->
+  <div id="legal-backdrop" class="absolute inset-0 bg-[#04202a]/45 backdrop-blur-sm"></div>
+
+  <!-- Dialog -->
+  <div class="absolute inset-0 flex items-center justify-center p-4 sm:p-6">
+    <div id="legal-dialog" class="relative w-full max-w-lg max-h-[86vh] flex flex-col rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] shadow-[0_40px_120px_-30px_rgba(8,51,68,0.55)] scale-[0.97] transition-transform duration-300 overflow-hidden">
+      <!-- Top accent line -->
+      <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[rgba(8,145,178,0.4)] to-transparent"></div>
+
+      <!-- Header -->
+      <div class="flex items-start justify-between gap-4 px-6 sm:px-7 pt-5 pb-4 border-b border-[var(--color-border)]">
+        <div>
+          <h2 id="legal-modal-title" class="text-lg sm:text-xl font-bold text-[var(--color-text)]" data-i18n="legal.title">
+            Legal &amp; privacy
+          </h2>
+          <p class="mt-1 text-xs sm:text-sm text-[var(--color-text-muted)]" data-i18n="legal.subtitle">
+            Company details, data protection and cookies.
+          </p>
+        </div>
+        <button
+          type="button"
+          id="legal-close"
+          class="flex-shrink-0 w-9 h-9 -mt-1 -mr-1 inline-flex items-center justify-center rounded-lg text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-black/[0.04] transition-colors cursor-pointer"
+          data-i18n-aria="legal.close"
+          aria-label="Close"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Scrollable body -->
+      <div class="overflow-y-auto px-6 sm:px-7 py-5 space-y-7">
+        <!-- 1 · Company details -->
+        <section>
+          <h3 class="text-sm font-semibold text-[var(--color-text)]" data-i18n="legal.company.title">Company details</h3>
+          <dl class="mt-3 divide-y divide-[var(--color-border)] rounded-xl border border-[var(--color-border)] bg-[var(--color-surface-neutral)] overflow-hidden">
+            <div class="grid grid-cols-[minmax(8rem,42%)_1fr] gap-3 px-4 py-2.5">
+              <dt class="text-xs sm:text-sm text-[var(--color-text-muted)]" data-i18n="legal.company.name">Company</dt>
+              <dd class="text-xs sm:text-sm font-medium break-words text-[var(--color-text)]">
+                EAL ENTERPRISES S.R.L.
+              </dd>
+            </div>
+            <div class="grid grid-cols-[minmax(8rem,42%)_1fr] gap-3 px-4 py-2.5">
+              <dt class="text-xs sm:text-sm text-[var(--color-text-muted)]" data-i18n="legal.company.cui">Tax ID (CUI)</dt>
+              <dd class="text-xs sm:text-sm font-medium break-words text-[var(--color-text)]">
+                53217036
+              </dd>
+            </div>
+            <div class="grid grid-cols-[minmax(8rem,42%)_1fr] gap-3 px-4 py-2.5">
+              <dt class="text-xs sm:text-sm text-[var(--color-text-muted)]" data-i18n="legal.company.reg">Trade Register no.</dt>
+              <dd class="text-xs sm:text-sm font-medium break-words text-[var(--color-text)]">
+                J2026000854001
+              </dd>
+            </div>
+            <div class="grid grid-cols-[minmax(8rem,42%)_1fr] gap-3 px-4 py-2.5">
+              <dt class="text-xs sm:text-sm text-[var(--color-text-muted)]" data-i18n="legal.company.address">Registered office</dt>
+              <dd class="text-xs sm:text-sm font-medium break-words text-[var(--color-text)]">
+                Drumul Negru nr. 10, Voluntari, Ilfov
+              </dd>
+            </div>
+            <div class="grid grid-cols-[minmax(8rem,42%)_1fr] gap-3 px-4 py-2.5">
+              <dt class="text-xs sm:text-sm text-[var(--color-text-muted)]" data-i18n="legal.company.email">Email</dt>
+              <dd class="text-xs sm:text-sm font-medium break-words text-[var(--color-text)]">
+                <a href="mailto:contact@ealenterprises.com" class="text-[var(--color-accent)] hover:underline break-all">contact@ealenterprises.com</a>
+              </dd>
+            </div>
+          </dl>
+        </section>
+
+        <!-- 2 · Data protection & privacy -->
+        <section>
+          <h3 class="text-sm font-semibold text-[var(--color-text)]" data-i18n="legal.privacy.title">Data protection &amp; privacy</h3>
+          <p class="mt-3 text-xs sm:text-sm text-[var(--color-text-muted)] leading-relaxed" data-i18n="legal.privacy.body">
+            EAL ENTERPRISES S.R.L. is the controller of the data collected via the contact form (name, email, message), used only to reply to you (Art. 6 GDPR). You may request access, rectification or erasure at contact@ealenterprises.com, or complain to ANSPDCP (www.dataprotection.ro).
+          </p>
+        </section>
+
+        <!-- 3 · Cookies -->
+        <section>
+          <h3 class="text-sm font-semibold text-[var(--color-text)]" data-i18n="legal.cookies.title">Cookies &amp; local storage</h3>
+          <p class="mt-3 text-xs sm:text-sm text-[var(--color-text-muted)] leading-relaxed" data-i18n="legal.cookies.body">
+            This site uses no advertising or tracking cookies; it only stores your language choice in your browser.
+          </p>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const modal = document.getElementById('legal-modal');
+    const dialog = document.getElementById('legal-dialog');
+    const openBtn = document.getElementById('legal-open');
+    const closeBtn = document.getElementById('legal-close');
+    const backdrop = document.getElementById('legal-backdrop');
+    if (!modal || !dialog || !openBtn) return;
+
+    let lastFocused: Element | null = null;
+
+    function open() {
+      lastFocused = document.activeElement;
+      modal!.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(() => {
+        modal!.classList.remove('opacity-0');
+        dialog!.classList.remove('scale-[0.97]');
+      });
+      (closeBtn as HTMLElement | null)?.focus();
+      document.addEventListener('keydown', onKey);
+    }
+
+    function close() {
+      modal!.classList.add('opacity-0');
+      dialog!.classList.add('scale-[0.97]');
+      document.removeEventListener('keydown', onKey);
+      window.setTimeout(() => {
+        modal!.classList.add('hidden');
+        document.body.style.overflow = '';
+      }, 300);
+      (lastFocused as HTMLElement | null)?.focus();
+    }
+
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') close();
+    }
+
+    openBtn.addEventListener('click', open);
+    closeBtn?.addEventListener('click', close);
+    backdrop?.addEventListener('click', close);
+  })();
+</script>
