@@ -6,24 +6,35 @@ import { buildEditMessages, parseModelPatch, LANG_NAMES, type ChatMessage } from
 // Make ONLY this route a Vercel serverless function; the rest of the site stays static.
 export const prerender = false;
 
-// Two-tier by request difficulty: the FAST model answers almost everything, and we
-// escalate to the SMART model ONLY when the fast one fumbled — i.e. it emitted ops
-// but every one was invalid — so simple requests stay fast and only the hard ones
-// pay for a smarter retry.
-// NVIDIA retired the whole Llama-3.x / Llama-4-Maverick line (410 Gone) on
-// 2026-07-27. mistral-nemotron is the FAST tier: a NON-reasoning instruct model that
-// returns clean, valid ops JSON in ~1.5-2s, benchmarked at 4/4 vs the Nemotron-3
-// *reasoning* models, which intermittently emit garbage (`{"{""` + newline spam)
-// under the json_object grammar. nemotron-3-ultra (550B) is the slower, smarter
-// rare-miss escalation, only hit when the fast tier emits all-invalid ops or errors.
-const MODEL_FAST = 'mistralai/mistral-nemotron';
-const MODEL_SMART = 'nvidia/nemotron-3-ultra-550b-a55b';
+// Ordered failover chain, fastest first. We walk it until a model returns a patch
+// that actually applies; a timeout, an upstream error (NVIDIA answers 503 "Service
+// temporarily overloaded" under load) or an all-invalid patch moves straight to the
+// next model instead of burning the whole budget on one host.
+//
+// The models are picked by benchmarking the REAL edit prompt, never assumed alive:
+// on 2026-09-05 mistralai/mistral-nemotron — the previous fast tier — stopped
+// answering altogether (connections hang past 45s, no status ever returned), which
+// took the assistant offline: the fast tier timed out at 20s and the single
+// escalation then hit a 503, so every request fell through to the offline reply.
+// gpt-oss-20b replaced it at ~1.5-3s with 3/3 applying patches; nemotron-3-super is
+// a quick second opinion (~4-8s); nemotron-3-ultra (550B, ~15s) is the last resort.
 const NVIDIA_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
-const FAST_MS = 20000; // super is a reasoning model — usually ~2-6s but can hit ~15s, so give it room
-const FAST_ATTEMPTS = 1;
-const SMART_MS = 30000; // ultra reasons for ~20-25s; this is a RARE escalation
-const SMART_ATTEMPTS = 1;
-// Budget: 20s fast + 30s smart = 50s < the 60s function maxDuration.
+// `extra` caps the model's chain-of-thought. Every model NVIDIA still serves is a
+// reasoning model, and left alone they spend the token budget thinking out loud
+// ("We need to produce JSON with fields...") before the JSON — slow, and sometimes
+// truncated into unusable output. The switch is vendor-specific, so it rides per
+// entry. Editing needs the ops to name REAL slot ids, so gpt-oss runs at MEDIUM
+// effort (7/7 prompts applied cleanly) rather than the low setting /api/ideas uses:
+// low was ~2s but produced invalid or empty ops on 2 of 5 prompts.
+const CHAIN: readonly { model: string; ms: number; extra: Record<string, unknown> }[] = [
+  { model: 'openai/gpt-oss-20b', ms: 20000, extra: { reasoning_effort: 'medium' } },
+  { model: 'nvidia/nemotron-3-super-120b-a12b', ms: 15000, extra: { chat_template_kwargs: { thinking: false } } },
+  { model: 'nvidia/nemotron-3-ultra-550b-a55b', ms: 20000, extra: { chat_template_kwargs: { thinking: false } } },
+];
+// Whole-request budget, kept under the 60s function maxDuration so we always send
+// the browser our own answer instead of letting the platform kill the function.
+const DEADLINE_MS = 52000;
+const MIN_TIER_MS = 6000; // never start a model we cannot give a fair shot
 const MAX_BODY = 24576; // the body includes the whole DesignSpec + recent chat turns
 const MAX_MESSAGE = 600;
 const MAX_HISTORY = 8; // recent turns kept for multi-turn context
@@ -77,7 +88,7 @@ type ModelFail = 'timeout' | 'upstream' | 'parse' | 'error';
  * body read — is aborted, not left to the 60s wall. Retries a timeout or a 5xx
  * (transient queue/cold-start); does not retry a 4xx/parse.
  */
-async function callModel(key: string, messages: ChatMessage[], model: string, perAttemptMs: number, attempts: number): Promise<{ content: string } | { fail: ModelFail }> {
+async function callModel(key: string, messages: ChatMessage[], model: string, perAttemptMs: number, attempts: number, extra: Record<string, unknown> = {}): Promise<{ content: string } | { fail: ModelFail }> {
   let lastFail: ModelFail = 'error';
   for (let attempt = 1; attempt <= attempts; attempt++) {
     const ctrl = new AbortController();
@@ -92,6 +103,7 @@ async function callModel(key: string, messages: ChatMessage[], model: string, pe
           temperature: 0.2, // low: we want a precise, deterministic patch
           max_tokens: 1800, // room for a broad multi-slot rewrite without truncating the JSON
           response_format: { type: 'json_object' },
+          ...extra,
         }),
         signal: ctrl.signal,
       });
@@ -171,26 +183,30 @@ export const POST: APIRoute = async ({ request }) => {
   const messages = buildEditMessages(spec, message, history, lang);
   let outcome: ReturnType<typeof applyContent> = null;
   let lastFail: ModelFail = 'error';
+  const started = Date.now();
 
-  // Tier 1 — fast model (handles most simple edits in ~1-5s).
-  const fast = await callModel(key, messages, MODEL_FAST, FAST_MS, FAST_ATTEMPTS);
-  if ('fail' in fast) lastFail = fast.fail;
-  else outcome = applyContent(spec, fast.content); // null if unparseable
-
-  // Tier 2 — escalate to the reliable smart model whenever the fast one failed, was
-  // unparseable, or emitted ONLY invalid ops (garbage ids the repair couldn't save).
-  // The 8B is run-to-run unreliable, so give the 70B two shots. Don't escalate a
-  // genuine clarifying question (applied 0, skipped 0).
-  const needSmart = !outcome || (outcome.result.applied.length === 0 && outcome.result.skipped.length > 0);
-  if (needSmart) {
-    console.log('[edit] escalating to smart model');
-    const smart = await callModel(key, messages, MODEL_SMART, SMART_MS, SMART_ATTEMPTS);
-    if ('fail' in smart) lastFail = smart.fail;
-    else {
-      const better = applyContent(spec, smart.content);
-      if (better && (!outcome || better.result.applied.length > 0)) outcome = better;
-      else if (!outcome) lastFail = 'parse';
+  for (const tier of CHAIN) {
+    const left = DEADLINE_MS - (Date.now() - started);
+    if (left < MIN_TIER_MS) break; // out of budget — answer with whatever we have
+    const res = await callModel(key, messages, tier.model, Math.min(tier.ms, left), 1, tier.extra);
+    if ('fail' in res) {
+      lastFail = res.fail; // timeout / 503 / 4xx
+      continue;
     }
+    const cand = applyContent(spec, res.content);
+    if (!cand) {
+      lastFail = 'parse';
+      continue;
+    }
+    // A real edit — or a genuine clarifying question (nothing applied AND nothing
+    // skipped) — is the answer. Ops that ALL bounced mean the model misread the
+    // spec: keep that only as a last resort and let a smarter model try.
+    if (cand.result.applied.length > 0 || cand.result.skipped.length === 0) {
+      outcome = cand;
+      break;
+    }
+    outcome ??= cand;
+    console.log(`[edit] ${tier.model}: all ops invalid — escalating`);
   }
 
   if (!outcome) {

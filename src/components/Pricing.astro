@@ -9,7 +9,9 @@
 // The configurator is progressive enhancement: with JS off it still reads as a
 // static list of packages + priced modules (buttons carry name + price), and the
 // summary shows a sensible default (Professional, one-time). A small vanilla
-// <script> parses prices from data-attributes and updates the total live.
+// inline script parses prices from data-attributes and updates the total live.
+// (Don't write a literal script tag in this comment — Astro's dev-time script
+// extraction treats it as the start of a real block and breaks `astro dev`.)
 
 // English defaults rendered server-side; i18n.ts swaps textContent on load.
 const c = {

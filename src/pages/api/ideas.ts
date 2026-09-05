@@ -4,14 +4,20 @@ import { fallbackIdeas, type Idea } from '../../lib/ai/fallbackIdeas';
 // Make ONLY this route a Vercel serverless function; the rest of the site stays static.
 export const prerender = false;
 
-// NVIDIA retired the Llama-3.x / Llama-4-Maverick line (410 Gone) on 2026-07-27.
-// mistral-nemotron (NON-reasoning instruct) is the primary — fast (~6-10s) and
-// fluent, and it reliably emits clean JSON (the Nemotron-3 reasoning models glitch
-// intermittently under json_object). Fall to nemotron-3-ultra (550B) if it blips,
-// then the hand-written static bank.
-const MODEL_PRIMARY = 'mistralai/mistral-nemotron';
-const MODEL_FALLBACK = 'nvidia/nemotron-3-ultra-550b-a55b';
+// Ordered failover chain, fastest first — same list and same reason as /api/edit:
+// mistral-nemotron went dark on 2026-09-05 (connections hang, no status) and took
+// this endpoint down with it, so a single primary + single fallback is not enough.
+// Any failure walks to the next model, and the hand-written static bank still backs
+// the whole chain, so ideas never hard-fail.
 const NVIDIA_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
+// `extra` disables each model's chain-of-thought — see the same note in
+// /api/edit.ts. Without it every model here burns its budget thinking out loud and
+// the endpoint served static ideas on every single request.
+const CHAIN: readonly { model: string; ms: number; extra: Record<string, unknown> }[] = [
+  { model: 'openai/gpt-oss-20b', ms: 20000, extra: { reasoning_effort: 'low' } },
+  { model: 'nvidia/nemotron-3-super-120b-a12b', ms: 15000, extra: { chat_template_kwargs: { thinking: false } } },
+  { model: 'nvidia/nemotron-3-ultra-550b-a55b', ms: 20000, extra: { chat_template_kwargs: { thinking: false } } },
+];
 const LANG_NAMES: Record<string, string> = { en: 'English', ro: 'Romanian', de: 'German', fr: 'French', es: 'Spanish', it: 'Italian' };
 
 const json = (obj: unknown, status = 200) =>
@@ -44,21 +50,33 @@ function extractJson(text: string): any | null {
   }
 }
 
-/** One model attempt: returns a clamped Idea, or null on slow/throttle/parse failure. */
-async function tryIdeas(key: string, model: string, sys: string, usr: string, timeoutMs: number): Promise<Idea | null> {
+/** One model attempt: returns a clamped Idea, or null on slow/throttle/parse failure.
+ *
+ * max_tokens has to cover the model's own reasoning, not just the JSON: today's
+ * NVIDIA models all think out loud first, so the old 500 budget was spent on
+ * "We need to produce JSON with fields..." and the answer was truncated away
+ * (gpt-oss-20b returned an EMPTY content string) — every model "failed" and the
+ * endpoint served static ideas. 1800 matches /api/edit and leaves ample room. */
+async function tryIdeas(key: string, model: string, sys: string, usr: string, timeoutMs: number, extra: Record<string, unknown> = {}): Promise<Idea | null> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
     const res = await fetch(NVIDIA_URL, {
       method: 'POST',
       headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model, messages: [{ role: 'system', content: sys }, { role: 'user', content: usr }], temperature: 0.7, max_tokens: 500, response_format: { type: 'json_object' } }),
+      body: JSON.stringify({ model, messages: [{ role: 'system', content: sys }, { role: 'user', content: usr }], temperature: 0.7, max_tokens: 1800, response_format: { type: 'json_object' }, ...extra }),
       signal: ctrl.signal,
     });
     if (!res.ok) { console.error(`[ideas] ${model} status ${res.status} ${(await res.text().catch(() => '')).slice(0, 120)}`); return null; }
     const data = await res.json().catch(() => null);
-    const parsed = extractJson(data?.choices?.[0]?.message?.content ?? '');
-    if (!parsed || !parsed.headline) return null;
+    const content = data?.choices?.[0]?.message?.content ?? '';
+    const parsed = extractJson(content);
+    // Log the shape we could not use: a silent null here is exactly what made the
+    // 2026-09-05 outage hard to read (only the last model's timeout showed up).
+    if (!parsed || !parsed.headline) {
+      console.error(`[ideas] ${model} unusable output: ${JSON.stringify(String(content).slice(0, 160))}`);
+      return null;
+    }
     return {
       headline: clampSmart(parsed.headline, 60),
       subhead: clampSmart(parsed.subhead, 160),
@@ -143,10 +161,12 @@ export const POST: APIRoute = async ({ request }) => {
     'No markdown, no commentary, JSON only.';
   const usr = `Business name: ${company}. Industry / what they do: ${industry || 'general small business'}. Write homepage copy.`;
 
-  // Maverick (fast + fluent, ~3-5s) -> 8B (fast fallback) -> static bank.
-  const ai = (await tryIdeas(key, MODEL_PRIMARY, sys, usr, 20000)) ?? (await tryIdeas(key, MODEL_FALLBACK, sys, usr, 26000));
-  if (ai) return json({ ...ai, source: 'ai' });
-  console.error('[ideas] fallback: both models failed (slow/throttled)');
+  // Walk the chain; the first model that answers wins, else the static bank.
+  for (const tier of CHAIN) {
+    const ai = await tryIdeas(key, tier.model, sys, usr, tier.ms, tier.extra);
+    if (ai) return json({ ...ai, source: 'ai' });
+  }
+  console.error('[ideas] fallback: every model in the chain failed (down/slow/throttled)');
   return json({ ...fallbackIdeas(industry, company, lang), source: 'fallback' });
 };
 
