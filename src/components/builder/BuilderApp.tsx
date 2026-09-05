@@ -344,6 +344,21 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
     return () => window.removeEventListener('keydown', onKey);
   }, [panel]);
 
+  // Click anywhere outside the toolbar (triggers + popovers all live in it) closes
+  // the open panel — same as pressing its X. pointerdown fires before click so the
+  // dismiss lands before any canvas edit; a click on the trigger itself is inside the
+  // container, so its own onClick still handles the toggle/switch.
+  const toolbarRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!panel) return;
+    const onPointerDown = (e: PointerEvent) => {
+      if (toolbarRef.current?.contains(e.target as Node)) return;
+      setPanel(null);
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [panel]);
+
   const tpl = templateById(spec.templateId);
   const edit: EditAPI = {
     on: true,
@@ -386,7 +401,7 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
       {/* Top toolbar — the only chrome; everything else is edited on the canvas.
           Wraps to two rows on narrow phones so nothing overflows off-screen. */}
       <div className="mb-3 flex flex-wrap items-center justify-between gap-x-2 gap-y-2">
-        <div className="relative flex items-center gap-2">
+        <div ref={toolbarRef} className="relative flex items-center gap-2">
           <button
             type="button"
             ref={(el) => { triggers.current.design = el; }}
@@ -462,8 +477,8 @@ function Editor({ decoded }: { decoded: DesignSpec | null }) {
             </div>
           )}
           {/* Non-modal: kept mounted (visibility toggled) so the conversation + undo
-              snapshots survive closing/reopening — and so you can scroll/edit the
-              canvas while it's open. Close via the toggle button or Escape. */}
+              snapshots survive closing/reopening. Close via the toggle button, Escape,
+              or a click outside the toolbar — hiding it preserves the conversation. */}
           <div id="ai-panel" role="dialog" aria-labelledby="ai-panel-title" className={`absolute left-0 top-full z-40 mt-2 w-[360px] max-w-[calc(100vw-2rem)] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] shadow-[0_24px_70px_rgba(0,0,0,0.20)] ${panel === 'ai' ? '' : 'hidden'}`}>
             <AIEditPanel
               spec={spec}

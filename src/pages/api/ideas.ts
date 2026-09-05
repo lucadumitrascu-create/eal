@@ -4,10 +4,13 @@ import { fallbackIdeas, type Idea } from '../../lib/ai/fallbackIdeas';
 // Make ONLY this route a Vercel serverless function; the rest of the site stays static.
 export const prerender = false;
 
-// Llama-4-Maverick is both FAST (~3-5s) and fluent — it replaces the old slow 70B
-// cascade. Fall to the 8B only if Maverick blips, then the hand-written static bank.
-const MODEL_PRIMARY = 'meta/llama-4-maverick-17b-128e-instruct';
-const MODEL_FALLBACK = 'meta/llama-3.1-8b-instruct';
+// NVIDIA retired the Llama-3.x / Llama-4-Maverick line (410 Gone) on 2026-07-27.
+// mistral-nemotron (NON-reasoning instruct) is the primary — fast (~6-10s) and
+// fluent, and it reliably emits clean JSON (the Nemotron-3 reasoning models glitch
+// intermittently under json_object). Fall to nemotron-3-ultra (550B) if it blips,
+// then the hand-written static bank.
+const MODEL_PRIMARY = 'mistralai/mistral-nemotron';
+const MODEL_FALLBACK = 'nvidia/nemotron-3-ultra-550b-a55b';
 const NVIDIA_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
 const LANG_NAMES: Record<string, string> = { en: 'English', ro: 'Romanian', de: 'German', fr: 'French', es: 'Spanish', it: 'Italian' };
 
@@ -71,16 +74,21 @@ async function tryIdeas(key: string, model: string, sys: string, usr: string, ti
 }
 
 function getKey(): string | undefined {
-  let fromImport: string | undefined;
-  try {
-    // STATIC member access so Vite can inline it at build/dev time. A dynamic form
-    // like (import.meta as any).env.X is rejected by Vite's dev module runner.
-    fromImport = import.meta.env.NVIDIA_API_KEY as string | undefined;
-  } catch {
-    fromImport = undefined; // e.g. the tsx test harness, where import.meta.env is absent
-  }
+  // Prefer the RUNTIME env: on Vercel this is the project env var NVIDIA_API_KEY, so
+  // the secret is configured in the dashboard and NEVER baked into the build (works
+  // for prebuilt AND remote builds). In dev we fall back to import.meta.env (loaded
+  // from .env) — but only inside `if (import.meta.env.DEV)`, a compile-time `false`
+  // in the production build, so Vite/esbuild dead-code-eliminate the branch and the
+  // key literal never lands in the deployed bundle. STATIC access is required (a
+  // dynamic import.meta.env['X'] is rejected by Vite's dev module runner).
   const fromProcess = typeof process !== 'undefined' ? process.env?.NVIDIA_API_KEY : undefined;
-  return fromImport || fromProcess;
+  if (fromProcess) return fromProcess;
+  try {
+    if (import.meta.env.DEV) return import.meta.env.NVIDIA_API_KEY as string | undefined;
+  } catch {
+    /* import.meta.env absent — e.g. the tsx test harness */
+  }
+  return undefined;
 }
 
 export const POST: APIRoute = async ({ request }) => {
@@ -136,7 +144,7 @@ export const POST: APIRoute = async ({ request }) => {
   const usr = `Business name: ${company}. Industry / what they do: ${industry || 'general small business'}. Write homepage copy.`;
 
   // Maverick (fast + fluent, ~3-5s) -> 8B (fast fallback) -> static bank.
-  const ai = (await tryIdeas(key, MODEL_PRIMARY, sys, usr, 18000)) ?? (await tryIdeas(key, MODEL_FALLBACK, sys, usr, 9000));
+  const ai = (await tryIdeas(key, MODEL_PRIMARY, sys, usr, 20000)) ?? (await tryIdeas(key, MODEL_FALLBACK, sys, usr, 26000));
   if (ai) return json({ ...ai, source: 'ai' });
   console.error('[ideas] fallback: both models failed (slow/throttled)');
   return json({ ...fallbackIdeas(industry, company, lang), source: 'fallback' });

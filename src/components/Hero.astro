@@ -74,10 +74,12 @@
     /* Title is anchored near the ring's centre via a fixed top offset (stable on
        any width), so the ring always frames it. CTAs are pinned to the lower zone
        below the ring, kept on ONE row (compact, no wrap). */
-    .hero-ring-wrap { width: 92vw; top: 37%; }
+    /* ring + title shifted down together (same ~6svh) so the ring's top no longer
+       tucks under the navbar pill — clears it with a comfortable gap on phones */
+    .hero-ring-wrap { width: 92vw; top: 44%; }
     .hero-h1 { font-size: clamp(2.4rem, 11.5vw, 3.3rem); }
 
-    .hero .hero-content { position: static; margin-top: 19svh; }
+    .hero .hero-content { position: static; margin-top: 25svh; }
     .hero .hero-content .hero-h1 { position: relative; z-index: 10; }
 
     .hero .hero-cta-row {

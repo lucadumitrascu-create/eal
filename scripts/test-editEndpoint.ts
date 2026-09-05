@@ -341,7 +341,7 @@ async function run() {
     await withMock(
       (_url: any, init: any) => {
         const model = JSON.parse(init.body).model as string;
-        if (model.includes('70b')) { smartCalls++; return ok(JSON.stringify({ ops: [{ op: 'setTheme', value: 'mono' }], reply: 'fixed' })); }
+        if (model.includes('ultra')) { smartCalls++; return ok(JSON.stringify({ ops: [{ op: 'setTheme', value: 'mono' }], reply: 'fixed' })); }
         fastCalls++; return ok(JSON.stringify({ ops: [{ op: 'setTheme', value: 'rainbow' }], reply: 'done' })); // invalid -> skipped
       },
       async () => {
@@ -358,7 +358,7 @@ async function run() {
     let smartCalls = 0;
     await withMock(
       (_url: any, init: any) => {
-        if ((JSON.parse(init.body).model as string).includes('70b')) smartCalls++;
+        if ((JSON.parse(init.body).model as string).includes('ultra')) smartCalls++;
         return ok(JSON.stringify({ ops: [{ op: 'setTheme', value: 'mono' }], reply: 'ok' }));
       },
       async () => {

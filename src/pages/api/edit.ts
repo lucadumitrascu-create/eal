@@ -6,22 +6,24 @@ import { buildEditMessages, parseModelPatch, LANG_NAMES, type ChatMessage } from
 // Make ONLY this route a Vercel serverless function; the rest of the site stays static.
 export const prerender = false;
 
-// Two-tier by request difficulty: the FAST model answers almost everything in
-// ~1-5s and is served reliably on NVIDIA's free tier (the 70B there has wild queue
-// latency and timed out constantly). We escalate to the SMART model ONLY when the
-// fast one fumbled — i.e. it emitted ops but every one was invalid — so simple
-// requests stay fast and only the hard ones the 8B botches pay for a smarter retry.
-// Llama-4-Maverick (17B-MoE): as fast as the 8B (~1s) but far better at producing
-// COMPLETE, valid ops — benchmarked at sub-1s with 2/2 valid ops vs the 8B's flaky
-// run-to-run output. The 70B stays as the rare-miss escalation.
-const MODEL_FAST = 'meta/llama-4-maverick-17b-128e-instruct';
-const MODEL_SMART = 'meta/llama-3.3-70b-instruct';
+// Two-tier by request difficulty: the FAST model answers almost everything, and we
+// escalate to the SMART model ONLY when the fast one fumbled — i.e. it emitted ops
+// but every one was invalid — so simple requests stay fast and only the hard ones
+// pay for a smarter retry.
+// NVIDIA retired the whole Llama-3.x / Llama-4-Maverick line (410 Gone) on
+// 2026-07-27. mistral-nemotron is the FAST tier: a NON-reasoning instruct model that
+// returns clean, valid ops JSON in ~1.5-2s, benchmarked at 4/4 vs the Nemotron-3
+// *reasoning* models, which intermittently emit garbage (`{"{""` + newline spam)
+// under the json_object grammar. nemotron-3-ultra (550B) is the slower, smarter
+// rare-miss escalation, only hit when the fast tier emits all-invalid ops or errors.
+const MODEL_FAST = 'mistralai/mistral-nemotron';
+const MODEL_SMART = 'nvidia/nemotron-3-ultra-550b-a55b';
 const NVIDIA_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
-const FAST_MS = 18000; // Maverick answers simple edits in ~1s; a broad rewrite takes ~10-14s, so give it room
+const FAST_MS = 20000; // super is a reasoning model — usually ~2-6s but can hit ~15s, so give it room
 const FAST_ATTEMPTS = 1;
-const SMART_MS = 26000; // the 70B needs ~24s; this is a RARE escalation (Maverick is reliable)
+const SMART_MS = 30000; // ultra reasons for ~20-25s; this is a RARE escalation
 const SMART_ATTEMPTS = 1;
-// Budget: 18s fast + 26s smart = 44s < the 60s function maxDuration.
+// Budget: 20s fast + 30s smart = 50s < the 60s function maxDuration.
 const MAX_BODY = 24576; // the body includes the whole DesignSpec + recent chat turns
 const MAX_MESSAGE = 600;
 const MAX_HISTORY = 8; // recent turns kept for multi-turn context
@@ -50,16 +52,21 @@ const json = (obj: unknown, status = 200) =>
 const clamp = (v: unknown, n: number) => String(v ?? '').slice(0, n);
 
 function getKey(): string | undefined {
-  let fromImport: string | undefined;
-  try {
-    // STATIC member access so Vite can inline it at build/dev time. A dynamic form
-    // like (import.meta as any).env.X is rejected by Vite's dev module runner.
-    fromImport = import.meta.env.NVIDIA_API_KEY as string | undefined;
-  } catch {
-    fromImport = undefined; // e.g. the tsx test harness, where import.meta.env is absent
-  }
+  // Prefer the RUNTIME env: on Vercel this is the project env var NVIDIA_API_KEY, so
+  // the secret is configured in the dashboard and NEVER baked into the build (works
+  // for prebuilt AND remote builds). In dev we fall back to import.meta.env (loaded
+  // from .env) — but only inside `if (import.meta.env.DEV)`, a compile-time `false`
+  // in the production build, so Vite/esbuild dead-code-eliminate the branch and the
+  // key literal never lands in the deployed bundle. STATIC access is required (a
+  // dynamic import.meta.env['X'] is rejected by Vite's dev module runner).
   const fromProcess = typeof process !== 'undefined' ? process.env?.NVIDIA_API_KEY : undefined;
-  return fromImport || fromProcess;
+  if (fromProcess) return fromProcess;
+  try {
+    if (import.meta.env.DEV) return import.meta.env.NVIDIA_API_KEY as string | undefined;
+  } catch {
+    /* import.meta.env absent — e.g. the tsx test harness */
+  }
+  return undefined;
 }
 
 type ModelFail = 'timeout' | 'upstream' | 'parse' | 'error';

@@ -77,17 +77,21 @@ const ctaHref = isHome ? '#contact' : '/#contact';
       </a>
     </div>
 
-    <!-- Hamburger button mobile -->
+    <!-- Hamburger button mobile. The X is driven entirely by the `.is-open` class
+         (see <style> + script) with each bar absolutely centered, so the icon is
+         pixel-identical on every toggle instead of being rebuilt from inline
+         transforms each press (which WebKit could leave half-applied from the 2nd
+         tap on). -->
     <button
       id="menu-toggle"
       type="button"
       aria-label="Open menu"
       aria-expanded="false"
-      class="md:hidden relative z-50 flex flex-col justify-center items-center w-12 h-12 gap-1.5 bg-transparent border-none cursor-pointer -mr-1"
+      class="hamburger md:hidden relative z-50 block w-12 h-12 bg-transparent border-none cursor-pointer -mr-1"
     >
-      <span class="hamburger-line block w-7 h-[2.5px] bg-[var(--color-text)] rounded-full transition-all duration-300 origin-center"></span>
-      <span class="hamburger-line block w-7 h-[2.5px] bg-[var(--color-text)] rounded-full transition-all duration-300 origin-center"></span>
-      <span class="hamburger-line block w-7 h-[2.5px] bg-[var(--color-text)] rounded-full transition-all duration-300 origin-center"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
+      <span class="hamburger-line"></span>
     </button>
   </nav>
 </header>
@@ -134,6 +138,29 @@ const ctaHref = isHome ? '#contact' : '/#contact';
     -webkit-backdrop-filter: blur(20px);
     backdrop-filter: blur(20px);
   }
+
+  /* Hamburger → X. Each bar is absolutely centered and the open state is a pure
+     class swap, so the two crossing bars always land on the exact same center
+     (translate(-50%,-50%)) every time it's opened — no accumulating drift and no
+     empty-string transform reset that Safari could leave stuck after the 1st use.
+     Transitions are per-property (not `all`) so nothing else animates. */
+  .hamburger-line {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 1.75rem;   /* 28px */
+    height: 2.5px;
+    border-radius: 9999px;
+    background: var(--color-text);
+    transform-origin: center;
+    transition: transform 0.3s ease, opacity 0.2s ease;
+  }
+  .hamburger-line:nth-child(1) { transform: translate(-50%, -50%) translateY(-8px); }
+  .hamburger-line:nth-child(2) { transform: translate(-50%, -50%); }
+  .hamburger-line:nth-child(3) { transform: translate(-50%, -50%) translateY(8px); }
+  #menu-toggle.is-open .hamburger-line:nth-child(1) { transform: translate(-50%, -50%) rotate(45deg); }
+  #menu-toggle.is-open .hamburger-line:nth-child(2) { opacity: 0; transform: translate(-50%, -50%) scaleX(0); }
+  #menu-toggle.is-open .hamburger-line:nth-child(3) { transform: translate(-50%, -50%) rotate(-45deg); }
 </style>
 
 <script>
@@ -218,12 +245,15 @@ const ctaHref = isHome ? '#contact' : '/#contact';
     updateActiveSection();
 
     // Mobile menu — scale from center with stagger
-    const lines = toggle.querySelectorAll('.hamburger-line');
     const mobileLinks = menu.querySelectorAll('.mobile-link');
 
     function setMenu(open: boolean) {
       menuOpen = open;
       toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      // hamburger <-> X is pure CSS off this one class (see <style>), so every
+      // toggle lands on the exact same icon — no inline-transform state to drift.
+      toggle.classList.toggle('is-open', open);
 
       if (open) {
         hidden = false;
@@ -237,9 +267,6 @@ const ctaHref = isHome ? '#contact' : '/#contact';
           (link as HTMLElement).style.opacity = '1';
           (link as HTMLElement).style.transform = 'translateY(0)';
         });
-        (lines[0] as HTMLElement).style.transform = 'translateY(8.5px) rotate(45deg)';
-        (lines[1] as HTMLElement).style.opacity = '0';
-        (lines[2] as HTMLElement).style.transform = 'translateY(-8.5px) rotate(-45deg)';
       } else {
         menu.style.pointerEvents = 'none';
         menu.style.opacity = '0';
@@ -249,9 +276,6 @@ const ctaHref = isHome ? '#contact' : '/#contact';
           (link as HTMLElement).style.opacity = '0';
           (link as HTMLElement).style.transform = 'translateY(15px)';
         });
-        (lines[0] as HTMLElement).style.transform = '';
-        (lines[1] as HTMLElement).style.opacity = '1';
-        (lines[2] as HTMLElement).style.transform = '';
       }
     }
 
