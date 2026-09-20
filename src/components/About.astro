@@ -2,7 +2,7 @@
 // About — built from the client's own document ("ANALYSE DER WEBSITE EAL"),
 // which asks for: a photo plus a short profile of the two people, the heading
 // "Unsere Grundsätze" replaced (his pick from the alternatives: "Was uns
-// antreibt"), the belief sentence, and the three principles rewritten.
+// antreibt") and the belief sentence.
 //
 // Layout: the two of them as ONE composition, not two mirrored rows. The first
 // portrait breaks out to the left and sits large, the second is smaller, higher
@@ -24,7 +24,7 @@ const people = [
     name: 'Luca Dumitrascu',
     specs: [
       ['Builds', 'websites, online shops, custom software'],
-      ['Stack', 'Astro, Next.js, React, TypeScript, Tailwind, Vercel'],
+      ['Stack', 'Astro, Next.js, React, TypeScript, Tailwind'],
       ['Clients', 'transport, electrician, timber construction, gastronomy'],
     ],
   },
@@ -40,19 +40,9 @@ const people = [
   },
 ];
 
-// Three things a client can hold them to, not three adjectives. Every one is
-// already true elsewhere on the site: the live configurator, the reply window he
-// confirmed on 2026-09-20, and the care price on the pricing page. The version
-// before this said Code quality / Transparency / Efficiency, which stayed true
-// with any competitor's name on it.
-const principles = [
-  { key: 'principle1', delay: '1', title: 'Fixed price', desc: 'The configurator shows the price before you talk to us. What we agree is what you pay.' },
-  { key: 'principle2', delay: '2', title: 'You hear back', desc: 'Every enquiry gets an answer within one working day.' },
-  { key: 'principle3', delay: '3', title: 'Care after launch', desc: 'From €35 a month: hosting, updates, support and small changes.' },
-];
 ---
 
-<section id="despre" class="relative py-24 sm:py-32 overflow-hidden section-transition">
+<section id="despre" class="relative pt-14 pb-24 sm:pt-16 sm:pb-32 overflow-hidden section-transition">
   <!-- Section glow orbs -->
   <div class="absolute inset-0 -z-10" aria-hidden="true">
     <div class="absolute top-[20%] right-[-8%] w-[45%] h-[45%] rounded-full bg-indigo-500 opacity-[0.05] blur-[120px]"></div>
@@ -111,12 +101,10 @@ const principles = [
       ))}
     </div>
 
-    <!-- What drives the studio. The belief line is set at statement size - it is
-         the one thing in this section worth reading slowly - and the three
-         principles sit on the same 1px hairline rails the price ledger uses, so
-         the two sections speak the same language. No bullet dots: a coloured
-         disc in front of a heading carries no information, same family as the
-         trailing arrows and the 01/02/03 numbering already refused. -->
+    <!-- The one dark block on the page: the claim, then where they came from.
+         It carried three commitment columns until 2026-09-20; he asked for the
+         panel to hold the story and nothing else, and for the commitments not
+         to be moved somewhere else either. -->
     <div class="drive-panel relative mt-24 overflow-hidden py-14 sm:mt-32 sm:py-20" data-animate="fade-up">
       <div class="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
         <!-- The client's sentence split at its own full stop: the claim above
@@ -140,14 +128,6 @@ const principles = [
           EAL started in 2025 with one site, for someone we knew. Since then the work has come from small businesses across Europe, and it is still the two of us doing all of it. We want the next projects to be bigger than the last ones.
         </p>
 
-        <ul class="principle-rail mt-14 grid md:grid-cols-3">
-          {principles.map((p) => (
-            <li class="principle" data-animate="fade-up" data-stagger-delay={p.delay}>
-              <p class="principle-title text-xl sm:text-2xl font-semibold tracking-[-0.015em] text-white" data-i18n={`about.${p.key}.title`}>{p.title}</p>
-              <p class="mt-3 text-[0.95rem] leading-relaxed text-white/65" data-i18n={`about.${p.key}.desc`}>{p.desc}</p>
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
   </div>
@@ -340,39 +320,5 @@ const principles = [
     background:
       radial-gradient(120% 140% at 8% 0%, #16324b 0%, transparent 60%),
       linear-gradient(160deg, #0c1a2a 0%, #08131f 100%);
-  }
-
-  /* Hairline rails, the same device the price ledger uses. Horizontal on
-     phones, vertical from md up, and never a rule before the first item.
-     On the dark panel the rule has to be a light hairline, not the page one. */
-  .principle-rail .principle {
-    border-top: 1px solid rgba(255, 255, 255, 0.16);
-    padding-top: 1.5rem;
-  }
-  .principle-rail .principle + .principle { margin-top: 2.25rem; }
-
-  @media (min-width: 768px) {
-    /* The three descriptions start on the same line whether a title wraps or
-       not. Subgrid rather than a reserved two-line title: it costs nothing in
-       the languages where no title wraps, and equalising the copy instead would
-       mean rewriting it in six. */
-    .principle-rail { grid-template-rows: auto auto; }
-    .principle-rail .principle {
-      display: grid;
-      grid-template-rows: subgrid;
-      grid-row: span 2;
-    }
-    @supports not (grid-template-rows: subgrid) {
-      .principle-title { min-height: 4rem; }
-    }
-
-    .principle-rail .principle {
-      border-top: 0;
-      border-left: 1px solid rgba(255, 255, 255, 0.16);
-      padding: 0 2rem;
-    }
-    .principle-rail .principle:first-child { border-left: 0; padding-left: 0; }
-    .principle-rail .principle:last-child { padding-right: 0; }
-    .principle-rail .principle + .principle { margin-top: 0; }
   }
 </style>

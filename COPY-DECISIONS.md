@@ -46,6 +46,7 @@ Source for the current round: „ANALYSE DER WEBSITE EAL" (Pages, de_AT) plus it
 | Key | Note |
 |---|---|
 | `hero.description` | `Hero.astro` renders only the H1 and two buttons. Left with its original wording, umlauts repaired. Do not write new copy into it without wiring it up first. |
+| `about.principle1.*` / `principle2.*` / `principle3.*` | Dead since the seventh pass, deliberately kept: confirmed commitments, reusable near pricing or contact. |
 | `about.drive.title` | Dead since the sixth pass: the panel eyebrow was removed. Kept in all six languages for now. |
 | ~~`about.team.p1.role` / `p2.role`~~ | Removed from all six languages in the fourth pass, along with `about.team.pX.bio`. Both are in git if the prose form is ever wanted back. |
 
@@ -91,6 +92,24 @@ Checked before applying, because the Romanian analysis flagged it as the riskies
 ## Layout parity is the requirement, not just translation
 
 Verified at 1440 and 390 in all six languages after translating: hero two lines on desktop, the four service cards the same line shape, plan taglines 2/2/2, overflow 0. **French needed a tightening to get there** - its Evolve tagline ran to three lines at fourteen words and now runs twelve. Translating without measuring would have shipped one language out of step with the other five and nobody would have noticed until a screenshot.
+
+## About, 2026-09-20 (seventh pass): the panel is the story, and nothing else
+
+| Change | Why |
+|---|---|
+| The three commitment columns are removed from the page | „sa inlocuim cu altceva sectiunea asta" and then, explicitly, „nu le muta, lasa decat povestea". They are NOT relocated to pricing or contact. |
+| `Vercel` is out of the stack row | His call. The row is now Astro, Next.js, React, TypeScript, Tailwind. |
+| The section's top padding drops from `py-24 sm:py-32` to `pt-14 sm:pt-16` | „about us mutal putin mai sus". The heading now starts 64px into the section instead of 104px. |
+
+The panel is the claim plus the origin story. Section height falls from 1858px
+to 1620px desktop, 2789px to 2250px mobile.
+
+**`about.principle1-3.title/desc` are kept in all six languages although nothing
+renders them.** They hold real, confirmed commitments (the configurator's fixed
+price, the one working day reply he confirmed today, the 35 euro care price), so
+they are worth more sitting in the file than in git history. Do not re-add them
+to About; if a commitments block is ever wanted, pricing or the contact form is
+where the person is actually deciding.
 
 ## About, 2026-09-20 (sixth pass): a title, a story, and no eyebrow
 
