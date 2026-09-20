@@ -110,8 +110,15 @@ restated the one before it.
 The bios now open on a verb, because the name is directly above them at 68px and
 repeating it was the third telling.
 
-Measured after: overflow 0 at 1440 and 390 in all six languages, bios 2-3 lines
-desktop and 3-4 mobile, mobile section 2429-2515px (from 2783-2927).
+**The 66% cut went too far** („cam prea scurt"), and the landing point is about
+45%: en 123 -> 70 words, de 108 -> 63, ro 124 -> 72, fr 133 -> 73, es 131 -> 75,
+it 126 -> 74. So the rule is a direction, not a target — cut until he says it is
+too short, then add back ONE sentence carrying information neither bio had. Here
+that was the market for the first (Austria and Germany) and the studio's size for
+the second, which is the fact the whole maintenance claim rests on.
+
+Measured after: overflow 0 at 1440 and 390 in all six languages, bios 3-4 lines
+desktop and 5-6 mobile, mobile section 2545-2630px (from 2783-2927).
 
 ## About, 2026-09-20 (second pass): the design
 
