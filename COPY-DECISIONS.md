@@ -32,7 +32,7 @@ Source for the current round: „ANALYSE DER WEBSITE EAL" (Pages, de_AT) plus it
 |---|---|---|
 | `<7 Tage` Lieferzeit — delivery time for what exactly? | `about.stat1` | **Unconfirmed.** Cannot be used in the hero as an offer until it is clear whether it covers websites only or custom software too. |
 | `10+ Internationale Kunden` | `about.stat2` | Unverified but already published on the site. |
-| Founder bio + photo (ca. 60–70 words) | proposed „Über uns" | Does not exist yet. The document asks for it; the content has to come from the client. |
+| Founder bio + photo (ca. 60–70 words) | `about.team.p1.*` / `p2.*` | **DONE 2026-09-20.** Names from the user, photos in the repo, bios written from published facts only. See „About, 2026-09-20" below. |
 
 ## Slot sizes — measure, do not guess
 
@@ -90,6 +90,38 @@ Checked before applying, because the Romanian analysis flagged it as the riskies
 
 Verified at 1440 and 390 in all six languages after translating: hero two lines on desktop, the four service cards the same line shape, plan taglines 2/2/2, overflow 0. **French needed a tightening to get there** - its Evolve tagline ran to three lines at fourteen words and now runs twelve. Translating without measuring would have shipped one language out of step with the other five and nobody would have noticed until a screenshot.
 
+## About, 2026-09-20: real people, real copy
+
+The band and the person cards are both gone. The section is now **one alternating row per
+person**: portrait on one side, name, role and bio on the other, second row mirrored, both
+rows photo-first on phones.
+
+| Decision | Note |
+|---|---|
+| Photos are real | `person-1.jpg` (Luca), `person-2.jpg` (Andrei), 1000x1250. Both cropped to the same head scale and the same pose so they read as one shoot; the wall lettering behind Luca was cropped out because a sliced word is noise. `founders.jpg` (the mountain snapshot) is deleted, not orphaned. |
+| `.person-photo` is back to **4:5** | The 2026-07-28 note pinning it to 4:3 was about a CARD, where the portrait sat ABOVE the name and pushed the bio below the fold. In a row the photo sits BESIDE the text, so that reason does not transfer. |
+| `about.photoCaption` removed from all six languages | The band it captioned no longer exists. |
+| Both roles are `Founder` | The user's call: „p1 Luca Dumitrascu, fondator. p2 Andrei Banu, fondator". Asked whether the work splits (build vs. clients) and the answer was **„amandoi pe tot"**, so neither bio may claim a territory the other does not have. |
+| The bios differ by ANGLE, not by role | p1 takes the build and the range of work; p2 takes what happens after launch. Both are true of a two-person studio and neither is exclusive. Flagged to the user once: swapping the names breaks nothing, which is inherent when both people do everything. |
+
+### The „do not invent the bio" rule was lifted by the person who set it
+
+The 2026-07-28 decision read: *„Do not fill these slots with invented content. The bio is the
+one thing on this page that cannot be guessed."* On 2026-09-20 the user gave the names and
+said **„restul scrii tu"**. That instruction wins, but only the part it actually covers:
+
+- **Used:** the studio's published work (Transport Services, Elektro Schweitzer, Baumgartner
+  Holzbau, Il Rione, Adricut, SOLbot Pro), the four service cards, the Austria/Germany market.
+- **Still not invented:** years of experience, education, previous employers, client counts,
+  who built which project, how either of them works day to day.
+
+Lines cut during drafting, for the record: „He writes the code himself" (claims exclusivity
+against „amandoi pe tot"), „When something breaks on a Friday…" (performed authenticity,
+shape 3), „a site that earns its keep keeps changing" (advertising, not a fact).
+
+Word counts as shipped: en 62/61, de 52/56, ro 65/59, fr 67/66, es 69/62, it 64/62. Rendered
+at 1440 and 390 in all six: overflow 0, bio 6-8 lines desktop, 8-9 mobile.
+
 ## The About section is now two people, not principles
 
 Replaced 2026-07-28. The three principles (Codequalität / Transparenz / Effizienz) and the three stats (`<7 Tage`, `24/7`, `10+ Kunden`) are deleted, on the user's call. Two person cards take their place, with **deliberately empty, visibly marked slots**: photo (carrying its shot brief), `[Name]`, `[Rolle]`, and a bio placeholder naming the 60-70 word target. Keys are `about.team.p1.*` / `about.team.p2.*` / `about.team.photoBrief`, authored in all six languages so no locale falls back to English.
@@ -103,7 +135,7 @@ The photo slot is `aspect-[4/3]`. It was `4/5` first, which at ~490px of card wi
 | Item | Note |
 |---|---|
 | `services.maintenance.desc` (card 4) | Left untouched on the user's instruction — he wants to discuss a different idea for it. **Still carries three defects:** the broken „fur", the `euch` register break, and an English em-dash. |
-| ~~„Über uns" section~~ | DONE 2026-07-28 as two person cards with marked slots. Still needs the real photos, names, roles and bios from the user and his partner - and each bio then needs translating into six languages. |
+| ~~„Über uns" section~~ | ~~DONE 2026-07-28 as two person cards with marked slots.~~ **Closed 2026-09-20:** photos, names, roles and bios are in, all six languages. |
 | Stripped accents in `ro`, `fr`, `es`, `it` | Same disease as the German umlauts, at a much larger scale: Romanian alone has 141 of 305 keys with no diacritics at all („Solutii", „functioneaza", „Contacteaza-ne"). The strings written on 2026-07-28 are correctly accented, so those locales now MIX correct and stripped text, which looks worse than uniformly stripped. Worth a mechanical sweep. |
 | Trailing „→" on buttons | Present across the site. The user rejected exactly this pattern on ioana-contabil („de scot sagetile, pare slop ai"), but has not ruled on it for EAL. |
 | `pricing.build.subtitle` | Kept as it is („Wählen Sie einen Ausgangspunkt und fügen Sie die passenden Module hinzu. Ihr Preis aktualisiert sich live."). The document offers „Wir kombinieren die passenden Funktionen…" instead. The current line tells the visitor what to DO in a tool he operates; the document's tells him what the agency does. Not ruled on. |
