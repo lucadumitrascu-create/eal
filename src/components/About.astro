@@ -60,14 +60,13 @@ const principles = [
   </div>
 
   <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-    <!-- The section's own name is the smallest type in it. The nav already says
-         About; what the reader has not met yet is these two, so the NAMES carry
-         the display size and this line steps back to a signpost. -->
-    <h2 class="about-eyebrow" data-animate="fade-up" data-i18n="about.title">
-      About us
-    </h2>
+    <div class="text-center mb-10 sm:mb-14" data-animate="fade-up">
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--color-text)]" data-i18n="about.title">
+        About us
+      </h2>
+    </div>
 
-    <div class="founders relative mt-10 sm:mt-14">
+    <div class="founders relative">
       <!-- The brand ring, at strength this time, spanning both of them: one
            portrait sits inside the arc, the other crosses it. It also fills the
            space above the bottom-aligned text, which was dead air before. -->
@@ -120,16 +119,13 @@ const principles = [
          trailing arrows and the 01/02/03 numbering already refused. -->
     <div class="drive-panel relative mt-24 overflow-hidden py-14 sm:mt-32 sm:py-20" data-animate="fade-up">
       <div class="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <p class="text-xs font-medium uppercase tracking-[0.18em] text-[#5ED9F0]" data-i18n="about.drive.title">
-          What drives us
-        </p>
         <!-- The client's sentence split at its own full stop: the claim above
              at statement size, the elaboration below at reading size. The hedge
              it opened with ("Wir glauben, dass" / "We believe that") is cut - it
              asked permission for a claim the sentence then makes anyway, and it
              was a third of the line. German now lands on one line instead of
              four. -->
-        <p class="drive-statement mt-6 font-bold tracking-[-0.022em] text-white" data-i18n="about.drive.lead">
+        <p class="drive-statement font-bold tracking-[-0.022em] text-white" data-i18n="about.drive.lead">
           Good software does not just work.
         </p>
         <p class="drive-rest mt-5 max-w-2xl text-white/70" data-i18n="about.drive.text">
@@ -158,17 +154,6 @@ const principles = [
      at 0 so nothing can ever overflow on a narrow desktop. */
   .founders {
     --about-bleed: clamp(0rem, calc((100vw - 64rem) / 2 - 1.5rem), 6rem);
-  }
-
-  /* The signpost. 11px against a 68px name is the contrast the section was
-     missing; the site's other eyebrows use the same uppercase tracking, so this
-     borrows the existing language rather than importing a mono face for it. */
-  .about-eyebrow {
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--color-text-muted);
   }
 
   .person { display: grid; gap: 1.75rem; }
