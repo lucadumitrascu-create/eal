@@ -101,9 +101,14 @@ Verified at 1440 and 390 in all six languages after translating: hero two lines 
 | `about.drive.text` is the origin story | It held „It simplifies processes, wins people over and grows with what a company needs", three abstractions in a row. |
 
 **The three facts the story is built from, and they are all he gave:** EAL
-started in **2025**; the first job was **one site for someone they knew**; the
-goal is a **bigger team so they can take bigger projects**. Nothing else about
-either of them is invented. The client list is NOT repeated here, because it
+started in **2025**; the first job was **one site for someone they knew**; and
+they want to grow.
+
+The growth is stated as bigger **work**, never a bigger **team**. „a bigger team,
+so we can take on bigger projects" was rejected: „e ca si cum cautam sa
+angajam". The reader of this page is a client, not a candidate, so headcount
+ambition reads as a job ad, and worse, it tells a prospect the studio is already
+stretched. Nothing else about either of them is invented. The client list is NOT repeated here, because it
 already lives in Luca's `Clients:` row.
 
 52 words in English, 45-50 in the others. Renders 3-4 lines desktop, 6-8 mobile.
