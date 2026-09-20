@@ -1,14 +1,14 @@
 ---
 // Pricing — "Liquid glass on calm cyan". Three glass plans + an interactive
-// configurator ("Build your setup") with a LIVE running total in a sticky glass
-// summary. Middle plan (Professional) is the signature liquid-glass object, with
+// configurator ("Your custom setup") with a LIVE running total in a sticky glass
+// summary. Middle plan (Grow) is the signature liquid-glass object, with
 // the brand's cut-glass ring echoed behind it. One accent only (cyan), GPU-only
 // motion, prefers-reduced-motion honored. Every visible string carries a
 // data-i18n key (see src/data/translations.json).
 //
 // The configurator is progressive enhancement: with JS off it still reads as a
 // static list of packages + priced modules (buttons carry name + price), and the
-// summary shows a sensible default (Professional, one-time). A small vanilla
+// summary shows a sensible default (Grow, one-time). A small vanilla
 // inline script parses prices from data-attributes and updates the total live.
 // (Don't write a literal script tag in this comment — Astro's dev-time script
 // extraction treats it as the start of a real block and breaks `astro dev`.)
@@ -16,27 +16,27 @@
 // English defaults rendered server-side; i18n.ts swaps textContent on load.
 const c = {
   'pricing.oneTime': 'one-time',
-  'pricing.starter.name': 'Starter',
-  'pricing.starter.tagline': 'A sharp one-page site to get you online and taken seriously.',
+  'pricing.starter.name': 'Launch',
+  'pricing.starter.tagline': 'The perfect start for websites and smaller projects.',
   'pricing.starter.f1': 'Custom one-page design',
   'pricing.starter.f2': 'Mobile-first, built to load fast',
   'pricing.starter.f3': 'Basic SEO setup',
   'pricing.starter.f4': 'Contact form',
   'pricing.starter.cta': 'Get started',
-  'pricing.pro.name': 'Professional',
+  'pricing.pro.name': 'Grow',
   'pricing.pro.badge': 'Most popular',
-  'pricing.pro.tagline': 'A complete website you can edit yourself, built to convert and rank.',
-  'pricing.pro.f1': 'Everything in Starter',
+  'pricing.pro.tagline': 'More features, more possibilities for growing businesses.',
+  'pricing.pro.f1': 'Everything in Launch',
   'pricing.pro.f2': 'Self-editable website (CMS)',
   'pricing.pro.f3': 'Booking / registration system',
   'pricing.pro.f4': 'Complete SEO + structured data',
   'pricing.pro.f5': 'Security-hardened, with animations',
   'pricing.pro.f6': 'Legal pages included',
   'pricing.pro.cta': 'Get started',
-  'pricing.enterprise.name': 'Enterprise',
+  'pricing.enterprise.name': 'Evolve',
   'pricing.enterprise.pricePrefix': 'from',
   'pricing.enterprise.period': 'on request',
-  'pricing.enterprise.tagline': "Bespoke software for when a website isn't enough.",
+  'pricing.enterprise.tagline': "Custom software solutions and apps for the highest demands.",
   'pricing.enterprise.f1': 'Custom web apps & dashboards',
   'pricing.enterprise.f2': 'Third-party integrations',
   'pricing.enterprise.f3': 'Automations & workflows',
@@ -57,7 +57,7 @@ const c = {
   'pricing.addons.a6': 'Online store',
   'pricing.addons.a7': 'Copy & content',
   // Interactive configurator
-  'pricing.build.title': 'Build your setup',
+  'pricing.build.title': 'Your custom setup',
   'pricing.build.subtitle': 'Pick a starting point, then add the modules you need. Your price updates live.',
   'pricing.build.baseLabel': 'Start from',
   'pricing.build.alacarte': 'No package',
@@ -66,7 +66,7 @@ const c = {
   'pricing.build.summaryTitle': 'Your setup',
   'pricing.build.emptyHint': 'Pick a base or a module to see your price.',
   'pricing.build.totalLabel': 'Total',
-  'pricing.build.careLine': '+ €35 / month care & hosting',
+  'pricing.build.careLine': '+ from €35 / month care & hosting',
   'pricing.build.note': 'Estimate. We confirm your fixed price when we talk.',
   'pricing.build.cta': 'Get a fixed quote',
   'pricing.care.label': 'Care & maintenance',
@@ -159,7 +159,7 @@ const bases: {
 
 // Modules each base already bundles — when that base is active these toggles
 // render as "Included" (checked, muted, not clickable) and add €0 to the total.
-// Professional + Enterprise both bundle CMS (a2), Booking (a3) and the SEO pack (a4).
+// Grow + Evolve both bundle CMS (a2), Booking (a3) and the SEO pack (a4).
 const baseIncludes: Record<string, string[]> = {
   alacarte: [],
   starter: [],
@@ -184,14 +184,14 @@ const baseLabelKey = (k: string) => (k === 'alacarte' ? 'pricing.build.alacarte'
     <!-- Section header — confident editorial title, no kicker -->
     <div class="text-center mb-12 sm:mb-16" data-animate="fade-up">
       <h2 class="text-[2rem] sm:text-4xl lg:text-[3.25rem] font-bold leading-[1.05] tracking-[-0.022em] text-[var(--color-text)]" data-i18n="pricing.title">
-        Simple, honest pricing
+        Your investment
       </h2>
       <p class="mx-auto mt-4 max-w-2xl text-base sm:text-lg text-[var(--color-text-muted)] leading-relaxed" data-i18n="pricing.subtitle">
-        Fixed project prices, no surprises. Pick the scope that fits, we handle the rest.
+        Every business is unique. Why should the software be standard? Pick the package that fits you best.
       </p>
     </div>
 
-    <!-- Plan cards — Professional is the signature liquid-glass object -->
+    <!-- Plan cards — Grow is the signature liquid-glass object -->
     <div class="grid gap-5 sm:gap-6 md:grid-cols-3 md:items-stretch">
       {plans.map((plan, i) => (
         <div
@@ -282,11 +282,11 @@ const baseLabelKey = (k: string) => (k === 'alacarte' ? 'pricing.build.alacarte'
       ))}
     </div>
 
-    <!-- ── Interactive configurator: "Build your setup" ── -->
+    <!-- ── Interactive configurator: "Your custom setup" ── -->
     <div class="mx-auto mt-16 sm:mt-24 max-w-5xl">
       <div class="text-center" data-animate="fade-up">
         <h3 class="text-2xl sm:text-3xl font-bold tracking-[-0.02em] text-[var(--color-text)]" data-i18n="pricing.build.title">
-          Build your setup
+          Your custom setup
         </h3>
         <p class="mx-auto mt-2.5 max-w-xl text-sm sm:text-base leading-relaxed text-[var(--color-text-muted)]" data-i18n="pricing.build.subtitle">
           Pick a starting point, then add the modules you need. Your price updates live.
@@ -377,7 +377,7 @@ const baseLabelKey = (k: string) => (k === 'alacarte' ? 'pricing.build.alacarte'
                   <span id="eal-total" class="cfg-total tabular-nums">€1.190</span>
                   <span class="cfg-total-period" data-i18n="pricing.oneTime">one-time</span>
                 </div>
-                <p class="cfg-care" data-i18n="pricing.build.careLine">+ €35 / month care &amp; hosting</p>
+                <p class="cfg-care" data-i18n="pricing.build.careLine">+ from €35 / month care &amp; hosting</p>
               </div>
 
               <p id="eal-empty" class="cfg-empty" hidden data-i18n="pricing.build.emptyHint">
