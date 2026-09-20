@@ -313,6 +313,13 @@ const ctaHref = isHome ? '#contact' : '/#contact';
     const stored = localStorage.getItem('lang') || 'en';
     langCurrent.textContent = stored.toUpperCase();
 
+    // Detection can land AFTER this runs: the country lookup is a fetch, so the
+    // label has to follow the language rather than read it once and stop.
+    window.addEventListener('eal:langchange', (e) => {
+      const lang = (e as CustomEvent<string>).detail;
+      if (lang) langCurrent.textContent = lang.toUpperCase();
+    });
+
     let open = false;
     function toggleDropdown(show: boolean) {
       open = show;

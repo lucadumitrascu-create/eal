@@ -71,16 +71,29 @@
 
   @media (max-width: 640px) {
     .hero { min-height: 86svh; align-items: flex-start; }
-    /* Title is anchored near the ring's centre via a fixed top offset (stable on
-       any width), so the ring always frames it. CTAs are pinned to the lower zone
-       below the ring, kept on ONE row (compact, no wrap). */
-    /* ring + title shifted down together (same ~6svh) so the ring's top no longer
-       tucks under the navbar pill — clears it with a comfortable gap on phones */
+    /* The title and the ring are anchored to the SAME point, 44% down the hero,
+       each centred on it. They used to be positioned independently, the ring at
+       44% and the title at a fixed 25svh from the top, and those two only line up
+       at one screen ratio: measured 27px apart at 514px wide and 62px apart on a
+       390x844 phone, with the title always riding above the circle. CTAs stay
+       pinned to the lower zone, on ONE row. */
     .hero-ring-wrap { width: 92vw; top: 44%; }
     .hero-h1 { font-size: clamp(2.4rem, 11.5vw, 3.3rem); }
 
-    .hero .hero-content { position: static; margin-top: 25svh; }
-    .hero .hero-content .hero-h1 { position: relative; z-index: 10; }
+    .hero .hero-content { position: static; margin-top: 0; }
+    .hero .hero-content .hero-h1 {
+      position: absolute;
+      top: 44%;
+      left: 50%;
+      width: min(100%, 34rem);
+      padding: 0 1.25rem;
+      /* The transform is doing the centring, so the entrance animates opacity
+         only; heroIn would overwrite it on its last frame. */
+      transform: translate(-50%, -50%);
+      animation: heroFade 0.8s ease-out 0.25s both;
+      z-index: 10;
+    }
+    @keyframes heroFade { from { opacity: 0; } to { opacity: 1; } }
 
     .hero .hero-cta-row {
       position: absolute; left: 0; right: 0; bottom: 9%;
@@ -95,6 +108,10 @@
     .hero-ring-wrap { animation: none; }
     .hero-ring { animation: none; opacity: 1; transform: none; }
     .hero .relative > * { animation: none; opacity: 1; transform: none; }
+    /* transform: none above would drop the title's centring on phones */
+    @media (max-width: 640px) {
+      .hero .hero-content .hero-h1 { transform: translate(-50%, -50%); }
+    }
   }
 </style>
 
