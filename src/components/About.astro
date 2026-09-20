@@ -1,109 +1,324 @@
 ---
-const stats = [
-  { staticValue: '<7 days', i18nValue: 'about.stat1.value', label: 'Delivery time', i18nLabel: 'about.stat1.label' },
-  { staticValue: '24/7', i18nValue: 'about.stat2.value', label: 'Post-launch support', i18nLabel: 'about.stat2.label' },
-  { staticValue: '10+', i18nValue: 'about.stat3.value', label: 'International clients', i18nLabel: 'about.stat3.label' },
+// About — built from the client's own document ("ANALYSE DER WEBSITE EAL"),
+// which asks for: a photo plus a short profile of the two people, the heading
+// "Unsere Grundsätze" replaced (his pick from the alternatives: "Was uns
+// antreibt") and the belief sentence.
+//
+// Layout: the two of them as ONE composition, not two mirrored rows. The first
+// portrait breaks out to the left and sits large, the second is smaller, higher
+// and to the right, and the brand ring runs behind both so the pair reads as a
+// single system. Then the studio's one dark band, full bleed.
+
+// The English text here is the pre-translation fallback the markup renders;
+// every language, including English, is served from translations.json.
+//
+// A spec block, not a paragraph. Two Austrian shops in the same trade were read
+// on 2026-09-20 (4zu5.at, muchachos-development.com) and neither writes prose
+// under a founder: both write label, colon, a list of concrete things. Three
+// prose drafts of this had been rejected before the FORM turned out to be the
+// problem rather than the wording.
+const people = [
+  {
+    key: 'p1',
+    photo: '/images/about/person-1.jpg',
+    name: 'Luca Dumitrascu',
+    specs: [
+      ['Builds', 'websites, online shops, custom software'],
+      ['Stack', 'Astro, Next.js, React, TypeScript, Tailwind'],
+      ['Clients', 'transport, electrician, timber construction, gastronomy'],
+    ],
+  },
+  {
+    key: 'p2',
+    photo: '/images/about/person-2.jpg',
+    name: 'Andrei Banu',
+    specs: [
+      ['Builds', 'websites, online shops, dashboards, integrations'],
+      ['After launch', 'updates, fixes, monitoring, new features'],
+      ['Markets', 'small businesses across Europe'],
+    ],
+  },
 ];
 
-const principles = [
-  { title: 'Quality code', desc: 'Every line of code is written with attention to detail and best practices.', i18nTitle: 'about.principle1.title', i18nDesc: 'about.principle1.desc' },
-  { title: 'Transparency', desc: 'Open and honest communication throughout the entire project.', i18nTitle: 'about.principle2.title', i18nDesc: 'about.principle2.desc' },
-  { title: 'Efficiency', desc: 'We deliver on time without compromising quality.', i18nTitle: 'about.principle3.title', i18nDesc: 'about.principle3.desc' },
-];
 ---
 
-<section id="despre" class="relative py-24 sm:py-32 overflow-hidden section-transition">
+<section id="despre" class="relative pt-14 pb-24 sm:pt-16 sm:pb-32 overflow-hidden section-transition">
   <!-- Section glow orbs -->
   <div class="absolute inset-0 -z-10" aria-hidden="true">
     <div class="absolute top-[20%] right-[-8%] w-[45%] h-[45%] rounded-full bg-indigo-500 opacity-[0.05] blur-[120px]"></div>
     <div class="absolute bottom-[5%] left-[10%] w-[30%] h-[30%] rounded-full bg-cyan-500 opacity-[0.04] blur-[100px]"></div>
   </div>
 
-
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-
-      <!-- Text -->
-      <div data-animate="fade-right">
-        <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--color-text)] mb-10" data-i18n="about.title">About us</h2>
-
-        <!-- Principles -->
-        <div>
-          <h3 class="text-2xl font-bold text-[var(--color-text)] mb-6" data-i18n="about.principles.title">Our principles</h3>
-          <ul class="space-y-5">
-            {principles.map((p, i) => (
-              <li class="flex items-start gap-3 text-[var(--color-text-muted)]" data-animate="fade-up" data-stagger-delay={String(i + 1)}>
-                <span class="mt-2 flex-shrink-0 w-2 h-2 rounded-full bg-[var(--color-accent)] shadow-[0_0_6px_rgba(6,182,212,0.4)]"></span>
-                <div>
-                  <span class="text-lg font-semibold text-[var(--color-text)]" data-i18n={p.i18nTitle}>{p.title}</span>
-                  <p class="text-base mt-1" data-i18n={p.i18nDesc}>{p.desc}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
-      <!-- Stats — stacked cards with animated counters -->
-      <div class="space-y-5" data-animate="fade-left">
-        {stats.map((stat, i) => (
-          <div
-            class="group relative rounded-2xl border border-[var(--color-border)] bg-[var(--color-surface-neutral)] backdrop-blur-xl p-6 sm:p-8 transition-all duration-400 hover:border-[rgba(6,182,212,0.2)] hover:shadow-[0_0_40px_rgba(6,182,212,0.06)] hover:-translate-y-1 overflow-hidden"
-            data-stagger-delay={String(i + 1)}
-          >
-            <!-- Top highlight -->
-            <div class="absolute top-0 left-[10%] right-[10%] h-px bg-gradient-to-r from-transparent via-black/[0.04] to-transparent"></div>
-            <!-- Hover glow -->
-            <div class="absolute -top-8 -right-8 w-24 h-24 rounded-full bg-cyan-500/0 group-hover:bg-cyan-500/[0.06] blur-[30px] transition-all duration-500"></div>
-
-            <!-- mobile: number/label stacked over a full-width bar (no forced gap).
-                 sm+: number left, bar bottom-right as before -->
-            <div class="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <span
-                  class="text-5xl lg:text-6xl font-extrabold gradient-text-cyan"
-                  data-i18n={stat.i18nValue}
-                >{stat.staticValue}</span>
-                <p class="mt-2 text-sm font-medium uppercase tracking-wider text-[var(--color-text-muted)]" data-i18n={stat.i18nLabel}>{stat.label}</p>
-              </div>
-              <!-- Progress bar -->
-              <div class="w-full sm:w-24 lg:w-32 h-1 rounded-full bg-black/[0.06] overflow-hidden sm:mb-2">
-                <div
-                  class="h-full rounded-full bg-gradient-to-r from-cyan-500 to-indigo-500 progress-fill"
-                  style={`width: 0%; transition: width 1.8s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.15}s;`}
-                  data-fill={i === 0 ? '70' : i === 1 ? '100' : '50'}
-                ></div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
+  <div class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-10 sm:mb-14" data-animate="fade-up">
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-[var(--color-text)]" data-i18n="about.title">
+        About us
+      </h2>
     </div>
 
-    <!-- Stats horizontal bar on large screens -->
-    <!-- (keeping stacked for now as it fits the layout better) -->
+    <div class="founders relative">
+      <!-- The brand ring, at strength this time, spanning both of them: one
+           portrait sits inside the arc, the other crosses it. It also fills the
+           space above the bottom-aligned text, which was dead air before. -->
+      <div class="founders-ring-wrap" aria-hidden="true">
+        <img
+          class="founders-ring"
+          src="/images/hero/hero-ring-v5.webp"
+          alt=""
+          width="2000"
+          height="2000"
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
+
+      {people.map((p, i) => (
+        <article class:list={['person', `person--${i + 1}`]}>
+          <figure class="person-photo" data-animate="fade-up">
+            <img
+              src={p.photo}
+              alt={p.name}
+              width="1000"
+              height="1250"
+              loading="lazy"
+              decoding="async"
+            />
+            <span class="person-sheen" aria-hidden="true"></span>
+          </figure>
+
+          <div class="person-text" data-animate="fade-up" data-stagger-delay="1">
+            <p class="person-name" data-i18n={`about.team.${p.key}.name`}>{p.name}</p>
+            <dl class="person-specs">
+              {p.specs.map(([label, value], r) => (
+                <div class="spec">
+                  <dt data-i18n={`about.team.${p.key}.k${r + 1}`}>{label}</dt>
+                  <dd data-i18n={`about.team.${p.key}.v${r + 1}`}>{value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <!-- The one dark block on the page: the claim, then where they came from.
+         It carried three commitment columns until 2026-09-20; he asked for the
+         panel to hold the story and nothing else, and for the commitments not
+         to be moved somewhere else either. -->
+    <div class="drive-panel relative mt-24 overflow-hidden py-14 sm:mt-32 sm:py-20" data-animate="fade-up">
+      <div class="relative mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        <!-- The client's sentence split at its own full stop: the claim above
+             at statement size, the elaboration below at reading size. The hedge
+             it opened with ("Wir glauben, dass" / "We believe that") is cut - it
+             asked permission for a claim the sentence then makes anyway, and it
+             was a third of the line. German now lands on one line instead of
+             four. -->
+        <p class="drive-statement font-bold tracking-[-0.022em] text-white" data-i18n="about.drive.lead">
+          Good software does not just work.
+        </p>
+        <!-- Where they came from and where they are going, from the three facts
+             he gave on 2026-09-20: started 2025, first client was someone they
+             knew, and they want to grow. The growth is stated as bigger WORK,
+             not a bigger team: a reader of this page is a client, not a
+             candidate, and headcount ambition reads as a job ad to them.
+             Nothing else about the two of them is invented
+             here. The client list stays in Luca's spec row, so the story does
+             not repeat it. -->
+        <p class="drive-rest mt-6 max-w-2xl text-white/70" data-i18n="about.drive.text">
+          EAL started in 2025 with one site, for someone we knew. Since then the work has come from small businesses across Europe, and it is still the two of us doing all of it. We want the next projects to be bigger than the last ones.
+        </p>
+
+      </div>
+    </div>
   </div>
 
   <!-- Bottom gradient transition -->
   <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#f0fdfa] to-transparent pointer-events-none"></div>
 </section>
 
-<script>
-  // Animate progress bars when they come into view
-  const progressBars = document.querySelectorAll<HTMLElement>('.progress-fill');
-  const progressObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const el = entry.target as HTMLElement;
-          const fill = el.dataset.fill || '0';
-          el.style.width = fill + '%';
-          progressObserver.unobserve(el);
-        }
-      });
-    },
-    { threshold: 0.3 }
-  );
-  progressBars.forEach((bar) => progressObserver.observe(bar));
-</script>
+<style>
+  /* How far the composition is allowed to break out of the 1024px column. It is
+     whatever the viewport has spare on one side, capped at 96px, and it floors
+     at 0 so nothing can ever overflow on a narrow desktop. */
+  .founders {
+    --about-bleed: clamp(0rem, calc((100vw - 64rem) / 2 - 1.5rem), 6rem);
+  }
+
+  .person { display: grid; gap: 1.75rem; }
+  .person + .person { margin-top: 3.5rem; }
+
+  /* Portrait crop. 4:5 holds a person from the waist up. */
+  .person-photo {
+    position: relative;
+    z-index: 1;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: 1rem;
+    border: 1px solid rgba(14, 116, 144, 0.34);
+    box-shadow: 0 28px 70px -28px rgba(8, 51, 68, 0.32);
+  }
+  .person-photo img { display: block; height: 100%; width: 100%; object-fit: cover; }
+
+  /* The inner top highlight has to sit ABOVE the photo, so it is a pseudo rather
+     than an inset shadow on the frame, which the image would cover. */
+  .person-photo::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+    pointer-events: none;
+  }
+
+  /* The same diagonal sheen the glass buttons sweep on hover. */
+  .person-sheen {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.3) 50%, transparent 62%);
+    transform: translateX(-115%);
+    transition: transform 0.95s cubic-bezier(0.16, 1, 0.3, 1);
+    pointer-events: none;
+  }
+  .person-photo:hover .person-sheen { transform: translateX(115%); }
+
+  .person-name {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: clamp(2.2rem, 4.8vw, 4.25rem);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    color: var(--color-text);
+  }
+
+  /* Label, colon, a list of things. The colon is CSS so the translated strings
+     stay clean words. Stacked on phones, two columns from md up, where the label
+     column sizes itself to the longest label in whichever language is loaded. */
+  .person-specs {
+    margin-top: 1.5rem;
+    max-width: 36rem;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+  }
+  .person-specs .spec + .spec { margin-top: 0.85rem; }
+  .person-specs dt {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  .person-specs dt::after { content: ':'; }
+  .person-specs dd {
+    margin: 0;
+    color: var(--color-text-muted);
+  }
+
+  @media (min-width: 640px) {
+    .person-specs .spec {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: 0.75rem;
+      align-items: baseline;
+    }
+  }
+
+  /* The whole ring has to be in frame, or it reads as a smudge instead of as the
+     mark. It sits in the gap the two portraits leave between them. */
+  .founders-ring-wrap {
+    position: absolute;
+    top: 14%;
+    left: 50%;
+    width: min(460px, 108%);
+    aspect-ratio: 1;
+    transform: translateX(-50%);
+    z-index: 0;
+    pointer-events: none;
+  }
+  .founders-ring {
+    display: block;
+    width: 100%;
+    height: 100%;
+    opacity: 0.32;
+    animation: foundersRingSpin 96s linear infinite;
+    transform-origin: 50% 50%;
+    will-change: transform;
+  }
+  @keyframes foundersRingSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  @media (min-width: 768px) {
+    .person {
+      grid-template-columns: 0.86fr 1.14fr;
+      gap: 4rem;
+      align-items: end;
+    }
+
+    /* The first one reads top down: his text starts level with his face, which
+       leaves the bottom of that column empty on purpose. */
+    .person--1 {
+      margin-left: calc(var(--about-bleed) * -1);
+    }
+    .person--1 .person-text {
+      align-self: start;
+      padding-top: 2.5rem;
+    }
+
+    /* The second one is smaller and on the other side, and only his PHOTO is
+       pulled up, into the empty bottom the first row just left. Pulling the
+       whole row up instead put the photo on top of the first bio. */
+    .person--2 {
+      grid-template-columns: 1.14fr 0.86fr;
+      margin-right: calc(var(--about-bleed) * -1);
+    }
+    .person--2 .person-photo {
+      order: 2;
+      width: 80%;
+      margin-top: -7rem;
+      margin-left: auto;
+    }
+    .person--2 .person-text { order: 1; }
+    .person + .person { margin-top: 2rem; }
+
+    /* Wide enough that its left arc crosses the first portrait and its right
+       arc crosses the second. A ring that touches neither is decoration. */
+    .founders-ring-wrap {
+      top: 4%;
+      left: 50%;
+      width: min(880px, 78%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .founders-ring { animation: none; }
+    .person-sheen { transition: none; }
+  }
+
+  /* The one dark moment on a uniformly pale page, edge to edge instead of a
+     rounded rectangle inside the column. Its content re-centres on the same
+     1024px measure as the rest of the section. */
+  .drive-panel {
+    margin-inline: calc(50% - 50vw);
+  }
+
+  /* Claim across the full width of the panel, elaboration under it in a reading
+     measure. The earlier two-column version halved the claim's width to 465px,
+     which is what pushed it onto three lines - the grid was the problem, not
+     the sentence. */
+  .drive-statement {
+    font-size: clamp(1.6rem, 3vw, 2.55rem);
+    line-height: 1.18;
+  }
+  .drive-rest {
+    font-size: 1.0625rem;
+    line-height: 1.65;
+  }
+
+  /* The one dark block on the whole page. The site is uniformly pale, so this
+     is the held breath - it makes the section land instead of reading as more
+     text in the same colour. Navy is the brand's own ink (--color-text), not a
+     new colour. */
+  .drive-panel {
+    background:
+      radial-gradient(120% 140% at 8% 0%, #16324b 0%, transparent 60%),
+      linear-gradient(160deg, #0c1a2a 0%, #08131f 100%);
+  }
+</style>
