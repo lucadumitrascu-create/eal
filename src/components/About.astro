@@ -11,18 +11,32 @@
 
 // The English text here is the pre-translation fallback the markup renders;
 // every language, including English, is served from translations.json.
+//
+// A spec block, not a paragraph. Two Austrian shops in the same trade were read
+// on 2026-09-20 (4zu5.at, muchachos-development.com) and neither writes prose
+// under a founder: both write label, colon, a list of concrete things. Three
+// prose drafts of this had been rejected before the FORM turned out to be the
+// problem rather than the wording.
 const people = [
   {
     key: 'p1',
     photo: '/images/about/person-1.jpg',
     name: 'Luca Dumitrascu',
-    bio: 'Builds the sites and the software behind them, from a one page site for an electrician to a trading toolkit with its own backend. Most of the work is for small businesses in Austria and Germany.',
+    specs: [
+      ['Builds', 'websites, online shops, custom software'],
+      ['Stack', 'Astro, Next.js, React, TypeScript, Tailwind, Vercel'],
+      ['Clients', 'transport, electrician, timber construction, gastronomy'],
+    ],
   },
   {
     key: 'p2',
     photo: '/images/about/person-2.jpg',
     name: 'Andrei Banu',
-    bio: 'Takes a project past launch and keeps it there: updates, fixes, monitoring, and the next round of features. The studio is two people, so whoever scoped the work is the one who maintains it.',
+    specs: [
+      ['Builds', 'websites, online shops, dashboards, integrations'],
+      ['After launch', 'updates, fixes, monitoring, new features'],
+      ['Markets', 'small businesses in Austria and Germany'],
+    ],
   },
 ];
 
@@ -80,7 +94,14 @@ const principles = [
 
           <div class="person-text" data-animate="fade-up" data-stagger-delay="1">
             <p class="person-name" data-i18n={`about.team.${p.key}.name`}>{p.name}</p>
-            <p class="person-bio" data-i18n={`about.team.${p.key}.bio`}>{p.bio}</p>
+            <dl class="person-specs">
+              {p.specs.map(([label, value], r) => (
+                <div class="spec">
+                  <dt data-i18n={`about.team.${p.key}.k${r + 1}`}>{label}</dt>
+                  <dd data-i18n={`about.team.${p.key}.v${r + 1}`}>{value}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
         </article>
       ))}
@@ -191,12 +212,33 @@ const principles = [
     color: var(--color-text);
   }
 
-  .person-bio {
+  /* Label, colon, a list of things. The colon is CSS so the translated strings
+     stay clean words. Stacked on phones, two columns from md up, where the label
+     column sizes itself to the longest label in whichever language is loaded. */
+  .person-specs {
     margin-top: 1.5rem;
-    max-width: 34rem;
+    max-width: 36rem;
     font-size: 1.0625rem;
-    line-height: 1.7;
+    line-height: 1.6;
+  }
+  .person-specs .spec + .spec { margin-top: 0.85rem; }
+  .person-specs dt {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  .person-specs dt::after { content: ':'; }
+  .person-specs dd {
+    margin: 0;
     color: var(--color-text-muted);
+  }
+
+  @media (min-width: 640px) {
+    .person-specs .spec {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      column-gap: 0.75rem;
+      align-items: baseline;
+    }
   }
 
   /* The whole ring has to be in frame, or it reads as a smudge instead of as the

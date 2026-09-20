@@ -46,7 +46,7 @@ Source for the current round: „ANALYSE DER WEBSITE EAL" (Pages, de_AT) plus it
 | Key | Note |
 |---|---|
 | `hero.description` | `Hero.astro` renders only the H1 and two buttons. Left with its original wording, umlauts repaired. Do not write new copy into it without wiring it up first. |
-| `about.team.p1.role` / `p2.role` | Dead since 2026-09-20: the `FOUNDER` label was removed from the section. The keys are kept in all six languages so the label can come back in one line if he wants it. |
+| ~~`about.team.p1.role` / `p2.role`~~ | Removed from all six languages in the fourth pass, along with `about.team.pX.bio`. Both are in git if the prose form is ever wanted back. |
 
 ## Locked lines
 
@@ -90,6 +90,33 @@ Checked before applying, because the Romanian analysis flagged it as the riskies
 ## Layout parity is the requirement, not just translation
 
 Verified at 1440 and 390 in all six languages after translating: hero two lines on desktop, the four service cards the same line shape, plan taglines 2/2/2, overflow 0. **French needed a tightening to get there** - its Evolve tagline ran to three lines at fourteen words and now runs twelve. Translating without measuring would have shipped one language out of step with the other five and nobody would have noticed until a screenshot.
+
+## About, 2026-09-20 (fourth pass): the bios are a spec block, not prose
+
+Three prose drafts were rejected (62 words, 24, then 70). The third rejection is
+the signal that the FORM is wrong rather than the wording, so the fourth draft
+started from a harvest instead of another rewrite.
+
+Read on 2026-09-20, both Austrian shops in exactly this trade:
+
+- **4zu5.at/ueber-uns** — the whole founder block is: name, a caps role line, one
+  verb plus a colon list of what he owns, then `Stack:` and the real
+  technologies. About eighteen words. No sentences.
+- **muchachos-development.com/ueber-uns** — a role line that says what he owns
+  rather than „Gründer", name, email, ONE sentence, then a list of competence
+  labels and a contact link. The prose is behind a „Mehr über…" expander.
+
+Neither writes a paragraph under a founder. So EAL does not either.
+
+| Decision | Note |
+|---|---|
+| Each founder is three label/value rows | `Builds:` / `Stack:` / `Clients:` for the first, `Builds:` / `After launch:` / `Markets:` for the second. Rendered as a `<dl>`; the colon is CSS, so the translated strings stay clean words. |
+| Both blocks open on the same verb | „banu si el face proiecte". Both build; the difference is the two rows underneath, not the first one. This is what the prose could never solve, because a paragraph has to claim a territory to sound different. |
+| Every row is checkable | The stack is what the repo and `projects.json` actually use. The client list is the trades already published as projects. Nothing here can be read as filler, because filler is not falsifiable and these rows are. |
+| Keys changed, deliberately | `about.team.pX.bio` and `about.team.pX.role` are gone from all six languages, replaced by `k1..k3` and `v1..v3` per person. This is the one time key structure changed; the rule against touching keys is about renaming, and the old ones no longer had anything to hold. |
+
+Measured: overflow 0 at 1440 and 390 in all six languages, spec block 109px
+desktop and 218-272px mobile, no intersection with the second portrait.
 
 ## About, 2026-09-20 (third pass): two removals and a 66% cut
 
