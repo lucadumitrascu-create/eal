@@ -1,7 +1,7 @@
 {
   "en": {
     "hero.title1": "Your workday,",
-    "hero.title2": "made simpler.",
+    "hero.title2": "made simpler",
     "hero.description": "Robust digital solutions for businesses that want to grow. From idea to implementation, we deliver clean code and concrete results.",
     "hero.cta1": "See projects",
     "hero.cta2": "Contact us",
@@ -330,7 +330,7 @@
   },
   "ro": {
     "hero.title1": "Munca ta zilnică,",
-    "hero.title2": "mai simplă.",
+    "hero.title2": "mai simplă",
     "hero.description": "Solutii digitale robuste pentru afaceri care vor sa creasca. De la idee la implementare, livram cod curat si rezultate concrete.",
     "hero.cta1": "Vezi proiecte",
     "hero.cta2": "Contacteaza-ne",
@@ -659,7 +659,7 @@
   },
   "de": {
     "hero.title1": "Ihr Arbeitsalltag,",
-    "hero.title2": "einfacher gemacht.",
+    "hero.title2": "einfacher",
     "hero.description": "Robuste digitale Lösungen für Unternehmen, die wachsen wollen. Von der Idee bis zur Umsetzung liefern wir sauberen Code und konkrete Ergebnisse.",
     "hero.cta1": "Projekte ansehen",
     "hero.cta2": "Kontaktieren Sie uns",
@@ -988,7 +988,7 @@
   },
   "fr": {
     "hero.title1": "Votre quotidien,",
-    "hero.title2": "simplifié.",
+    "hero.title2": "simplifié",
     "hero.description": "Des solutions numeriques robustes pour les entreprises qui veulent se developper. De l'idee a la realisation, nous livrons un code propre et des resultats concrets.",
     "hero.cta1": "Voir les projets",
     "hero.cta2": "Contactez-nous",
@@ -1317,7 +1317,7 @@
   },
   "es": {
     "hero.title1": "Tu día a día,",
-    "hero.title2": "más simple.",
+    "hero.title2": "más simple",
     "hero.description": "Soluciones digitales robustas para empresas que quieren crecer. Desde la idea hasta la implementacion, entregamos codigo limpio y resultados concretos.",
     "hero.cta1": "Ver proyectos",
     "hero.cta2": "Contactanos",
@@ -1646,7 +1646,7 @@
   },
   "it": {
     "hero.title1": "Il tuo lavoro,",
-    "hero.title2": "più semplice.",
+    "hero.title2": "più semplice",
     "hero.description": "Soluzioni digitali solide per le aziende che vogliono crescere. Dall'idea alla realizzazione, forniamo codice pulito e risultati concreti.",
     "hero.cta1": "Vedi i progetti",
     "hero.cta2": "Contattaci",
