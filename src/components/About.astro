@@ -35,15 +35,20 @@ const people = [
     specs: [
       ['Builds', 'websites, online shops, dashboards, integrations'],
       ['After launch', 'updates, fixes, monitoring, new features'],
-      ['Markets', 'small businesses in Austria and Germany'],
+      ['Markets', 'small businesses across Europe'],
     ],
   },
 ];
 
+// Three things a client can hold them to, not three adjectives. Every one is
+// already true elsewhere on the site: the live configurator, the reply window he
+// confirmed on 2026-09-20, and the care price on the pricing page. The version
+// before this said Code quality / Transparency / Efficiency, which stayed true
+// with any competitor's name on it.
 const principles = [
-  { key: 'principle1', delay: '1' },
-  { key: 'principle2', delay: '2' },
-  { key: 'principle3', delay: '3' },
+  { key: 'principle1', delay: '1', title: 'Fixed price', desc: 'The configurator shows the price before you talk to us. What we agree is what you pay.' },
+  { key: 'principle2', delay: '2', title: 'You hear back', desc: 'Every enquiry gets an answer within one working day.' },
+  { key: 'principle3', delay: '3', title: 'Care after launch', desc: 'From €35 a month: hosting, updates, support and small changes.' },
 ];
 ---
 
@@ -134,8 +139,8 @@ const principles = [
         <ul class="principle-rail mt-14 grid md:grid-cols-3">
           {principles.map((p) => (
             <li class="principle" data-animate="fade-up" data-stagger-delay={p.delay}>
-              <p class="principle-title text-xl sm:text-2xl font-semibold tracking-[-0.015em] text-white" data-i18n={`about.${p.key}.title`}>Principle</p>
-              <p class="mt-3 text-[0.95rem] leading-relaxed text-white/65" data-i18n={`about.${p.key}.desc`}>Description</p>
+              <p class="principle-title text-xl sm:text-2xl font-semibold tracking-[-0.015em] text-white" data-i18n={`about.${p.key}.title`}>{p.title}</p>
+              <p class="mt-3 text-[0.95rem] leading-relaxed text-white/65" data-i18n={`about.${p.key}.desc`}>{p.desc}</p>
             </li>
           ))}
         </ul>

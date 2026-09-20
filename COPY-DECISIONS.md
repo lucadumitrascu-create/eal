@@ -30,7 +30,7 @@ Source for the current round: „ANALYSE DER WEBSITE EAL" (Pages, de_AT) plus it
 
 | Fact | Where it appears | Status |
 |---|---|---|
-| `<7 Tage` Lieferzeit — delivery time for what exactly? | `about.stat1` | **Unconfirmed.** Cannot be used in the hero as an offer until it is clear whether it covers websites only or custom software too. |
+| ~~`<7 Tage` Lieferzeit~~ | `about.stat1` | **CLOSED 2026-09-20: no delivery window is promised anywhere.** He was asked directly and chose not to commit. |
 | `10+ Internationale Kunden` | `about.stat2` | Unverified but already published on the site. |
 | Founder bio + photo (ca. 60–70 words) | `about.team.p1.*` / `p2.*` | **DONE 2026-09-20.** Names from the user, photos in the repo, bios written from published facts only. See „About, 2026-09-20" below. |
 
@@ -90,6 +90,39 @@ Checked before applying, because the Romanian analysis flagged it as the riskies
 ## Layout parity is the requirement, not just translation
 
 Verified at 1440 and 390 in all six languages after translating: hero two lines on desktop, the four service cards the same line shape, plan taglines 2/2/2, overflow 0. **French needed a tightening to get there** - its Evolve tagline ran to three lines at fourteen words and now runs twelve. Translating without measuring would have shipped one language out of step with the other five and nobody would have noticed until a screenshot.
+
+## About, 2026-09-20 (fifth pass): the dark panel carries commitments now
+
+„nu imi da ceva informatie importanta sau care sa il faca pe client sa prinda
+incredere". Correct, and the swap test says why: `Code quality`, `Transparency`
+and `Efficiency & effectiveness` all stayed true with any competitor's name on
+them. Three category labels where the section's job is to remove a doubt.
+
+What the Austrian shops in this trade actually publish as trust, read
+2026-09-20: BSC Webdesign „Festpreis ab 2.500 €, fertig in 4 bis 6 Wochen",
+Billinger „Onepager ab 1.500 € netto" plus „direkter Ansprechpartner", Naluma
+„Fixpreis, ab 799 €". All three lead with **price, time and the person you talk
+to**. None of them writes „Transparenz".
+
+| Column | Line | Where the fact comes from |
+|---|---|---|
+| `Fixed price` | The configurator shows the price before you talk to us. What we agree is what you pay. | The live configurator and `pricing.build.note` already on the pricing page. |
+| `You hear back` | Every enquiry gets an answer within one working day. | **Confirmed by him on 2026-09-20.** This is the only new commitment on the page. |
+| `Care after launch` | From €35 a month: hosting, updates, support and small changes. | `pricing.build.careLine` and `pricing.care.note`. |
+
+| Fact | Status |
+|---|---|
+| `<7 Tage` delivery time | **CLOSED 2026-09-20: he will not commit to a delivery window.** Open since 28.07; do not put a delivery promise anywhere on the site. |
+| Reply within one working day | **CONFIRMED 2026-09-20.** Now published, so it has to hold. |
+
+`about.team.p2.v3` widened from „Austria and Germany" to „across Europe", his call.
+
+**Still open, flagged to him:** the eyebrow still says „What drives us" and the
+lead still reads „Good software does not just work. It simplifies processes, wins
+people over and grows with what a company needs." The columns under it are no
+longer values, so the label no longer describes them, and the second sentence is
+three abstractions in a row. Both are his own document's lines, locked 2026-07-28,
+so they do not get changed without him saying so.
 
 ## About, 2026-09-20 (fourth pass): the bios are a spec block, not prose
 
