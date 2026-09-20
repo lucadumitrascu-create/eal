@@ -4,6 +4,59 @@ Site-specific copy decisions. Read before writing any copy for this project; it 
 
 Source for the current round: „ANALYSE DER WEBSITE EAL" (Pages, de_AT) plus its Romanian translation/analysis (`Analiza_Website_EAL_RO.pdf`). The document is a copywriting proposal by the client, not a finished text.
 
+## Production, 2026-09-20: what is actually live, and how it got there
+
+`ealenterprises.com` had been serving the **pre-document copy since 5 September**.
+A friend deployed production from a branch that never carried the 27-28 July
+rewrite, so the hero read „We build software / that works.", the services title
+read „What we build", pricing read „Simple, honest pricing" and the plans were
+still Starter / Professional / Enterprise.
+
+Fixed on 2026-09-20. Live now: deployment `dpl_3ZMdDuim5Kj45y3ydt6zAHvn5U7Z`,
+commit `d7a683c` on `preview/pricing-no-eyebrow`. The deployment it replaced,
+`dpl_CSVhPSnqZLSRgSzwn8siVeASMfnU`, is the rollback candidate.
+
+### What went onto production, and what did not
+
+Production was NOT overwritten with the local branch. `preview/site-builder`
+diverges from it across 21 files in both directions and would have deleted the
+ANPC badge, the legal modal, the Business Lounge card, the reworked footer, the
+builder scripts and the API routes. So the branch was cut from the live commit
+and only three things were carried over:
+
+1. The About section as it stands after the seven passes above.
+2. Every non-about `about.*`-free translation value restored from `4acb580`,
+   the 28 July deployment where the client's document was applied: 19 keys per
+   language, 104 values. Verified key by key, 303 non-about keys per language
+   before and after with zero unintended changes.
+3. The hardcoded English fallbacks in `Hero`, `Services` and `Pricing`, so the
+   served HTML matches what the i18n script paints a moment later. Strings and
+   comments only; internal plan keys stay `starter` / `pro` / `enterprise`.
+
+The 96 keys production has and `4acb580` does not, which is the legal modal in
+six languages, were kept untouched.
+
+### How production is deployed on this project
+
+Worth writing down, because two obvious routes do not work:
+
+- A git push to the production branch makes a **preview**, not production.
+- `request_promote` returns **422** on a preview deployment; it only moves
+  between deployments that are already production.
+- What works: `create_deployment` with `{ name, project, deploymentId: <the
+  READY preview>, target: "production" }`. Same build, promoted, settings
+  inherited, custom domain attaches on READY, and nothing is uploaded from the
+  local tree, which is the trap `vercel --prod` still carries.
+
+### Closed and open
+
+| Item | State |
+|---|---|
+| `<7 Tage` delivery time | **Closed.** He was asked directly and will not commit to a window, so no delivery promise appears anywhere. |
+| Reply within one working day | **Confirmed and published** in `about.principle2.desc`, although nothing renders it at the moment. |
+| `10+ Internationale Kunden` | Gone from the page with the old About. Still unverified; do not put it back without a number he confirms. |
+| German hero at 390px | Fits with **6px** of room. If Outfit ever falls back, it wraps. |
+
 ## Scope
 
 | Decision | Date | Note |
@@ -55,7 +108,7 @@ Source for the current round: „ANALYSE DER WEBSITE EAL" (Pages, de_AT) plus it
 | Key | German | Decided |
 |---|---|---|
 | `hero.title1` | Ihr Arbeitsalltag, | 2026-07-27 |
-| `hero.title2` | einfacher gemacht. | 2026-07-27 |
+| `hero.title2` | ~~einfacher gemacht.~~ → **einfacher** | 2026-09-20, two changes on his call. The full stop is gone from `hero.title2` in ALL six languages, and German drops „gemacht" so its second line is an adjective like the other five („made simpler", „mai simplă", „simplifié", „más simple", „più semplice"). German was the only one carrying a verb there, which is exactly why it was the only one wrapping onto a third line. All six now render 1+1 lines at 1440. **At 390 German's first line measures 352px in a 358px box**, so it clears by six pixels and wraps if the font ever falls back. |
 | `services.web.desc` | Organisiertes, klares & strukturiertes Webdesign | 2026-07-28 — client's line from the document. The document's own declension was wrong (`Organisierte…` for neuter `das Webdesign`); corrected to `-es`. |
 | `services.ui.desc` | Interfaces, Design mit Klarheit und Funktionalität | 2026-07-28 — the document's line, taken as written |
 | `services.ecommerce.desc` | Online-Shops mit Performance für Kunden, sicher & unkompliziert bezahlen | 2026-07-28 — document's main line + payment option 1. Three fixes to the source: `Perfomance` typo, `Online Shops` → `Online-Shops`, and lowercase `sicher` because it continues the sentence after the comma. |
