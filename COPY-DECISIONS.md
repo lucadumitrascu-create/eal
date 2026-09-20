@@ -46,6 +46,7 @@ Source for the current round: „ANALYSE DER WEBSITE EAL" (Pages, de_AT) plus it
 | Key | Note |
 |---|---|
 | `hero.description` | `Hero.astro` renders only the H1 and two buttons. Left with its original wording, umlauts repaired. Do not write new copy into it without wiring it up first. |
+| `about.team.p1.role` / `p2.role` | Dead since 2026-09-20: the `FOUNDER` label was removed from the section. The keys are kept in all six languages so the label can come back in one line if he wants it. |
 
 ## Locked lines
 
@@ -89,6 +90,28 @@ Checked before applying, because the Romanian analysis flagged it as the riskies
 ## Layout parity is the requirement, not just translation
 
 Verified at 1440 and 390 in all six languages after translating: hero two lines on desktop, the four service cards the same line shape, plan taglines 2/2/2, overflow 0. **French needed a tightening to get there** - its Evolve tagline ran to three lines at fourteen words and now runs twelve. Translating without measuring would have shipped one language out of step with the other five and nobody would have noticed until a screenshot.
+
+## About, 2026-09-20 (third pass): two removals and a 66% cut
+
+Shown the rendered section, he cut three things:
+
+| Removed | Why |
+|---|---|
+| The ring inside the dark panel (`.drive-ring`) | The section already carries the ring once, at strength, behind the two portraits. A second instance on the panel made the motif wallpaper. |
+| The `FOUNDER` micro-label and its leading hairline | Same family as the trailing arrows and the 01/02/03 numbering he has rejected before: the rule carried no information, and the word was identical under both names, which the bios already say. |
+| 66% of the bio copy | „lucreaza la text sa nu mai fie ai". His 2026-08-31 rule again: the answer to „sounds AI" is a deletion and a word count. en 123 -> 42 words, de 108 -> 33, ro 124 -> 40, fr 133 -> 43, es 131 -> 43, it 126 -> 40. |
+
+The tells that were in the long version, each invisible on its own line: two
+„from X to Y" frames in one paragraph, a four-item comma list of trades used for
+rhythm rather than information, „so nothing gets handed to a team they have never
+met" (a positioning contrast, not an operational one), and a last sentence that
+restated the one before it.
+
+The bios now open on a verb, because the name is directly above them at 68px and
+repeating it was the third telling.
+
+Measured after: overflow 0 at 1440 and 390 in all six languages, bios 2-3 lines
+desktop and 3-4 mobile, mobile section 2429-2515px (from 2783-2927).
 
 ## About, 2026-09-20 (second pass): the design
 
