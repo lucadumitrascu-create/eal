@@ -90,6 +90,35 @@ Checked before applying, because the Romanian analysis flagged it as the riskies
 
 Verified at 1440 and 390 in all six languages after translating: hero two lines on desktop, the four service cards the same line shape, plan taglines 2/2/2, overflow 0. **French needed a tightening to get there** - its Evolve tagline ran to three lines at fourteen words and now runs twelve. Translating without measuring would have shipped one language out of step with the other five and nobody would have noticed until a screenshot.
 
+## About, 2026-09-20 (second pass): the design
+
+The copy above did not change. The section read as boring because of its SHAPE,
+and the diagnosis was measurable: row 2 was row 1 mirrored, each row left ~275px
+of empty column beside a bottom-floating text block, the largest type in the
+whole section was the 48px heading, everything sat in one centred 1024px column,
+and the brand ring appeared exactly once, at 9% opacity, hidden inside the dark
+panel.
+
+References read on 2026-09-20 before designing, per the CLAUDE.md rule that says
+harvest, do not compose: **brilean.com** (a dev studio, same category: a manifesto
+set at ~100px with words dimmed and lit, photos scattered at different sizes and
+offsets with the sentence crossing them, no cards) and **ondastudio.co** (giant
+type with micro labels pinned to the far margins).
+
+| Decision | Note |
+|---|---|
+| The section's own heading is now the smallest type in it | `about.title` renders as an 11px uppercase eyebrow at the left margin. The nav already says About; the NAMES carry the display size instead, at `clamp(2.2rem, 4.8vw, 4.25rem)` — 68px against a 17px bio. |
+| Not mirrored any more | First portrait large and broken out to the left, his text top-aligned beside it; second portrait smaller (80%), on the right, pulled up 7rem into the empty bottom the first row leaves. |
+| Only the PHOTO is pulled up, never the row | Pulling the whole second row up put its portrait on top of the first bio. Verified in all six languages that the two no longer intersect. |
+| The break-out is clamped | `--about-bleed: clamp(0rem, calc((100vw - 64rem) / 2 - 1.5rem), 6rem)` — it is whatever the viewport has spare, capped at 96px, floored at 0, so it can never overflow. |
+| The ring is the motif, at strength | The real brand asset at 0.32 opacity, 880px, spanning both of them, rotating once per 96s. It was a smudge at 0.22 and 128% wide because only one arc was in frame; the whole ring has to be visible or it does not read as the mark. |
+| Portraits wear the glass frame | The design system's cyan-tinted 1px border, inner top highlight (a pseudo, because the image would cover an inset shadow), tinted drop shadow and the diagonal sheen sweep on hover. |
+| The dark panel is full bleed | `margin-inline: calc(50% - 50vw)`, no radius, content re-centred on the same 1024px measure. The one dark moment on a pale page now touches both edges. |
+| The principle rail uses subgrid | The three descriptions start on the same line whether a title wraps or not. `min-height` was tried first and rejected: it costs 32px of dead space in the five languages where no title wraps. `@supports not` keeps it as the fallback. |
+
+Measured after: overflow 0 at 1440 and 390 in all six languages, section 1831-1905px
+desktop (from 2128), 2783-2927px mobile, principle descriptions aligned in all six.
+
 ## About, 2026-09-20: real people, real copy
 
 The band and the person cards are both gone. The section is now **one alternating row per
