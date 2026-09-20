@@ -46,6 +46,7 @@ Source for the current round: „ANALYSE DER WEBSITE EAL" (Pages, de_AT) plus it
 | Key | Note |
 |---|---|
 | `hero.description` | `Hero.astro` renders only the H1 and two buttons. Left with its original wording, umlauts repaired. Do not write new copy into it without wiring it up first. |
+| `about.drive.title` | Dead since the sixth pass: the panel eyebrow was removed. Kept in all six languages for now. |
 | ~~`about.team.p1.role` / `p2.role`~~ | Removed from all six languages in the fourth pass, along with `about.team.pX.bio`. Both are in git if the prose form is ever wanted back. |
 
 ## Locked lines
@@ -90,6 +91,28 @@ Checked before applying, because the Romanian analysis flagged it as the riskies
 ## Layout parity is the requirement, not just translation
 
 Verified at 1440 and 390 in all six languages after translating: hero two lines on desktop, the four service cards the same line shape, plan taglines 2/2/2, overflow 0. **French needed a tightening to get there** - its Evolve tagline ran to three lines at fourteen words and now runs twelve. Translating without measuring would have shipped one language out of step with the other five and nobody would have noticed until a screenshot.
+
+## About, 2026-09-20 (sixth pass): a title, a story, and no eyebrow
+
+| Change | Why |
+|---|---|
+| „About us" is the centred 48px heading again | „este ft mic si nu e pe mijloc ca celalalte subtitluri". The 11px left-margin eyebrow was deliberate, to let the founder names carry the display size, but next to every other section on the page it read as a section missing its title. |
+| The panel's „What drives us" eyebrow is gone | „text mic, mare iar mic, ce titlu e ala". Small, big, small in one stack reads as no title at all. `about.drive.title` is now dead in all six languages. |
+| `about.drive.text` is the origin story | It held „It simplifies processes, wins people over and grows with what a company needs", three abstractions in a row. |
+
+**The three facts the story is built from, and they are all he gave:** EAL
+started in **2025**; the first job was **one site for someone they knew**; the
+goal is a **bigger team so they can take bigger projects**. Nothing else about
+either of them is invented. The client list is NOT repeated here, because it
+already lives in Luca's `Clients:` row.
+
+52 words in English, 45-50 in the others. Renders 3-4 lines desktop, 6-8 mobile.
+
+**Flagged, not changed:** the heading above the story is still his document's
+„Good software does not just work." Its completing sentence is what the story
+replaced, so the claim now dangles: a negative statement followed by an origin
+story that does not answer it. A heading that leads into the story would work
+better („We started with one site." or similar), but that line is his.
 
 ## About, 2026-09-20 (fifth pass): the dark panel carries commitments now
 
