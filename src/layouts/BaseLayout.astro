@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import Footer from '../components/Footer.astro';
+import ogImageAsset from '../data/og-image.json';
 
 interface Props {
   title: string;
@@ -11,7 +12,7 @@ interface Props {
 const {
   title,
   description = 'EAL ENTERPRISES — Web development & custom software for startups and businesses. Fast execution, clean code, concrete results.',
-  ogImage = '/og-image.png',
+  ogImage = ogImageAsset.src,
 } = Astro.props;
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -22,7 +23,7 @@ const jsonLd = {
   name: 'EAL ENTERPRISES S.R.L.',
   alternateName: 'EAL ENTERPRISES',
   url: Astro.site?.toString() || 'https://ealenterprises.com',
-  logo: new URL('/favicon.svg', Astro.site).toString(),
+  logo: new URL('/icon-512.png', Astro.site).toString(),
   description: 'Web development & custom software for startups and businesses. Fast execution, clean code, concrete results.',
   email: 'contact@ealenterprises.com',
   telephone: '+4367764371363',
@@ -69,6 +70,10 @@ const jsonLd = {
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:image" content={new URL(ogImage, Astro.site)} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="EAL Enterprises — We build software that works." />
     <meta property="og:locale" content="en_US" />
     <meta property="og:site_name" content="EAL ENTERPRISES" />
 
@@ -77,10 +82,16 @@ const jsonLd = {
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={new URL(ogImage, Astro.site)} />
+    <meta name="twitter:image:alt" content="EAL Enterprises — We build software that works." />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <!-- Favicon — the hero's glass ring, rendered per size (scripts/gen-icons.mjs).
+         New filenames on purpose: Safari caches favicons by URL, not by content. -->
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32-v2.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48-v2.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/mask-icon.svg" color="#0E7490" />
+    <link rel="manifest" href="/site.webmanifest" />
 
     <!-- Google Fonts: Outfit (headings) + DM Sans (body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
