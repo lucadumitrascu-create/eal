@@ -18,7 +18,7 @@
     "description": "Fashion price tracker",
     "tech": [
       "Next.js",
-      "Supabase"
+      "Tailwind CSS"
     ],
     "url": "https://www.kledra.com",
     "image": "/images/projects/kledra.webp",
@@ -67,7 +67,7 @@
     "description": "Business event in Vienna",
     "tech": [
       "Next.js",
-      "Supabase"
+      "Tailwind CSS"
     ],
     "url": "https://business-lounge-the-talk-more.at",
     "image": "/images/projects/business-lounge.webp",
