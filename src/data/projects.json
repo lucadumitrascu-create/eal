@@ -13,6 +13,18 @@
     "featured": true
   },
   {
+    "id": "kledra",
+    "title": "Kledra",
+    "description": "Fashion price tracker",
+    "tech": [
+      "Next.js",
+      "Supabase"
+    ],
+    "url": "https://www.kledra.com",
+    "image": "/images/projects/kledra.webp",
+    "featured": true
+  },
+  {
     "id": "georgio-portfolio",
     "title": "Georgio Portfolio",
     "description": "Portfolio",

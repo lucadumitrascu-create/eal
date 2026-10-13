@@ -69,9 +69,17 @@ const c = {
   'pricing.build.careLine': '+ from €35 / month care & hosting',
   'pricing.build.note': 'Estimate. We confirm your fixed price when we talk.',
   'pricing.build.cta': 'Get a fixed quote',
+  'pricing.build.payLabel': 'Payment',
+  'pricing.build.payFull': 'Pay in full',
+  'pricing.build.payInstallments': 'installments',
   'pricing.care.label': 'Care & maintenance',
   'pricing.care.period': '/ month',
   'pricing.care.note': 'hosting, updates, support, small changes',
+  // Installments (Rate) — paid monthly straight to us, no bank, no interest
+  'pricing.rate.or': 'or',
+  'pricing.rate.month': '/ month',
+  'pricing.rate.interestFree': 'interest-free',
+  'pricing.rate.pill': 'Pay in 3 or 6 monthly installments, interest-free',
 } as const;
 
 type PlanKey = 'starter' | 'pro' | 'enterprise';
@@ -79,6 +87,7 @@ type PlanKey = 'starter' | 'pro' | 'enterprise';
 const plans: {
   key: PlanKey;
   price: string;
+  num: number;
   prefixKey?: string;
   periodKey: string;
   highlighted: boolean;
@@ -87,6 +96,7 @@ const plans: {
   {
     key: 'starter',
     price: '€590',
+    num: 590,
     periodKey: 'pricing.oneTime',
     highlighted: false,
     features: ['pricing.starter.f1', 'pricing.starter.f2', 'pricing.starter.f3', 'pricing.starter.f4'],
@@ -94,6 +104,7 @@ const plans: {
   {
     key: 'pro',
     price: '€1.190',
+    num: 1190,
     periodKey: 'pricing.oneTime',
     highlighted: true,
     features: [
@@ -108,6 +119,7 @@ const plans: {
   {
     key: 'enterprise',
     price: '€2.590',
+    num: 2590,
     prefixKey: 'pricing.enterprise.pricePrefix',
     periodKey: 'pricing.enterprise.period',
     highlighted: false,
@@ -168,6 +180,13 @@ const baseIncludes: Record<string, string[]> = {
 };
 const defaultBaseKey = 'pro';
 const defaultIncludes = baseIncludes[defaultBaseKey];
+
+// Installment plans offered (number of equal monthly payments, 0% interest).
+// The plan cards quote the shortest one; the configurator lets you pick.
+// Monthly amounts round UP to whole euros.
+const installmentOptions = [3, 6];
+const cardInstallments = installmentOptions[0];
+const monthly = (num: number, n: number) => '€' + Math.ceil(num / n).toLocaleString('de-DE');
 
 const cx = (key: string) => c[key as keyof typeof c] ?? '';
 const baseLabelKey = (k: string) => (k === 'alacarte' ? 'pricing.build.alacarte' : `pricing.${k}.name`);
@@ -244,6 +263,14 @@ const baseLabelKey = (k: string) => (k === 'alacarte' ? 'pricing.build.alacarte'
                 {cx(plan.periodKey)}
               </span>
             </div>
+
+            <!-- Installments — same one-liner on every card so the rows stay aligned -->
+            <p class="plan-rate mt-2 text-sm text-[var(--color-text-muted)] tabular-nums">
+              <span data-i18n="pricing.rate.or">{cx('pricing.rate.or')}</span>
+              {plan.prefixKey && <span data-i18n={plan.prefixKey}>{cx(plan.prefixKey)}</span>}
+              <span class="font-semibold text-[var(--color-accent)]">{cardInstallments} × {monthly(plan.num, cardInstallments)}</span>
+              <span data-i18n="pricing.rate.month">{cx('pricing.rate.month')}</span>
+            </p>
 
             <!-- Positioning line — min-height keeps the dividers aligned across cards -->
             <p class="mt-3 text-[0.95rem] leading-relaxed text-[var(--color-text-muted)] md:min-h-[3rem]" data-i18n={`pricing.${plan.key}.tagline`}>
@@ -361,6 +388,21 @@ const baseLabelKey = (k: string) => (k === 'alacarte' ? 'pricing.build.alacarte'
                 })}
               </div>
             </div>
+
+            <!-- Payment: in full or in monthly installments -->
+            <div class="mt-6 sm:mt-7">
+              <span class="cfg-group-label" data-i18n="pricing.build.payLabel">Payment</span>
+              <div class="cfg-bases" role="group" aria-label="Payment">
+                <button type="button" class="cfg-base" data-pay="1" aria-pressed="true">
+                  <span class="cfg-base-name" data-i18n="pricing.build.payFull">{cx('pricing.build.payFull')}</span>
+                </button>
+                {installmentOptions.map((n) => (
+                  <button type="button" class="cfg-base" data-pay={String(n)} aria-pressed="false">
+                    <span class="cfg-base-name">{n} <span data-i18n="pricing.build.payInstallments">{cx('pricing.build.payInstallments')}</span></span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           <!-- Live summary — sticky glass, running total -->
@@ -375,8 +417,16 @@ const baseLabelKey = (k: string) => (k === 'alacarte' ? 'pricing.build.alacarte'
               <div id="eal-body" class="cfg-total-wrap">
                 <div class="cfg-total-line">
                   <span id="eal-total" class="cfg-total tabular-nums">€1.190</span>
-                  <span class="cfg-total-period" data-i18n="pricing.oneTime">one-time</span>
+                  <span id="eal-period-once" class="cfg-total-period" data-i18n="pricing.oneTime">one-time</span>
+                  <span id="eal-period-month" class="cfg-total-period" hidden data-i18n="pricing.rate.month">/ month</span>
                 </div>
+                <p id="eal-rate-line" class="cfg-rate tabular-nums" hidden>
+                  <span id="eal-rate-n">3</span> <span data-i18n="pricing.build.payInstallments">installments</span>
+                  <span aria-hidden="true">·</span>
+                  <span data-i18n="pricing.build.totalLabel">Total</span> <span id="eal-rate-total">€1.190</span>
+                  <span aria-hidden="true">·</span>
+                  <span data-i18n="pricing.rate.interestFree">interest-free</span>
+                </p>
                 <p class="cfg-care" data-i18n="pricing.build.careLine">+ from €35 / month care &amp; hosting</p>
               </div>
 
@@ -415,6 +465,13 @@ const baseLabelKey = (k: string) => (k === 'alacarte' ? 'pricing.build.alacarte'
         <span class="text-[var(--color-text-muted)]" data-i18n="pricing.care.period">/ month</span>
         <span class="text-[var(--color-text-muted)] opacity-40" aria-hidden="true">·</span>
         <span class="text-[var(--color-text-muted)]" data-i18n="pricing.care.note">hosting, updates, support, small changes</span>
+      </div>
+
+      <div class="inline-flex max-w-full items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-neutral)] backdrop-blur-xl px-5 py-2.5 text-sm" data-animate="fade-up" data-stagger-delay="2">
+        <svg class="h-4 w-4 flex-shrink-0 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+        </svg>
+        <span class="font-medium text-[var(--color-text)]" data-i18n="pricing.rate.pill">Pay in 3 or 6 monthly installments, interest-free</span>
       </div>
     </div>
   </div>
@@ -805,6 +862,15 @@ const baseLabelKey = (k: string) => (k === 'alacarte' ? 'pricing.build.alacarte'
     font-weight: 500;
     color: var(--color-text-muted);
   }
+  .cfg-rate {
+    margin: 0.45rem 0 0;
+    font-size: 0.8rem;
+    font-weight: 500;
+    line-height: 1.45;
+    color: var(--color-text-muted);
+  }
+  .cfg-rate[hidden] { display: none; }
+  .cfg-total-period[hidden] { display: none; }
   .cfg-empty {
     margin: 0.9rem 0 0;
     font-size: 0.88rem;
@@ -859,6 +925,12 @@ const baseLabelKey = (k: string) => (k === 'alacarte' ? 'pricing.build.alacarte'
     if (!root) return;
 
     const baseButtons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-base]'));
+    const payButtons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-pay]'));
+    const periodOnceEl = root.querySelector<HTMLElement>('#eal-period-once');
+    const periodMonthEl = root.querySelector<HTMLElement>('#eal-period-month');
+    const rateLineEl = root.querySelector<HTMLElement>('#eal-rate-line');
+    const rateNEl = root.querySelector<HTMLElement>('#eal-rate-n');
+    const rateTotalEl = root.querySelector<HTMLElement>('#eal-rate-total');
     const moduleButtons = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-module]'));
     const chipsEl = root.querySelector<HTMLElement>('#eal-chips');
     const bodyEl = root.querySelector<HTMLElement>('#eal-body');
@@ -930,7 +1002,19 @@ const baseLabelKey = (k: string) => (k === 'alacarte' ? 'pricing.build.alacarte'
       const prefixTxt = (prefixEl?.textContent || 'from').trim();
       const totalTxt = (from ? prefixTxt + ' ' : '') + '€' + fmt(sum);
 
-      totalEl!.textContent = totalTxt;
+      // Installments: the big number becomes the monthly payment (rounded up),
+      // the full total moves to the line underneath.
+      const activePay = payButtons.find((b) => b.getAttribute('aria-pressed') === 'true');
+      const n = Number(activePay?.dataset.pay || '1');
+      const inRates = n > 1;
+      const shownTxt = inRates ? (from ? prefixTxt + ' ' : '') + '€' + fmt(Math.ceil(sum / n)) : totalTxt;
+
+      totalEl!.textContent = shownTxt;
+      if (periodOnceEl) periodOnceEl.hidden = inRates;
+      if (periodMonthEl) periodMonthEl.hidden = !inRates;
+      if (rateLineEl) rateLineEl.hidden = !inRates;
+      if (rateNEl) rateNEl.textContent = String(n);
+      if (rateTotalEl) rateTotalEl.textContent = totalTxt;
       bodyEl!.hidden = isEmpty;
       emptyEl!.hidden = !isEmpty;
 
@@ -938,7 +1022,7 @@ const baseLabelKey = (k: string) => (k === 'alacarte' ? 'pricing.build.alacarte'
         const label = (totalLabelEl?.textContent || 'Total').trim();
         liveEl.textContent = isEmpty
           ? (emptyEl!.textContent || '').trim()
-          : label + ': ' + totalTxt;
+          : label + ': ' + totalTxt + (inRates ? ' (' + n + ' × ' + shownTxt + ')' : '');
       }
     }
 
@@ -947,6 +1031,14 @@ const baseLabelKey = (k: string) => (k === 'alacarte' ? 'pricing.build.alacarte'
       btn.addEventListener('click', () => {
         baseButtons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
         applyIncludes();
+        render();
+      });
+    });
+
+    // Payment = single-select: in full or N monthly installments.
+    payButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        payButtons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
         render();
       });
     });
