@@ -262,18 +262,17 @@ const people = [
       padding-top: 2.5rem;
     }
 
-    /* The second one is smaller and on the other side, and only his PHOTO is
-       pulled up, into the empty bottom the first row just left. Pulling the
-       whole row up instead put the photo on top of the first bio. */
+    /* The second one mirrors the first on the other side, same portrait size,
+       and only his PHOTO is pulled up, into the empty bottom the first row
+       just left. Pulling the whole row up instead put the photo on top of the
+       first bio. */
     .person--2 {
       grid-template-columns: 1.14fr 0.86fr;
       margin-right: calc(var(--about-bleed) * -1);
     }
     .person--2 .person-photo {
       order: 2;
-      width: 80%;
       margin-top: -7rem;
-      margin-left: auto;
     }
     .person--2 .person-text { order: 1; }
     .person + .person { margin-top: 2rem; }
