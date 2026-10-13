@@ -330,10 +330,10 @@
     "about.team.p1.v3": "transport, electrician, timber construction, gastronomy",
     "about.team.p2.k1": "Builds",
     "about.team.p2.v1": "websites, online shops, dashboards, integrations",
-    "about.team.p2.k2": "After launch",
-    "about.team.p2.v2": "updates, fixes, monitoring, new features",
-    "about.team.p2.k3": "Markets",
-    "about.team.p2.v3": "small businesses across Europe"
+    "about.team.p2.k2": "Administration",
+    "about.team.p2.v2": "company, contracts, invoicing, finance",
+    "about.team.p2.k3": "Web3",
+    "about.team.p2.v3": "blockchain solutions, crypto integrations, DeFi apps"
   },
   "ro": {
     "hero.title1": "Munca ta zilnică,",
@@ -666,10 +666,10 @@
     "about.team.p1.v3": "transport, electrician, construcții din lemn, gastronomie",
     "about.team.p2.k1": "Construiește",
     "about.team.p2.v1": "site-uri, magazine online, dashboarduri, integrări",
-    "about.team.p2.k2": "După lansare",
-    "about.team.p2.v2": "actualizări, reparații, monitorizare, funcționalități noi",
-    "about.team.p2.k3": "Piețe",
-    "about.team.p2.v3": "firme mici din toată Europa"
+    "about.team.p2.k2": "Administrare",
+    "about.team.p2.v2": "firmă, contracte, facturare, finanțe",
+    "about.team.p2.k3": "Web3",
+    "about.team.p2.v3": "soluții blockchain, integrări crypto, aplicații DeFi"
   },
   "de": {
     "hero.title1": "Ihr Arbeitsalltag,",
@@ -1002,10 +1002,10 @@
     "about.team.p1.v3": "Transport, Elektrik, Holzbau, Gastronomie",
     "about.team.p2.k1": "Baut",
     "about.team.p2.v1": "Websites, Online-Shops, Dashboards, Integrationen",
-    "about.team.p2.k2": "Nach dem Launch",
-    "about.team.p2.v2": "Updates, Fehlerbehebung, Monitoring, neue Funktionen",
-    "about.team.p2.k3": "Märkte",
-    "about.team.p2.v3": "kleine Unternehmen in ganz Europa"
+    "about.team.p2.k2": "Verwaltung",
+    "about.team.p2.v2": "Unternehmen, Verträge, Rechnungen, Finanzen",
+    "about.team.p2.k3": "Web3",
+    "about.team.p2.v3": "Blockchain-Lösungen, Krypto-Integrationen, DeFi-Apps"
   },
   "fr": {
     "hero.title1": "Votre quotidien,",
@@ -1338,10 +1338,10 @@
     "about.team.p1.v3": "transport, électricité, construction bois, restauration",
     "about.team.p2.k1": "Construit",
     "about.team.p2.v1": "sites, boutiques en ligne, tableaux de bord, intégrations",
-    "about.team.p2.k2": "Après la mise en ligne",
-    "about.team.p2.v2": "mises à jour, corrections, surveillance, nouvelles fonctionnalités",
-    "about.team.p2.k3": "Marchés",
-    "about.team.p2.v3": "petites entreprises partout en Europe"
+    "about.team.p2.k2": "Administration",
+    "about.team.p2.v2": "entreprise, contrats, facturation, finances",
+    "about.team.p2.k3": "Web3",
+    "about.team.p2.v3": "solutions blockchain, intégrations crypto, applications DeFi"
   },
   "es": {
     "hero.title1": "Tu día a día,",
@@ -1674,10 +1674,10 @@
     "about.team.p1.v3": "transporte, electricidad, construcción en madera, hostelería",
     "about.team.p2.k1": "Construye",
     "about.team.p2.v1": "sitios, tiendas online, paneles, integraciones",
-    "about.team.p2.k2": "Tras el lanzamiento",
-    "about.team.p2.v2": "actualizaciones, correcciones, monitorización, nuevas funciones",
-    "about.team.p2.k3": "Mercados",
-    "about.team.p2.v3": "pequeñas empresas de toda Europa"
+    "about.team.p2.k2": "Administración",
+    "about.team.p2.v2": "empresa, contratos, facturación, finanzas",
+    "about.team.p2.k3": "Web3",
+    "about.team.p2.v3": "soluciones blockchain, integraciones cripto, aplicaciones DeFi"
   },
   "it": {
     "hero.title1": "Il tuo lavoro,",
@@ -2010,9 +2010,9 @@
     "about.team.p1.v3": "trasporti, impianti elettrici, costruzioni in legno, ristorazione",
     "about.team.p2.k1": "Costruisce",
     "about.team.p2.v1": "siti, negozi online, dashboard, integrazioni",
-    "about.team.p2.k2": "Dopo il lancio",
-    "about.team.p2.v2": "aggiornamenti, correzioni, monitoraggio, nuove funzionalità",
-    "about.team.p2.k3": "Mercati",
-    "about.team.p2.v3": "piccole imprese in tutta Europa"
+    "about.team.p2.k2": "Amministrazione",
+    "about.team.p2.v2": "azienda, contratti, fatturazione, finanze",
+    "about.team.p2.k3": "Web3",
+    "about.team.p2.v3": "soluzioni blockchain, integrazioni crypto, app DeFi"
   }
 }
